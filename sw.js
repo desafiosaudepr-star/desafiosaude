@@ -627,6 +627,19 @@
   .barra-publica button.principal { background: var(--cor-principal); border-color: var(--cor-principal); color: #fff; }
   body.tema-escuro .barra-publica button { color: #7FD6E2; }
   body.com-barra-publica .tela { padding-bottom: 120px; }
+
+  .faixa-atualizar {
+    position: fixed; left: 12px; right: 12px; bottom: calc(74px + env(safe-area-inset-bottom));
+    z-index: 60; display: flex; align-items: center; gap: 10px;
+    background: var(--cor-principal); color: #fff; border-radius: 14px;
+    padding: 11px 14px; box-shadow: 0 10px 26px -8px rgba(26,48,56,0.45);
+    font-family: 'Open Sans'; font-size: 0.86rem;
+  }
+  .faixa-atualizar span { flex: 1; }
+  .faixa-atualizar button {
+    background: #fff; color: var(--cor-principal); border: none; border-radius: 10px;
+    padding: 7px 14px; font-family: 'Poppins'; font-weight: 700; font-size: 0.8rem; cursor: pointer;
+  }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -965,6 +978,10 @@
       <div id="instPassos"></div>
       <div class="aviso" id="avisoInstalar"></div>
       <p class="nota">Instalado, o app abre em tela cheia, com ícone próprio, e as notificações passam a funcionar também no iPhone.</p>
+      <hr style="border:none;border-top:1px solid var(--borda-card);margin:14px 0">
+      <h4 style="margin:0 0 4px;font-size:0.95rem;color:var(--cor-principal)">Versão instalada</h4>
+      <p class="nota" style="margin-top:0">Você está usando a versão <b><span id="verAppInstalar"></span></b>. Se uma atualização não aparecer sozinha, use o botão abaixo.</p>
+      <button class="botao secundario" id="btnForcarAtualizacao">Buscar atualização agora</button>
     </div>
   </div>
   <div class="aba-painel" id="painelSenha">
@@ -2843,6 +2860,47 @@ function skelHtml(n, alt) {
 
 
 
+
+/* ---------------- atualizacao do app ---------------- */
+let registroSW = null;
+let recarregandoParaAtualizar = false;
+
+function mostraAvisoAtualizacao() {
+  if ($("faixaAtualizar")) { $("faixaAtualizar").style.display = "flex"; return; }
+  const d = document.createElement("div");
+  d.id = "faixaAtualizar";
+  d.className = "faixa-atualizar";
+  d.innerHTML = '<span>Nova versão disponível.</span><button type="button" id="btnAplicarAtualizacao">Atualizar</button>';
+  document.body.appendChild(d);
+  $("btnAplicarAtualizacao").addEventListener("click", aplicaAtualizacao);
+}
+
+function aplicaAtualizacao() {
+  const esperando = registroSW && (registroSW.waiting || registroSW.installing);
+  if (esperando) {
+    esperando.postMessage("ATUALIZAR_AGORA");
+    setTimeout(() => { if (!recarregandoParaAtualizar) location.reload(); }, 1200);
+  } else {
+    location.reload();
+  }
+}
+
+// Botao manual: limpa o cache do app e recarrega, para casos teimosos
+async function forcarAtualizacao(botao) {
+  if (botao) { botao.disabled = true; botao.textContent = "Atualizando..."; }
+  try {
+    if (registroSW) { await registroSW.update().catch(() => {}); }
+    if (window.caches) {
+      const chaves = await caches.keys();
+      await Promise.all(chaves.map(k => caches.delete(k)));
+    }
+    const w = registroSW && registroSW.waiting;
+    if (w) w.postMessage("ATUALIZAR_AGORA");
+  } catch {}
+  recarregandoParaAtualizar = true;
+  location.reload(true);
+}
+
 /* ---------------- instalar o app (aba de Configuracoes) ---------------- */
 let promptInstalacao = null;
 window.addEventListener("beforeinstallprompt", (ev) => {
@@ -2956,11 +3014,12 @@ function trocaAbaConfig(qual) {
     $(b).classList.toggle("ativo", k === qual);
     $(p).classList.toggle("ativo", k === qual);
   });
-  if (qual === "instalar") estadoInstalacao();
+  if (qual === "instalar") { estadoInstalacao(); $("verAppInstalar").textContent = APP_VERSAO; }
 }
 $("abaLembretes").addEventListener("click", () => { trocaAbaConfig("lembretes"); montaDiasNovoLembrete(); estadoPush(); listaLembretes(); });
 $("abaSenha").addEventListener("click", () => { limpaAviso("avisoSenha"); trocaAbaConfig("senha"); });
 $("abaInstalar").addEventListener("click", () => trocaAbaConfig("instalar"));
+$("btnForcarAtualizacao").addEventListener("click", (ev) => forcarAtualizacao(ev.target));
 $("btnConfig").addEventListener("click", () => abrirConfig("lembretes"));
 
 /* Botao voltar do Android navega dentro do app, sem fechar */
@@ -3058,7 +3117,34 @@ $("drawer").addEventListener("click", ev => {
 
 /* ---------------- inicio ---------------- */
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  window.addEventListener("load", () => {
+    // updateViaCache "none": o navegador nunca serve o sw.js a partir do cache,
+    // entao uma versao nova e percebida logo na primeira abertura com internet.
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((reg) => {
+      registroSW = reg;
+      reg.update().catch(() => {});
+      // confere se ha versao nova ao voltar para o app
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) reg.update().catch(() => {});
+      });
+      setInterval(() => reg.update().catch(() => {}), 30 * 60 * 1000);
+      reg.addEventListener("updatefound", () => {
+        const novo = reg.installing;
+        if (!novo) return;
+        novo.addEventListener("statechange", () => {
+          if (novo.state === "installed" && navigator.serviceWorker.controller) {
+            mostraAvisoAtualizacao();
+          }
+        });
+      });
+    }).catch(() => {});
+    // quando a versao nova assume o controle, recarrega uma unica vez
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (recarregandoParaAtualizar) return;
+      recarregandoParaAtualizar = true;
+      location.reload();
+    });
+  });
 }
 (async () => {
   if (SUPABASE_URL.startsWith("COLE_AQUI")) {
