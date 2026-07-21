@@ -640,6 +640,12 @@
     background: #fff; color: var(--cor-principal); border: none; border-radius: 10px;
     padding: 7px 14px; font-family: 'Poppins'; font-weight: 700; font-size: 0.8rem; cursor: pointer;
   }
+
+  /* graficos: altura fixa e respiro interno */
+  .grafico-caixa { height: 252px; padding: 14px 12px 10px; position: relative; }
+  .grafico-caixa canvas { width: 100% !important; height: 100% !important; display: block; }
+  #graficoMedidas { min-height: 200px; }
+  @media (max-width: 380px) { .grafico-caixa { height: 232px; } }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -1147,6 +1153,7 @@ function mostraTela(id) {
   const tab = TAB_POR_TELA[id];
   if (tab && comTab) $(tab).classList.add("ativo");
   window.scrollTo(0, 0);
+  telaAtual = id;
   if (typeof registraHistorico === "function") registraHistorico(id);
 }
 function aviso(id, tipo, txt) {
@@ -1368,7 +1375,7 @@ function atualizaSaldo() {
   let saldo = 0;
   tarefas.forEach(t => { if (marc.has(t.id)) saldo += t.valor_ponto; });
   $("saldoNum").textContent = (saldo > 0 ? "+" : "") + saldo;
-  $("saldoNum").style.color = saldo >= 0 ? "var(--verde-escuro)" : "var(--erro)";
+  $("saldoNum").style.color = saldo >= 0 ? PAL.principal : "var(--erro)";
   const positivas = tarefas.filter(t => t.valor_ponto === 1).length;
   if (saldo === positivas && positivas > 0) soltaConfete();
 }
@@ -1432,8 +1439,60 @@ $("btnVoltarSenha").addEventListener("click", () => mostraTela("telaMeuDia"));
 
 
 /* ================= FASE 3 ================= */
-const EU_COR = "var(--verde-escuro)";
-const CORES_LINHAS = ["var(--azul-acao)", "var(--laranja)", "var(--verde-rotina)", "var(--menta)", "#9b8cf0", "#e58fb1", "#8fb7e5"];
+const EU_COR = PAL.principal;
+/* Paleta em JavaScript. A biblioteca de graficos desenha em canvas e nao
+   entende variaveis de CSS, entao aqui os codigos precisam ser literais. */
+const PAL = {
+  principal: "#007B8E", saude: "#D72C7C", verde: "#8BC34A",
+  laranja: "#FF9800", azul: "#00BCD4",
+  grade: "rgba(26,48,56,0.10)", grafite: "#607D8B", neutro: "rgba(96,125,139,0.35)"
+};
+// cor de cada participante: primeiro as da identidade, depois tons derivados
+const CORES_LINHAS = [PAL.azul, PAL.laranja, PAL.verde, PAL.saude, "#6A4C93", "#00897B", "#F06292", "#7986CB"];
+
+
+function corTexto() {
+  return document.body.classList.contains("tema-escuro") ? "#9FC0C7" : PAL.grafite;
+}
+function corGrade() {
+  return document.body.classList.contains("tema-escuro") ? "rgba(255,255,255,0.09)" : PAL.grade;
+}
+// Opcoes comuns: poucos rotulos, sem rotacao, grade so na horizontal
+function opcoesBase(extras) {
+  const base = {
+    animation: false,
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: "index", intersect: false },
+    layout: { padding: { top: 4, right: 6, bottom: 0, left: 0 } },
+    plugins: {
+      legend: {
+        position: "top", align: "start",
+        labels: { usePointStyle: true, pointStyle: "circle", boxWidth: 7, boxHeight: 7,
+                  padding: 12, color: corTexto(), font: { size: 11, family: "Open Sans" } }
+      },
+      tooltip: {
+        backgroundColor: "rgba(26,48,56,0.94)", padding: 10, cornerRadius: 10,
+        titleFont: { family: "Poppins", size: 12 }, bodyFont: { family: "Open Sans", size: 12 },
+        displayColors: true, usePointStyle: true
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false, drawBorder: false },
+        ticks: { color: corTexto(), font: { size: 10, family: "Open Sans" },
+                 maxRotation: 0, minRotation: 0, autoSkip: true, maxTicksLimit: 5 }
+      },
+      y: {
+        border: { display: false },
+        grid: { color: corGrade(), drawTicks: false },
+        ticks: { color: corTexto(), font: { size: 10, family: "Open Sans" },
+                 precision: 0, maxTicksLimit: 4, padding: 8 }
+      }
+    }
+  };
+  return Object.assign(base, extras || {});
+}
 let graficoEvo = null, graficoVs = null, modoVs = "pontos";
 let cacheSaldos = null, cacheRanking = null;
 let timerTurma = null, ultimaMsgMural = 0;
@@ -1604,19 +1663,24 @@ function desenhaEvolucao(uid) {
   const datasets = exibir.map((u, idx) => {
     const p = cacheRanking.find(r => r.user_id === u);
     const nome = u === uid ? "Você" : ((p && (p.apelido || p.nome)) || "Participante");
-    // micro-deslocamento para separar linhas empatadas (padrao do app Bolao SSGP)
-    const dados = series[u].map(v => v + idx * 0.04);
+    const sou = u === uid;
+    const cor = sou ? EU_COR : CORES_LINHAS[idx % CORES_LINHAS.length];
     return {
-      label: nome, data: dados,
-      borderColor: u === uid ? EU_COR : CORES_LINHAS[idx % CORES_LINHAS.length],
-      borderWidth: u === uid ? 3 : 2, pointRadius: 0, tension: 0.25
+      label: nome,
+      data: series[u].map(v => v + idx * 0.03),   // separa linhas empatadas
+      borderColor: cor,
+      backgroundColor: sou ? "rgba(0,123,142,0.12)" : "transparent",
+      fill: sou,
+      borderWidth: sou ? 3.2 : 2,
+      pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: cor,
+      tension: 0.35, order: sou ? 0 : 1
     };
   });
   if (graficoEvo) graficoEvo.destroy();
   graficoEvo = new Chart($("graficoEvolucao"), {
     type: "line",
     data: { labels: dias.map(fmtDia), datasets },
-    options: { animation: false, responsive: true, plugins: { legend: { position: "top", labels: { boxWidth: 12, font: { size: 10 } } } }, scales: { x: { grid: { display: false } }, y: { ticks: { precision: 0 } } } }
+    options: opcoesBase()
   });
 }
 
@@ -1645,23 +1709,26 @@ async function desenhaMedidas() {
       label: nome,
       data: dados.map(m => m[campo] != null ? Number(m[campo]) : null),
       borderColor: cor, backgroundColor: cor,
-      borderWidth: 2.5, pointRadius: 2, tension: 0.25, spanGaps: true,
+      borderWidth: 2.8, pointRadius: 3, pointHoverRadius: 5, tension: 0.35, spanGaps: true,
       hidden: dados.every(m => m[campo] == null)
     });
     const datasets = [
-      serie("peso_kg", "Peso (kg)", "var(--verde-escuro)"),
-      serie("gordura_pct", "Gordura (%)", "var(--laranja)"),
-      serie("massa_magra_kg", "Massa magra (kg)", "var(--azul-acao)")
+      serie("peso_kg", "Peso (kg)", PAL.principal),
+      serie("gordura_pct", "Gordura (%)", PAL.laranja),
+      serie("massa_magra_kg", "Massa magra (kg)", PAL.azul)
     ].filter(d => !d.hidden);
     if (graficoMed) graficoMed.destroy();
     graficoMed = new Chart($("graficoMedidas"), {
       type: "line",
       data: { labels: rotulos, datasets },
-      options: {
-        animation: false, responsive: true,
-        plugins: { legend: { position: "top", labels: { boxWidth: 12, font: { size: 10 } } } },
-        scales: { x: { grid: { display: false } } }
-      }
+      options: opcoesBase({
+        scales: {
+          x: { grid: { display: false }, ticks: { color: corTexto(), font: { size: 10, family: "Open Sans" },
+               maxRotation: 0, autoSkip: true, maxTicksLimit: 4 } },
+          y: { border: { display: false }, grid: { color: corGrade(), drawTicks: false },
+               ticks: { color: corTexto(), font: { size: 10 }, maxTicksLimit: 4, padding: 8 } }
+        }
+      })
     });
   } catch { /* medidas sao privadas e opcionais: falha silenciosa */ }
 }
@@ -1689,19 +1756,27 @@ function desenhaPosicaoDia(uid) {
       datasets: [{
         label: "Sua posição",
         data: posicoes,
-        borderColor: EU_COR,
-        backgroundColor: "rgba(0,123,142,0.12)",
-        borderWidth: 3, pointRadius: 2, tension: 0.25, fill: true, spanGaps: true
+        borderColor: PAL.saude,
+        backgroundColor: "rgba(215,44,124,0.10)",
+        borderWidth: 3, stepped: "middle", fill: true,
+        pointRadius: 0, pointHoverRadius: 5, pointBackgroundColor: PAL.saude, spanGaps: true
       }]
     },
-    options: {
-      animation: false, responsive: true,
-      plugins: { legend: { position: "top", labels: { boxWidth: 12, font: { size: 10 } } } },
+    options: opcoesBase({
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: "rgba(26,48,56,0.94)", padding: 10, cornerRadius: 10,
+          callbacks: { label: (c) => c.parsed.y ? c.parsed.y + "º lugar" : "sem posição" } }
+      },
       scales: {
-        x: { grid: { display: false } },
-        y: { reverse: true, min: 1, max: Math.max(total, 1), ticks: { precision: 0, stepSize: 1 }, title: { display: true, text: "1º é o topo", font: { size: 9 } } }
+        x: { grid: { display: false }, ticks: { color: corTexto(), font: { size: 10, family: "Open Sans" },
+             maxRotation: 0, autoSkip: true, maxTicksLimit: 5 } },
+        y: { reverse: true, min: 1, max: Math.max(total, 2), border: { display: false },
+             grid: { color: corGrade(), drawTicks: false },
+             ticks: { color: corTexto(), font: { size: 10 }, stepSize: 1, precision: 0, padding: 8,
+                      callback: (v) => v + "º" } }
       }
-    }
+    })
   });
 }
 
@@ -1709,16 +1784,32 @@ function desenhaPontosDia(uid, meusPorDia) {
   const dias = diasDoPeriodo();
   if (!dias.length || !graficoDisponivel()) return;
   const saldos = dias.map(d => (meusPorDia[d] ? meusPorDia[d].saldo : 0));
-  const cores = saldos.map(v => v > 0 ? "var(--teal)" : (v < 0 ? "var(--laranja)" : "rgba(120,140,130,0.35)"));
+  const cores = saldos.map(v => v > 0 ? PAL.principal : (v < 0 ? PAL.laranja : PAL.neutro));
   if (graficoPtsDia) graficoPtsDia.destroy();
   graficoPtsDia = new Chart($("graficoPontosDia"), {
     type: "bar",
-    data: { labels: dias.map(fmtDia), datasets: [{ label: "Pontos do dia", data: saldos, backgroundColor: cores, borderRadius: 4 }] },
-    options: {
-      animation: false, responsive: true,
-      plugins: { legend: { display: false } },
-      scales: { x: { grid: { display: false } }, y: { suggestedMin: -5, suggestedMax: 8, ticks: { precision: 0 } } }
-    }
+    data: {
+      labels: dias.map(fmtDia),
+      datasets: [{
+        label: "Pontos do dia", data: saldos,
+        backgroundColor: cores, borderRadius: 6, borderSkipped: false,
+        maxBarThickness: 22, categoryPercentage: 0.75, barPercentage: 0.85
+      }]
+    },
+    options: opcoesBase({
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: "rgba(26,48,56,0.94)", padding: 10, cornerRadius: 10,
+          callbacks: { label: (c) => (c.parsed.y > 0 ? "+" : "") + c.parsed.y + " ponto" + (Math.abs(c.parsed.y) === 1 ? "" : "s") } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: corTexto(), font: { size: 10, family: "Open Sans" },
+             maxRotation: 0, autoSkip: true, maxTicksLimit: 5 } },
+        y: { border: { display: false }, grid: { color: corGrade(), drawTicks: false },
+             ticks: { color: corTexto(), font: { size: 10 }, precision: 0, maxTicksLimit: 4, padding: 8 },
+             suggestedMin: -2, suggestedMax: 8 }
+      }
+    })
   });
 }
 
@@ -1726,34 +1817,46 @@ function desenhaVs(uid) {
   const dias = diasDoPeriodo();
   if (!dias.length || !graficoDisponivel()) return;
   const series = acumuladoPorUsuario(dias);
-  const participantes = cacheRanking.map(r => r.user_id).filter(u => series[u]);
-  let datasets;
-  if (modoVs === "pontos") {
-    const media = dias.map((_, i) => {
-      const vals = participantes.map(u => series[u][i]);
-      return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
-    });
-    datasets = [
-      { label: "Você", data: series[uid] || dias.map(() => 0), borderColor: EU_COR, borderWidth: 3, pointRadius: 0, tension: 0.25 },
-      { label: "Média do grupo", data: media, borderColor: "var(--laranja)", borderDash: [6, 4], borderWidth: 2, pointRadius: 0, tension: 0.25 }
-    ];
-  } else {
-    const posicoes = dias.map((_, i) => {
-      const ordem = participantes.slice().sort((a, b) => (series[b][i] - series[a][i]));
-      const p = ordem.indexOf(uid);
-      return p >= 0 ? p + 1 : null;
-    });
-    datasets = [{ label: "Sua posição", data: posicoes, borderColor: EU_COR, borderWidth: 3, pointRadius: 0, tension: 0.25 }];
-  }
+  const todos = Object.keys(series);
+  const meus = series[uid] || dias.map(() => 0);
+  const media = dias.map((_, i) => {
+    if (!todos.length) return 0;
+    const soma = todos.reduce((a, u) => a + (series[u][i] || 0), 0);
+    return Math.round((soma / todos.length) * 10) / 10;
+  });
+  const posicoes = dias.map((_, i) => {
+    const ordem = todos.slice().sort((a, b) => series[b][i] - series[a][i]);
+    const p = ordem.indexOf(uid);
+    return p >= 0 ? p + 1 : null;
+  });
+
   if (graficoVs) graficoVs.destroy();
+  const porPontos = modoVs === "pontos";
   graficoVs = new Chart($("graficoVs"), {
     type: "line",
-    data: { labels: dias.map(fmtDia), datasets },
-    options: {
-      animation: false, responsive: true,
-      plugins: { legend: { position: "top", labels: { boxWidth: 12, font: { size: 10 } } } },
-      scales: { x: { grid: { display: false } }, y: modoVs === "posicao" ? { reverse: true, ticks: { precision: 0 } } : { ticks: { precision: 0 } } }
-    }
+    data: {
+      labels: dias.map(fmtDia),
+      datasets: porPontos ? [
+        { label: "Você", data: meus, borderColor: EU_COR, backgroundColor: "rgba(0,123,142,0.14)",
+          fill: true, borderWidth: 3.2, pointRadius: 0, pointHoverRadius: 4, tension: 0.35 },
+        { label: "Média da turma", data: media, borderColor: PAL.laranja, backgroundColor: "transparent",
+          borderDash: [5, 4], borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 4, tension: 0.35 }
+      ] : [
+        { label: "Sua posição", data: posicoes, borderColor: PAL.saude,
+          backgroundColor: "rgba(215,44,124,0.10)", fill: true,
+          borderWidth: 3, stepped: "middle", pointRadius: 0, pointHoverRadius: 4, spanGaps: true }
+      ]
+    },
+    options: opcoesBase(porPontos ? {} : {
+      scales: {
+        x: { grid: { display: false }, ticks: { color: corTexto(), font: { size: 10, family: "Open Sans" },
+             maxRotation: 0, autoSkip: true, maxTicksLimit: 5 } },
+        y: { reverse: true, min: 1, max: Math.max(todos.length, 2), border: { display: false },
+             grid: { color: corGrade(), drawTicks: false },
+             ticks: { color: corTexto(), font: { size: 10 }, stepSize: 1, precision: 0, padding: 8 },
+             title: { display: true, text: "1º é o topo", color: corTexto(), font: { size: 10 } } }
+      }
+    })
   });
 }
 $("vsPontos").addEventListener("click", () => { modoVs = "pontos"; $("vsPontos").classList.add("ativo"); $("vsPosicao").classList.remove("ativo"); desenhaVs(sessao.user.id); });
@@ -2693,7 +2796,7 @@ async function compartilharCard() {
     cv.width = 800; cv.height = 800;
     const cx = cv.getContext("2d");
     const grad = cx.createLinearGradient(0, 0, 0, 800);
-    grad.addColorStop(0, "var(--teal)"); grad.addColorStop(1, "var(--azul-acao)");
+    grad.addColorStop(0, PAL.principal); grad.addColorStop(1, PAL.azul);
     cx.fillStyle = grad; cx.fillRect(0, 0, 800, 800);
     cx.fillStyle = "rgba(255,255,255,0.16)";
     const arred = (x, y, w, h, r) => { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.fill(); };
@@ -2996,7 +3099,12 @@ function atualizaIconeTema() {
   $("btnTema").setAttribute("aria-label", escuro ? "Mudar para tema claro" : "Mudar para tema escuro");
 }
 atualizaIconeTema();
-$("btnTema").addEventListener("click", () => { alternaTema(); atualizaIconeTema(); });
+$("btnTema").addEventListener("click", () => {
+  alternaTema();
+  atualizaIconeTema();
+  // os graficos guardam as cores dos eixos no momento do desenho
+  if (telaAtual === "telaProgresso" && typeof abrirProgresso === "function") abrirProgresso();
+});
 $("logoHome").addEventListener("click", () => mostraTela("telaMeuDia"));
 
 /* Configuracoes com abas */
@@ -3023,6 +3131,7 @@ $("btnForcarAtualizacao").addEventListener("click", (ev) => forcarAtualizacao(ev
 $("btnConfig").addEventListener("click", () => abrirConfig("lembretes"));
 
 /* Botao voltar do Android navega dentro do app, sem fechar */
+let telaAtual = "";
 let pilhaTelas = [];
 let ignorarPop = false;
 function registraHistorico(id) {
