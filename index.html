@@ -966,7 +966,9 @@
     <p class="nota">No iPhone, as notificações só funcionam com o app instalado na tela de início (Safari, botão Compartilhar, Adicionar à Tela de Início) e no iOS 16.4 ou mais novo. A entrega pode atrasar em alguns aparelhos Android por economia de bateria.</p>
   </div>
   <div class="secao-titulo">Meus horários</div>
+  <p class="nota" style="margin:-6px 4px 10px">Os avisos chegam em todos os horários escolhidos, mesmo que você já tenha marcado tarefas, porque as tarefas acontecem ao longo do dia.</p>
   <div id="listaLembretes"></div>
+  <button class="botao secundario" id="btnTresLembretes">Criar 3 lembretes por dia (manhã, tarde e noite)</button>
   <div class="cartao">
     <label for="lbHora">Novo lembrete</label>
     <input id="lbHora" type="time" value="20:00">
@@ -2538,6 +2540,50 @@ $("listaLembretes").addEventListener("click", async ev => {
     } catch (e) { alert("Não foi possível alterar: " + e.message); }
   }
 });
+
+/* ---------- atalho: tres lembretes por dia ---------- */
+const TRES_HORARIOS = [
+  { horario: "09:00", mensagem: "Bom dia! Já dá para marcar as primeiras tarefas 🌱" },
+  { horario: "15:00", mensagem: "Meio do dia: água, comida e movimento em dia? 💧" },
+  { horario: "20:30", mensagem: "Antes de dormir, feche o seu dia no app 🌙" }
+];
+
+$("btnTresLembretes").addEventListener("click", async () => {
+  limpaAviso("avisoLembrete");
+  const btn = $("btnTresLembretes");
+  btn.disabled = true; btn.textContent = "Criando...";
+  try {
+    const atuais = await api("/rest/v1/lembretes?user_id=eq." + sessao.user.id + "&select=horario");
+    const jaTem = new Set((atuais || []).map(l => String(l.horario).slice(0, 5)));
+    const novos = TRES_HORARIOS.filter(h => !jaTem.has(h.horario));
+    if (!novos.length) {
+      aviso("avisoLembrete", "ok", "Os três horários já estão criados. Você pode ajustar cada um na lista acima.");
+      return;
+    }
+    for (const h of novos) {
+      await api("/rest/v1/lembretes", {
+        method: "POST",
+        headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({
+          user_id: sessao.user.id,
+          horario: h.horario,
+          dias_semana: [0, 1, 2, 3, 4, 5, 6],
+          mensagem: h.mensagem,
+          ativo: true,
+          tipo: "diario"
+        })
+      });
+    }
+    aviso("avisoLembrete", "ok", "Pronto: " + novos.length + " lembrete(s) criado(s). Ajuste os horários como preferir.");
+    await listaLembretes();
+  } catch (e) {
+    aviso("avisoLembrete", "erro", "Não foi possível criar: " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Criar 3 lembretes por dia (manhã, tarde e noite)";
+  }
+});
+
 $("btnAddLembrete").addEventListener("click", async () => {
   limpaAviso("avisoLembrete");
   const hora = $("lbHora").value;
