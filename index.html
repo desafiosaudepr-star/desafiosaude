@@ -4,7 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#007B8E">
-<title>Desafio Mais Saúde</title>
+<title>Desafio Mais Saúde na Rotina Diária</title>
+<meta name="description" content="Desafio de bem-estar da nossa turma: registre suas tarefas diárias, acompanhe o ranking e cuide da sua rotina.">
+<!-- Previa ao compartilhar o link (WhatsApp, Facebook, etc). A imagem precisa
+     ser um endereco absoluto e publico; por isso usamos a URL completa. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Desafio Mais Saúde na Rotina Diária">
+<meta property="og:description" content="Registre suas tarefas diárias, acompanhe o ranking da turma e cuide da sua rotina.">
+<meta property="og:image" content="https://desafiosaude.vercel.app/icons/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://desafiosaude.vercel.app/">
+<meta property="og:site_name" content="Desafio Mais Saúde">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Desafio Mais Saúde na Rotina Diária">
+<meta name="twitter:description" content="Registre suas tarefas diárias e acompanhe o ranking da turma.">
+<meta name="twitter:image" content="https://desafiosaude.vercel.app/icons/og-card.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icone-192.png">
 <link rel="apple-touch-icon" href="icons/icone-192.png">
@@ -66,7 +81,7 @@
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(0,123,142,0.18);
   }
-  header img { width: 34px; height: 34px; border-radius: 9px; }
+  header img { width: 48px; height: 48px; border-radius: 12px; }
   header .titulo { font-family: 'Poppins'; font-weight: 800; font-size: 1.05rem; color: var(--verde-escuro); flex: 1; }
   .btn-menu { display: none !important; } .btn-menu-off {
     width: 40px; height: 40px; border: none; background: transparent;
@@ -313,11 +328,11 @@
   body::before {
     content: ""; position: fixed; inset: 0; z-index: -1;
     background: url("img/fundo.jpg") center center / cover no-repeat;
-    opacity: 0.30; pointer-events: none;
+    opacity: 0.55; pointer-events: none;
   }
   body::after {
     content: ""; position: fixed; inset: 0; z-index: -1;
-    background: linear-gradient(180deg, rgba(225,242,242,0.55), rgba(225,242,242,0.80));
+    background: linear-gradient(180deg, rgba(225,242,242,0.34), rgba(225,242,242,0.60));
     pointer-events: none;
   }
   body.tema-escuro::before { opacity: 0.10; }
@@ -491,8 +506,8 @@
 
   /* Cabecalho */
   header { background: rgba(255,255,255,0.92); border-bottom: 1px solid var(--borda-card); }
-  header .titulo { font-family: 'Poppins'; font-weight: 700; color: var(--cor-principal); font-size: 1.08rem; }
-  .subtitulo-topo { font-family: 'Open Sans'; font-weight: 400; color: var(--texto-mutado); }
+  header .titulo { font-family: 'Poppins'; font-weight: 700; color: var(--cor-principal); font-size: 1.30rem; }
+  .subtitulo-topo { font-family: 'Open Sans'; font-weight: 400; color: var(--texto-mutado); font-size: 0.86rem; }
 
   /* Cartoes: branco puro, cantos 18px, sombra leve */
   .cartao, .mini-card, .grafico-caixa, .tarefa, .rank-item, .bolha,
@@ -642,10 +657,35 @@
   }
 
   /* graficos: altura fixa e respiro interno */
-  .grafico-caixa { height: 252px; padding: 14px 12px 10px; position: relative; }
-  .grafico-caixa canvas { width: 100% !important; height: 100% !important; display: block; }
-  #graficoMedidas { min-height: 200px; }
-  @media (max-width: 380px) { .grafico-caixa { height: 232px; } }
+  .grafico-caixa { height: 300px; padding: 16px 14px 14px; position: relative; overflow: hidden; }
+  .grafico-caixa canvas { position: absolute; inset: 16px 14px 14px; width: auto !important; height: auto !important; display: block; }
+  @media (max-width: 380px) { .grafico-caixa { height: 268px; } }
+
+  .lembrete-item { background: var(--background-card); border: 1px solid var(--borda-card); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+  .lembrete-topo { display: flex; align-items: center; gap: 10px; }
+  .lembrete-hora { font-family: 'Poppins'; font-weight: 700; font-size: 1.05rem; color: var(--cor-principal); }
+  body.tema-escuro .lembrete-hora { color: #7FD6E2; }
+  .lembrete-dias { flex: 1; font-size: var(--fs-peq); color: var(--texto-mutado); }
+  .lembrete-msg { font-size: 0.86rem; color: var(--texto-escuro); margin: 7px 0 9px; font-style: italic; }
+  .lembrete-acoes { display: flex; gap: 16px; }
+  .link-editar, .link-apagar { border: none; background: transparent; font-family: 'Poppins'; font-weight: 700; font-size: 0.82rem; cursor: pointer; padding: 2px 0; }
+  .link-editar { color: var(--cor-azul-acao); }
+  .link-apagar { color: var(--cor-saude); }
+
+  .comp-opcoes { display: flex; flex-direction: column; gap: 10px; }
+  .comp-op { display: flex; align-items: center; gap: 14px; text-align: left; width: 100%;
+    background: var(--background-card); border: 1.5px solid var(--borda-card); border-radius: 16px;
+    padding: 14px; cursor: pointer; font-family: 'Open Sans'; }
+  .comp-op.sel { border-color: var(--cor-principal); box-shadow: 0 0 0 3px rgba(0,123,142,0.12); }
+  .comp-op .comp-ic { width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center;
+    justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .comp-op b { color: var(--texto-escuro); font-family: 'Poppins'; font-size: 0.98rem; }
+  .comp-op small { display: block; color: var(--texto-mutado); font-size: 0.8rem; margin-top: 2px; }
+  body.tema-escuro .comp-op b { color: var(--texto-escuro); }
+  .comp-check { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--texto-escuro); padding: 8px 2px; }
+  .comp-check input { width: auto; }
+  .comp-previa { margin: 12px 0; text-align: center; }
+  .comp-previa img { width: 100%; max-width: 320px; border-radius: 18px; box-shadow: 0 10px 30px -8px rgba(26,48,56,0.3); }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -745,6 +785,7 @@
     <button id="diaOntem">Ontem</button>
     <button id="diaHoje" class="ativo">Hoje</button>
   </div>
+  <div class="aviso" id="avisoMeuDia"></div>
   <div id="listaTarefas"></div>
 </section>
 
@@ -922,6 +963,39 @@
 </section>
 
 
+
+<!-- COMPARTILHAR -->
+<section class="tela" id="telaCompartilhar">
+  <div class="saudacao"><h2>Compartilhar</h2><p>Escolha o que publicar no seu WhatsApp.</p></div>
+  <div class="comp-opcoes">
+    <button class="comp-op" data-tipo="pontos">
+      <span class="comp-ic" style="background:rgba(0,123,142,0.14)">🏅</span>
+      <span><b>Minha pontuação</b><small>Quantos pontos você já somou</small></span>
+    </button>
+    <button class="comp-op" data-tipo="posicao">
+      <span class="comp-ic" style="background:rgba(139,195,74,0.20)">📈</span>
+      <span><b>Minha posição no ranking</b><small>Em que lugar você está</small></span>
+    </button>
+    <button class="comp-op" data-tipo="meta">
+      <span class="comp-ic" style="background:rgba(215,44,124,0.14)">✅</span>
+      <span><b>Meta cumprida hoje</b><small>Comemore o dia em que bateu a meta</small></span>
+    </button>
+    <button class="comp-op" data-tipo="grupo">
+      <span class="comp-ic" style="background:rgba(0,188,212,0.18)">🤝</span>
+      <span><b>Números da turma</b><small>Os indicadores coletivos, sem nomes</small></span>
+    </button>
+  </div>
+  <div id="compExtra" style="display:none;margin-top:6px">
+    <label class="comp-check"><input type="checkbox" id="compMostrarValor"> Mostrar o valor real da meta na imagem</label>
+  </div>
+  <div class="comp-previa" id="compPrevia" style="display:none">
+    <img id="compImg" alt="Prévia do post">
+  </div>
+  <button class="botao" id="btnCompartilharAgora" style="display:none">Compartilhar no WhatsApp</button>
+  <div class="aviso" id="avisoComp"></div>
+  <button class="botao secundario" id="btnCompVoltar">Voltar</button>
+</section>
+
 <!-- VISUALIZACAO PUBLICA (sem login) -->
 <section class="tela" id="telaPublica">
   <div class="saudacao"><h2>Desafio Mais Saúde</h2><p>na Rotina Diária, visualização pública</p></div>
@@ -970,12 +1044,13 @@
   <div id="listaLembretes"></div>
   <button class="botao secundario" id="btnTresLembretes">Criar 3 lembretes por dia (manhã, tarde e noite)</button>
   <div class="cartao">
-    <label for="lbHora">Novo lembrete</label>
+    <label for="lbHora" id="tituloNovoLembrete">Novo lembrete</label>
     <input id="lbHora" type="time" value="20:00">
     <label for="lbMsg">Mensagem do aviso (opcional)</label>
     <input id="lbMsg" maxlength="90" placeholder="Ex.: Bora lançar o dia! 🌱">
     <div class="emoji-fila" id="lbDias" style="margin-top:10px"></div>
     <button class="botao" id="btnAddLembrete">Adicionar lembrete</button>
+    <button class="botao secundario" id="btnCancelarEdicao" style="display:none">Cancelar edição</button>
     <div class="aviso" id="avisoLembrete"></div>
   </div>
 </div>
@@ -1144,7 +1219,7 @@ let diaSelecionado = null;
 
 /* ---------------- utilidades ---------------- */
 function $(id) { return document.getElementById(id); }
-const TAB_POR_TELA = { telaMeuDia: "tabMeudia", telaProgresso: "tabProgresso", telaTurma: "tabTurma", telaMais: "tabMais",
+const TAB_POR_TELA = { telaMeuDia: "tabMeudia", telaProgresso: "tabProgresso", telaTurma: "tabTurma", telaMais: "tabMais", telaCompartilhar: "tabMais",
   telaMedidas: "tabMais", telaMetas: "tabMais", telaLembretes: "tabMais", telaRegulamento: "tabMais", telaSobre: "tabMais", telaConfig: "tabMais", telaDesempenho: "tabTurma", telaAdmin: "tabMais", telaSenha: "tabMais" };
 // declarada aqui, antes de mostraTela, que a preenche a cada troca de tela
 var telaAtual = "";
@@ -1280,6 +1355,9 @@ $("btnAceitar").addEventListener("click", async () => {
 
 /* ---------------- meu dia ---------------- */
 async function abrirMeuDia() {
+  if (diaSelecionado && desafio && diaSelecionado < desafio.data_inicio && diaSelecionado === ontemISO()) {
+    diaSelecionado = hojeISO();
+  }
   mostraTela("telaMeuDia");
   $("listaTarefas").innerHTML = skelHtml(6, 56);
   $("ola").textContent = "Olá, " + (perfil.apelido || perfil.nome.split(" ")[0]) + "!";
@@ -1432,9 +1510,21 @@ function soltaConfete() {
 function atualizaSeletorDia() {
   $("diaHoje").classList.toggle("ativo", diaSelecionado === hojeISO());
   $("diaOntem").classList.toggle("ativo", diaSelecionado === ontemISO());
+  // "Ontem" so vale se o dia anterior fizer parte do desafio. No primeiro dia
+  // (03/08), ontem cairia antes do inicio, entao o botao fica desabilitado.
+  const ontemValido = !desafio || ontemISO() >= desafio.data_inicio;
+  $("diaOntem").disabled = !ontemValido;
+  $("diaOntem").title = ontemValido ? "" : "O desafio começa hoje, não há dia anterior para registrar.";
+  $("diaOntem").style.opacity = ontemValido ? "" : "0.45";
 }
 $("diaHoje").addEventListener("click", () => { diaSelecionado = hojeISO(); confeteFeito = true; atualizaSeletorDia(); desenhaTarefas(); });
-$("diaOntem").addEventListener("click", () => { diaSelecionado = ontemISO(); confeteFeito = true; atualizaSeletorDia(); desenhaTarefas(); });
+$("diaOntem").addEventListener("click", () => {
+  if (desafio && ontemISO() < desafio.data_inicio) {
+    aviso("avisoMeuDia", "erro", "O desafio começa hoje. Não é possível registrar o dia anterior ao início.");
+    return;
+  }
+  diaSelecionado = ontemISO(); confeteFeito = true; atualizaSeletorDia(); desenhaTarefas();
+});
 
 /* ---------------- trocar senha ---------------- */
 $("btnTrocarSenha").addEventListener("click", async () => {
@@ -2532,18 +2622,29 @@ $("lbDias").addEventListener("click", ev => {
   montaDiasNovoLembrete();
 });
 
+let lembretesCache = {};
+let lembreteEditando = null;
 async function listaLembretes() {
   $("listaLembretes").innerHTML = skelHtml(2, 44);
   try {
-    const linhas = await api("/rest/v1/lembretes?user_id=eq." + sessao.user.id + "&select=id,horario,dias_semana,ativo&order=horario.asc");
+    const linhas = await api("/rest/v1/lembretes?user_id=eq." + sessao.user.id + "&select=id,horario,dias_semana,ativo,mensagem&order=horario.asc");
+    lembretesCache = {};
     $("listaLembretes").innerHTML = (linhas || []).length ? linhas.map(l => {
+      lembretesCache[l.id] = l;
       const dias = (l.dias_semana || []).length === 7 ? "todos os dias" : (l.dias_semana || []).map(d => DIAS_ROTULO[d]).join(" ");
-      return `<div class="medida-linha">
-        <span><b>${String(l.horario).slice(0,5)}</b> · ${dias}</span>
-        <span>
+      const msg = (l.mensagem || "").trim();
+      const resumo = msg ? (msg.length > 42 ? msg.slice(0, 42) + "…" : msg) : "aviso padrão";
+      return `<div class="lembrete-item">
+        <div class="lembrete-topo">
+          <span class="lembrete-hora">${String(l.horario).slice(0,5)}</span>
+          <span class="lembrete-dias">${dias}</span>
           <button class="reac ${l.ativo ? "minha" : ""}" data-tgl="${l.id}" data-atv="${l.ativo ? 1 : 0}">${l.ativo ? "ativo" : "pausado"}</button>
-          <button class="apagar" data-dell="${l.id}" aria-label="Apagar lembrete">🗑</button>
-        </span>
+        </div>
+        <div class="lembrete-msg">${escapaHtml(resumo)}</div>
+        <div class="lembrete-acoes">
+          <button class="link-editar" data-edit="${l.id}">Editar</button>
+          <button class="link-apagar" data-dell="${l.id}">Apagar</button>
+        </div>
       </div>`;
     }).join("") : '<div class="nota">Nenhum lembrete ainda. Adicione um abaixo (sugestão: 20:00).</div>';
   } catch (e) {
@@ -2552,6 +2653,20 @@ async function listaLembretes() {
 }
 $("listaLembretes").addEventListener("click", async ev => {
   const t = ev.target;
+  if (t.dataset && t.dataset.edit) {
+    const l = lembretesCache[t.dataset.edit];
+    if (!l) return;
+    lembreteEditando = l.id;
+    $("lbHora").value = String(l.horario).slice(0, 5);
+    $("lbMsg").value = l.mensagem || "";
+    diasNovo = new Set(l.dias_semana || [0,1,2,3,4,5,6]);
+    montaDiasNovoLembrete();
+    $("tituloNovoLembrete").textContent = "Editar lembrete";
+    $("btnAddLembrete").textContent = "Salvar alterações";
+    $("btnCancelarEdicao").style.display = "";
+    $("lbHora").scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
   if (t.dataset && t.dataset.dell) {
     if (!confirm("Apagar este lembrete?")) return;
     try { await api("/rest/v1/lembretes?id=eq." + t.dataset.dell, { method: "DELETE" }); await listaLembretes(); }
@@ -2612,21 +2727,43 @@ $("btnTresLembretes").addEventListener("click", async () => {
   }
 });
 
+function encerraEdicaoLembrete() {
+  lembreteEditando = null;
+  $("tituloNovoLembrete").textContent = "Novo lembrete";
+  $("btnAddLembrete").textContent = "Adicionar lembrete";
+  $("btnCancelarEdicao").style.display = "none";
+  $("lbHora").value = "20:00";
+  $("lbMsg").value = "";
+  diasNovo = new Set([0,1,2,3,4,5,6]);
+  montaDiasNovoLembrete();
+}
+$("btnCancelarEdicao").addEventListener("click", () => { limpaAviso("avisoLembrete"); encerraEdicaoLembrete(); });
+
 $("btnAddLembrete").addEventListener("click", async () => {
   limpaAviso("avisoLembrete");
   const hora = $("lbHora").value;
   if (!hora) { aviso("avisoLembrete", "erro", "Escolha um horário."); return; }
   if (!diasNovo.size) { aviso("avisoLembrete", "erro", "Escolha ao menos um dia da semana."); return; }
   const btn = $("btnAddLembrete"); btn.disabled = true;
+  const corpo = { horario: hora, dias_semana: Array.from(diasNovo).sort(), mensagem: $("lbMsg").value.trim() || null };
   try {
-    await api("/rest/v1/lembretes", {
-      method: "POST", headers: { "Prefer": "return=minimal" },
-      body: JSON.stringify({ user_id: sessao.user.id, horario: hora, dias_semana: Array.from(diasNovo).sort(), mensagem: $("lbMsg").value.trim() || null })
-    });
-    aviso("avisoLembrete", "ok", "Lembrete adicionado.");
+    if (lembreteEditando) {
+      await api("/rest/v1/lembretes?id=eq." + lembreteEditando, {
+        method: "PATCH", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify(corpo)
+      });
+      aviso("avisoLembrete", "ok", "Lembrete atualizado.");
+      encerraEdicaoLembrete();
+    } else {
+      await api("/rest/v1/lembretes", {
+        method: "POST", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify(Object.assign({ user_id: sessao.user.id }, corpo))
+      });
+      aviso("avisoLembrete", "ok", "Lembrete adicionado.");
+    }
     await listaLembretes();
   } catch (e) {
-    aviso("avisoLembrete", "erro", "Não foi possível adicionar: " + e.message);
+    aviso("avisoLembrete", "erro", "Não foi possível salvar: " + e.message);
   } finally { btn.disabled = false; }
 });
 
@@ -2847,72 +2984,174 @@ $("btnSobreVoltar").addEventListener("click", abrirPublico);
 $("btnRegVoltar").addEventListener("click", abrirPublico);
 
 /* ---------- compartilhar no WhatsApp ---------- */
-async function compartilharCard() {
-  try {
-    await garanteBase();
-    const uid = sessao.user.id;
-    const rank = cacheRanking && cacheRanking.length ? cacheRanking : await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total");
-    cacheRanking = rank || [];
-    const pos = cacheRanking.findIndex(r => r.user_id === uid) + 1;
-    const meu = cacheRanking.find(r => r.user_id === uid);
-    const pontos = meu ? meu.pontos_total : 0;
-    const streakTxt = $("pgStreak") ? $("pgStreak").textContent : "0";
-    let cumpriuHoje = false;
+let compTipo = null;
+let compDados = null;
+
+function abrirCompartilhar() {
+  compTipo = null;
+  $("compPrevia").style.display = "none";
+  $("btnCompartilharAgora").style.display = "none";
+  $("compExtra").style.display = "none";
+  $("compMostrarValor").checked = false;
+  limpaAviso("avisoComp");
+  document.querySelectorAll(".comp-op").forEach(b => b.classList.remove("sel"));
+  mostraTela("telaCompartilhar");
+}
+
+document.querySelectorAll(".comp-op").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    compTipo = btn.dataset.tipo;
+    document.querySelectorAll(".comp-op").forEach(b => b.classList.toggle("sel", b === btn));
+    $("compExtra").style.display = compTipo === "meta" ? "block" : "none";
+    await preparaPreviaComp();
+  });
+});
+$("compMostrarValor").addEventListener("change", preparaPreviaComp);
+$("btnCompVoltar").addEventListener("click", () => mostraTela("telaMeuDia"));
+
+async function coletaDadosComp() {
+  await garanteBase();
+  const uid = sessao.user.id;
+  const rank = (cacheRanking && cacheRanking.length) ? cacheRanking : (await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total&order=pontos_total.desc"));
+  cacheRanking = rank || [];
+  const pos = cacheRanking.findIndex(r => r.user_id === uid) + 1;
+  const meu = cacheRanking.find(r => r.user_id === uid);
+  const nome = meu ? (meu.apelido || meu.nome) : "";
+  const pontos = meu ? meu.pontos_total : 0;
+  const total = cacheRanking.length;
+
+  // meta de hoje: saldo positivo e, opcionalmente, o valor real
+  let cumpriu = false, saldoHoje = 0;
+  const hoje = hojeISO();
+  const marc = marcadosPorDia[hoje];
+  if (marc && marc.size) {
+    tarefas.forEach(t => { if (marc.has(t.id)) saldoHoje += t.valor_ponto; });
+    cumpriu = saldoHoje > 0;
+  } else {
     try {
-      const hoje = hojeISO();
-      const marc = marcadosPorDia[hoje];
-      if (marc && marc.size) {
-        let saldo = 0;
-        tarefas.forEach(t => { if (marc.has(t.id)) saldo += t.valor_ponto; });
-        cumpriuHoje = saldo > 0;
-      } else {
-        const r2 = await api("/rest/v1/vw_saldo_diario?user_id=eq." + uid + "&data=eq." + hoje + "&select=saldo_dia");
-        cumpriuHoje = !!(r2 && r2[0] && r2[0].saldo_dia > 0);
-      }
+      const r2 = await api("/rest/v1/vw_saldo_diario?user_id=eq." + uid + "&data=eq." + hoje + "&select=saldo_dia");
+      if (r2 && r2[0]) { saldoHoje = r2[0].saldo_dia; cumpriu = saldoHoje > 0; }
     } catch {}
+  }
 
-    const cv = document.createElement("canvas");
-    cv.width = 800; cv.height = 800;
-    const cx = cv.getContext("2d");
-    const grad = cx.createLinearGradient(0, 0, 0, 800);
-    grad.addColorStop(0, PAL.principal); grad.addColorStop(1, PAL.azul);
-    cx.fillStyle = grad; cx.fillRect(0, 0, 800, 800);
-    cx.fillStyle = "rgba(255,255,255,0.16)";
-    const arred = (x, y, w, h, r) => { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.fill(); };
-    arred(60, 60, 680, 680, 36);
-    cx.fillStyle = "#fff"; cx.textAlign = "center";
-    cx.font = "800 54px Poppins, Arial";
-    cx.fillText("Desafio Mais Saúde", 400, 175);
-    cx.font = "600 26px Open Sans, Arial";
-    cx.fillText("na Rotina Diária", 400, 215);
-    cx.font = "800 150px Poppins, Arial";
-    cx.fillText(String(pontos), 400, 420);
-    cx.font = "600 34px Open Sans, Arial";
-    cx.fillText("pontos", 400, 470);
-    cx.font = "700 38px Poppins, Arial";
-    cx.fillText(cumpriuHoje ? "Hoje eu cumpri a minha meta!" : "Seguindo firme no desafio!", 400, 560);
-    if (Number(streakTxt) > 0) {
-      cx.font = "600 30px Open Sans, Arial";
-      cx.fillText("🔥 " + streakTxt + " dias seguidos", 400, 606);
-    }
-    cx.font = "600 26px Open Sans, Arial";
-    cx.fillText(meu ? (meu.apelido || meu.nome) : "", 400, 640);
+  // indicadores do grupo
+  let grupo = [];
+  try {
+    const [col, tarGrupo, tars, des] = await Promise.all([
+      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,total_grupo"),
+      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,cumprimentos"),
+      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,valor_ponto"),
+      api("/rest/v1/desafios?status=eq.ativo&select=data_inicio,data_fim&limit=1")
+    ]);
+    const por = {}; (col || []).forEach(x => por[x.codigo] = Number(x.total_grupo || 0));
+    const positivas = (tars || []).filter(t => t.valor_ponto === 1);
+    const cumpridas = (tarGrupo || []).filter(t => positivas.some(p => p.codigo === t.codigo)).reduce((a, t) => a + Number(t.cumprimentos || 0), 0);
+    let dias = 0; const d0 = des && des[0];
+    if (d0) { const fim = hoje < d0.data_fim ? hoje : d0.data_fim; if (fim >= d0.data_inicio) dias = Math.floor((new Date(fim+"T00:00:00") - new Date(d0.data_inicio+"T00:00:00"))/86400000)+1; }
+    const possivel = total * dias * positivas.length;
+    const pct = possivel > 0 ? Math.round(100*cumpridas/possivel) : 0;
+    grupo = [
+      [por["3.1"] ? fmtNum(por["3.1"])+" L" : "0 L", "de água"],
+      [(por["4.1"] ? fmtHoras(por["4.1"]) : "0")+" h", "de atividade física"],
+      [(por["6.1"] ? fmtNum(por["6.1"]) : "0")+" h", "de sono saudável"],
+      [pct+"%", "das tarefas cumpridas"]
+    ];
+  } catch {}
 
-    const texto = (cumpriuHoje ? "Hoje eu cumpri a minha meta no Desafio Mais Saúde e já fiz " : "Estou no Desafio Mais Saúde e já fiz ")
-      + pontos + " pontos! 🌱💪";
-    const blob = await new Promise(res => cv.toBlob(res, "image/png"));
-    const arquivo = new File([blob], "desafio-mais-saude.png", { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
-      await navigator.share({ files: [arquivo], text: texto });
-    } else if (navigator.share) {
-      await navigator.share({ text: texto });
-    } else {
-      window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
+  return { nome, pontos, pos, total, cumpriu, saldoHoje, grupo };
+}
+
+function arredCanvas(cx, x, y, w, h, r) {
+  cx.beginPath(); cx.moveTo(x+r, y);
+  cx.arcTo(x+w, y, x+w, y+h, r); cx.arcTo(x+w, y+h, x, y+h, r);
+  cx.arcTo(x, y+h, x, y, r); cx.arcTo(x, y, x+w, y, r); cx.fill();
+}
+
+function desenhaCard(dados, tipo, mostrarValor) {
+  const cv = document.createElement("canvas");
+  cv.width = 800; cv.height = 800;
+  const cx = cv.getContext("2d");
+  const grad = cx.createLinearGradient(0, 0, 0, 800);
+  grad.addColorStop(0, PAL.principal); grad.addColorStop(1, PAL.azul);
+  cx.fillStyle = grad; cx.fillRect(0, 0, 800, 800);
+  cx.fillStyle = "rgba(255,255,255,0.14)"; arredCanvas(cx, 56, 56, 688, 688, 40);
+  cx.textAlign = "center"; cx.fillStyle = "#fff";
+  cx.font = "800 50px Poppins, Arial"; cx.fillText("Desafio Mais Saúde", 400, 160);
+  cx.font = "600 24px Open Sans, Arial"; cx.fillText("na Rotina Diária", 400, 196);
+
+  let legenda = "";
+  if (tipo === "pontos") {
+    cx.font = "800 168px Poppins, Arial"; cx.fillText(String(dados.pontos), 400, 430);
+    cx.font = "600 36px Open Sans, Arial"; cx.fillText("pontos no desafio", 400, 490);
+    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 600);
+    legenda = "Estou no Desafio Mais Saúde e já fiz " + dados.pontos + " pontos! 🌱💪";
+  } else if (tipo === "posicao") {
+    cx.font = "800 150px Poppins, Arial"; cx.fillText(dados.pos + "º", 400, 420);
+    cx.font = "600 34px Open Sans, Arial"; cx.fillText("lugar entre " + dados.total + " participantes", 400, 480);
+    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 600);
+    legenda = "Estou em " + dados.pos + "º lugar no Desafio Mais Saúde! 🏆";
+  } else if (tipo === "meta") {
+    cx.font = "90px Arial"; cx.fillText(dados.cumpriu ? "✅" : "💪", 400, 360);
+    cx.font = "700 44px Poppins, Arial";
+    cx.fillText(dados.cumpriu ? "Meta de hoje cumprida!" : "Firme no desafio de hoje!", 400, 470);
+    if (dados.cumpriu && mostrarValor) {
+      cx.font = "600 34px Open Sans, Arial";
+      cx.fillText("Saldo do dia: +" + dados.saldoHoje + " ponto" + (dados.saldoHoje === 1 ? "" : "s"), 400, 530);
     }
+    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 620);
+    legenda = dados.cumpriu
+      ? "Hoje eu cumpri a minha meta no Desafio Mais Saúde" + (mostrarValor ? " e fiz +" + dados.saldoHoje + " pontos" : "") + "! 🌱"
+      : "Seguindo firme no Desafio Mais Saúde! 💪";
+  } else if (tipo === "grupo") {
+    cx.font = "700 34px Poppins, Arial"; cx.fillText("A turma já somou", 400, 250);
+    cx.font = "700 40px Poppins, Arial";
+    const gy = [340, 430, 520, 610];
+    (dados.grupo || []).forEach((g, i) => {
+      cx.fillStyle = "#fff"; cx.font = "800 40px Poppins, Arial";
+      cx.fillText(g[0] + "  " + g[1], 400, gy[i]);
+    });
+    legenda = "Veja o que a nossa turma já somou no Desafio Mais Saúde! 🤝🌱";
+  }
+  return { canvas: cv, legenda };
+}
+
+async function preparaPreviaComp() {
+  if (!compTipo) return;
+  limpaAviso("avisoComp");
+  $("compPrevia").style.display = "block";
+  $("compImg").removeAttribute("src");
+  try {
+    if (!compDados) compDados = await coletaDadosComp();
+    const { canvas, legenda } = desenhaCard(compDados, compTipo, $("compMostrarValor").checked);
+    compLegenda = legenda;
+    compCanvas = canvas;
+    $("compImg").src = canvas.toDataURL("image/png");
+    $("btnCompartilharAgora").style.display = "";
   } catch (e) {
-    if (String(e && e.name) !== "AbortError") alert("Não foi possível compartilhar: " + (e && e.message ? e.message : e));
+    aviso("avisoComp", "erro", "Não foi possível montar a imagem: " + (e && e.message ? e.message : e));
   }
 }
+
+let compLegenda = "", compCanvas = null;
+$("btnCompartilharAgora").addEventListener("click", async () => {
+  if (!compCanvas) return;
+  try {
+    const blob = await new Promise(res => compCanvas.toBlob(res, "image/png"));
+    const arquivo = new File([blob], "desafio-mais-saude.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+      await navigator.share({ files: [arquivo], text: compLegenda });
+    } else if (navigator.share) {
+      await navigator.share({ text: compLegenda });
+    } else {
+      window.open("https://wa.me/?text=" + encodeURIComponent(compLegenda), "_blank");
+    }
+  } catch (e) {
+    if (String(e && e.name) !== "AbortError") aviso("avisoComp", "erro", "Não foi possível compartilhar: " + (e && e.message ? e.message : e));
+  }
+});
+
+// invalida os dados ao reabrir, para refletir pontuacao atual
+function compartilharCard() { compDados = null; abrirCompartilhar(); }
 
 /* ---------- admin: lista, senha, editar, excluir, exportar ---------- */
 async function chamaGerir(corpo) {

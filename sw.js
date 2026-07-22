@@ -6,7 +6,7 @@
 //     em segundo plano.
 //   - API do Supabase (outro dominio): nunca passa por aqui.
 
-const CACHE = "mais-saude-1_5f";
+const CACHE = "mais-saude-1_6";
 const ARQUIVOS = [
   "./",
   "./index.html",
@@ -15,7 +15,8 @@ const ARQUIVOS = [
   "./icons/icone-512.png",
   "./icons/icone-512-maskable.png",
   "./img/fundo.jpg",
-  "./img/fundo-escuro.jpg"
+  "./img/fundo-escuro.jpg",
+  "./icons/og-card.png"
 ];
 
 self.addEventListener("install", (ev) => {
