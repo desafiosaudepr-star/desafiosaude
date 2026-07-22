@@ -657,9 +657,13 @@
   }
 
   /* graficos: altura fixa e respiro interno */
-  .grafico-caixa { height: 300px; padding: 16px 14px 14px; position: relative; overflow: hidden; }
-  .grafico-caixa canvas { position: absolute; inset: 16px 14px 14px; width: auto !important; height: auto !important; display: block; }
-  @media (max-width: 380px) { .grafico-caixa { height: 268px; } }
+  /* A biblioteca de graficos redimensiona o canvas sozinha quando ele esta em
+     fluxo normal dentro de um contentor com altura fixa. Nada de position
+     absolute nem !important no canvas, senao o desenho estoura a caixa. */
+  .grafico-caixa { padding: 14px; margin-bottom: 16px; }
+  .grafico-cont { position: relative; height: 240px; width: 100%; }
+  .grafico-cont canvas { display: block; }
+  @media (max-width: 380px) { .grafico-cont { height: 210px; } }
 
   .lembrete-item { background: var(--background-card); border: 1px solid var(--borda-card); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
   .lembrete-topo { display: flex; align-items: center; gap: 10px; }
@@ -801,21 +805,21 @@
   </div>
   <div class="faixa-info" id="pgAvisoPeriodo" style="display:none"></div>
   <div class="secao-titulo">Evolução da turma</div>
-  <div class="grafico-caixa"><canvas id="graficoEvolucao" height="220"></canvas></div>
+  <div class="grafico-caixa"><div class="grafico-cont"><canvas id="graficoEvolucao"></canvas></div></div>
   <div class="secao-titulo">Você vs grupo</div>
   <div class="grafico-caixa">
     <div class="seletor-modo">
       <button id="vsPontos" class="ativo">Por pontos</button>
       <button id="vsPosicao">Por posição</button>
     </div>
-    <canvas id="graficoVs" height="200"></canvas>
+    <div class="grafico-cont"><canvas id="graficoVs"></canvas></div>
   </div>
   <div class="secao-titulo">Minha posição no ranking, dia a dia</div>
-  <div class="grafico-caixa"><canvas id="graficoPosicaoDia" height="200"></canvas></div>
+  <div class="grafico-caixa"><div class="grafico-cont"><canvas id="graficoPosicaoDia"></canvas></div></div>
   <div class="secao-titulo">Minha pontuação por dia</div>
-  <div class="grafico-caixa"><canvas id="graficoPontosDia" height="200"></canvas></div>
+  <div class="grafico-caixa"><div class="grafico-cont"><canvas id="graficoPontosDia"></canvas></div></div>
   <div class="secao-titulo">Minhas medidas ao longo do tempo</div>
-  <div class="grafico-caixa"><canvas id="graficoMedidas" height="200"></canvas></div>
+  <div class="grafico-caixa"><div class="grafico-cont"><canvas id="graficoMedidas"></canvas></div></div>
   <div class="nota" id="notaMedidas" style="margin:-8px 4px 14px">Registre em Minhas Medidas para ver a evolução aqui. Esta seção é privada.</div>
   <div class="secao-titulo">Meus indicadores</div>
   <div class="lista-ind" id="pgIndividuais"></div>
