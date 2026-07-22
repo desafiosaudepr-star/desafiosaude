@@ -2061,14 +2061,28 @@ $("arqFoto").addEventListener("change", async (ev) => {
   }
   aviso("avisoMural", "ok", "Enviando foto...");
   try {
-    const blob = await comprimeImagem(arq, 1080, 0.72);
-    const nome = sessao.user.id + "/" + Date.now() + ".jpg";
+    let blob = null, tipoEnvio = "image/jpeg", extensao = "jpg";
+    try {
+      blob = await comprimeImagem(arq, 1080, 0.72);
+    } catch (err) {
+      // Reserva: o navegador nao conseguiu abrir a imagem para reduzir.
+      // Se o arquivo for pequeno o suficiente, envia como veio.
+      if (arq.size > 5 * 1024 * 1024) {
+        throw new Error("Este formato de imagem não pôde ser processado e o arquivo é grande demais (" +
+                        Math.round(arq.size / 1048576) + " MB). Tente enviar uma captura de tela ou reduzir a foto.");
+      }
+      blob = arq;
+      tipoEnvio = arq.type || "application/octet-stream";
+      const porTipo = { "image/png": "png", "image/webp": "webp", "image/gif": "gif", "image/heic": "heic", "image/heif": "heif" };
+      extensao = porTipo[arq.type] || (arq.name && arq.name.includes(".") ? arq.name.split(".").pop().toLowerCase().slice(0, 5) : "jpg");
+    }
+    const nome = sessao.user.id + "/" + Date.now() + "." + extensao;
     const resp = await fetch(SUPABASE_URL + "/storage/v1/object/mural/" + nome, {
       method: "POST",
       headers: {
         "apikey": SUPABASE_ANON,
         "Authorization": "Bearer " + sessao.access_token,
-        "Content-Type": "image/jpeg",
+        "Content-Type": tipoEnvio,
         "x-upsert": "true"
       },
       body: blob
@@ -2087,24 +2101,38 @@ $("arqFoto").addEventListener("change", async (ev) => {
     aviso("avisoMural", "erro", "Não foi possível enviar a foto: " + e.message);
   }
 });
-function comprimeImagem(arquivo, maxLado, qualidade) {
-  return new Promise((res, rej) => {
+async function decodificaImagem(arquivo) {
+  // Caminho 1: createImageBitmap entende mais formatos de camera (inclusive
+  // HEIC/HEIF em varios aparelhos) e nao carrega o arquivo inteiro em memoria.
+  if (window.createImageBitmap) {
+    try { return await createImageBitmap(arquivo); } catch { /* tenta o caminho 2 */ }
+  }
+  // Caminho 2: endereco temporario do arquivo (nao usa FileReader, que estoura
+  // a memoria com fotos grandes de celular)
+  return await new Promise((res, rej) => {
+    const url = URL.createObjectURL(arquivo);
     const img = new Image();
-    const leitor = new FileReader();
-    leitor.onload = () => { img.src = leitor.result; };
-    leitor.onerror = () => rej(new Error("Falha ao ler o arquivo"));
-    img.onload = () => {
-      let { width: w, height: h } = img;
-      const escala = Math.min(1, maxLado / Math.max(w, h));
-      w = Math.round(w * escala); h = Math.round(h * escala);
-      const cv = document.createElement("canvas");
-      cv.width = w; cv.height = h;
-      cv.getContext("2d").drawImage(img, 0, 0, w, h);
-      cv.toBlob(b => b ? res(b) : rej(new Error("Falha ao processar a imagem")), "image/jpeg", qualidade);
-    };
-    img.onerror = () => rej(new Error("Arquivo de imagem inválido"));
-    leitor.readAsDataURL(arquivo);
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("NAO_DECODIFICOU")); };
+    img.src = url;
   });
+}
+
+async function comprimeImagem(arquivo, maxLado, qualidade) {
+  const fonte = await decodificaImagem(arquivo);
+  const lw = fonte.width || fonte.naturalWidth;
+  const lh = fonte.height || fonte.naturalHeight;
+  if (!lw || !lh) throw new Error("NAO_DECODIFICOU");
+  const escala = Math.min(1, maxLado / Math.max(lw, lh));
+  const w = Math.max(1, Math.round(lw * escala));
+  const h = Math.max(1, Math.round(lh * escala));
+  const cv = document.createElement("canvas");
+  cv.width = w; cv.height = h;
+  cv.getContext("2d").drawImage(fonte, 0, 0, w, h);
+  if (fonte.close) fonte.close();
+  const blob = await new Promise((res) => cv.toBlob(res, "image/jpeg", qualidade));
+  if (!blob) throw new Error("NAO_DECODIFICOU");
+  return blob;
 }
 
 
@@ -2564,13 +2592,13 @@ $("btnTresLembretes").addEventListener("click", async () => {
       await api("/rest/v1/lembretes", {
         method: "POST",
         headers: { "Prefer": "return=minimal" },
+        // mesmos campos do botao "Adicionar lembrete": o banco preenche
+        // tipo e ativo com os proprios padroes
         body: JSON.stringify({
           user_id: sessao.user.id,
           horario: h.horario,
           dias_semana: [0, 1, 2, 3, 4, 5, 6],
-          mensagem: h.mensagem,
-          ativo: true,
-          tipo: "diario"
+          mensagem: h.mensagem
         })
       });
     }
