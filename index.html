@@ -1358,8 +1358,12 @@ $("btnAceitar").addEventListener("click", async () => {
 });
 
 /* ---------------- meu dia ---------------- */
+function desafioComecou() {
+  return !!(desafio && hojeISO() >= desafio.data_inicio);
+}
+
 async function abrirMeuDia() {
-  if (diaSelecionado && desafio && diaSelecionado < desafio.data_inicio && diaSelecionado === ontemISO()) {
+  if (diaSelecionado && desafioComecou() && diaSelecionado < desafio.data_inicio && diaSelecionado === ontemISO()) {
     diaSelecionado = hojeISO();
   }
   mostraTela("telaMeuDia");
@@ -1516,14 +1520,18 @@ function atualizaSeletorDia() {
   $("diaOntem").classList.toggle("ativo", diaSelecionado === ontemISO());
   // "Ontem" so vale se o dia anterior fizer parte do desafio. No primeiro dia
   // (03/08), ontem cairia antes do inicio, entao o botao fica desabilitado.
-  const ontemValido = !desafio || ontemISO() >= desafio.data_inicio;
+  // O bloqueio de "Ontem" vale APENAS depois que o desafio comecou, ou seja,
+  // no dia 03/08 (quando ontem cairia antes do inicio). Durante a fase de
+  // testes, que acontece antes da data de inicio, tudo fica liberado.
+  const ontemValido = !desafio || !desafioComecou() || ontemISO() >= desafio.data_inicio;
   $("diaOntem").disabled = !ontemValido;
   $("diaOntem").title = ontemValido ? "" : "O desafio começa hoje, não há dia anterior para registrar.";
   $("diaOntem").style.opacity = ontemValido ? "" : "0.45";
 }
 $("diaHoje").addEventListener("click", () => { diaSelecionado = hojeISO(); confeteFeito = true; atualizaSeletorDia(); desenhaTarefas(); });
 $("diaOntem").addEventListener("click", () => {
-  if (desafio && ontemISO() < desafio.data_inicio) {
+  limpaAviso("avisoMeuDia");
+  if (desafioComecou() && ontemISO() < desafio.data_inicio) {
     aviso("avisoMeuDia", "erro", "O desafio começa hoje. Não é possível registrar o dia anterior ao início.");
     return;
   }
