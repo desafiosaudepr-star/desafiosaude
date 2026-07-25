@@ -690,6 +690,106 @@
   .comp-check input { width: auto; }
   .comp-previa { margin: 12px 0; text-align: center; }
   .comp-previa img { width: 100%; max-width: 320px; border-radius: 18px; box-shadow: 0 10px 30px -8px rgba(26,48,56,0.3); }
+
+  /* Tarefa Desafio e repescagem */
+  .faixa-repescagem {
+    display: flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, rgba(215,44,124,0.12), rgba(255,152,0,0.12));
+    border: 1.5px solid var(--cor-saude); border-radius: 16px;
+    padding: 12px 14px; margin-bottom: 14px; font-size: 0.88rem; color: var(--texto-escuro);
+  }
+  .faixa-repescagem b { color: var(--cor-saude); }
+  .card-desafio {
+    background: var(--background-card); border: 2px solid var(--cor-laranja-diaria);
+    border-radius: 18px; padding: 14px; margin-bottom: 16px;
+    box-shadow: 0 8px 24px -8px rgba(255,152,0,0.28);
+  }
+  .card-desafio .selo {
+    display: inline-block; background: var(--cor-laranja-diaria); color: #fff;
+    font-family: 'Poppins'; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.04em;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 8px;
+  }
+  .card-desafio h4 { margin: 0 0 4px; font-size: 1rem; color: var(--texto-escuro); }
+  .card-desafio .desc { font-size: 0.86rem; color: var(--texto-mutado); margin-bottom: 10px; }
+  .card-desafio .rodape { display: flex; align-items: center; gap: 10px; }
+  .card-desafio .prazo { flex: 1; font-size: var(--fs-peq); color: var(--texto-mutado); }
+  .card-desafio .btn-cumprir {
+    border: none; border-radius: 22px; padding: 10px 18px; cursor: pointer;
+    font-family: 'Poppins'; font-weight: 700; font-size: 0.84rem;
+    background: var(--cor-laranja-diaria); color: #fff; min-height: 44px;
+  }
+  .card-desafio.cumprida { border-color: var(--cor-verde-rotina); }
+  .card-desafio.cumprida .selo { background: var(--cor-verde-rotina); }
+  .card-desafio.cumprida .btn-cumprir { background: var(--cor-verde-rotina); }
+
+  /* aviso modal da repescagem */
+  .modal-fundo {
+    position: fixed; inset: 0; z-index: 80; background: rgba(9,36,44,0.55);
+    display: flex; align-items: center; justify-content: center; padding: 22px;
+  }
+  .modal-caixa {
+    background: var(--background-card); border-radius: 22px; padding: 24px 20px;
+    max-width: 340px; width: 100%; text-align: center;
+    box-shadow: 0 24px 60px -12px rgba(26,48,56,0.5);
+  }
+  .modal-caixa .emoji { font-size: 2.6rem; display: block; margin-bottom: 10px; }
+  .modal-caixa h3 { margin: 0 0 8px; font-family: 'Poppins'; color: var(--cor-saude); font-size: 1.16rem; }
+  .modal-caixa p { color: var(--texto-escuro); font-size: 0.92rem; margin-bottom: 18px; }
+  .modal-caixa button {
+    width: 100%; min-height: 46px; border: none; border-radius: 24px; cursor: pointer;
+    background: var(--cor-principal); color: #fff; font-family: 'Poppins'; font-weight: 700;
+  }
+
+  .quebra-linha { display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+    background: var(--background-card); border: 1px solid var(--borda-card);
+    border-radius: 14px; margin-bottom: 8px; }
+  .quebra-linha .pill { width: 10px; height: 34px; border-radius: 6px; flex-shrink: 0; }
+  .quebra-linha .rot { flex: 1; font-size: 0.88rem; color: var(--texto-escuro); }
+  .quebra-linha .rot small { display: block; color: var(--texto-mutado); font-size: 0.76rem; }
+  .quebra-linha .val { font-family: 'Poppins'; font-weight: 700; font-size: 1.12rem; color: var(--cor-principal); }
+  body.tema-escuro .quebra-linha .val { color: #7FD6E2; }
+  .quebra-total { border-color: var(--cor-principal); border-width: 1.6px; }
+
+  /* acordeao da area de administracao */
+  .acordeao { display: flex; flex-direction: column; gap: 10px; }
+  .ac-item { background: var(--background-card); border: 1px solid var(--borda-card);
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 8px 24px -8px rgba(26,48,56,0.10); }
+  .ac-cab { width: 100%; display: flex; align-items: center; gap: 12px;
+    background: transparent; border: none; cursor: pointer; padding: 15px 16px;
+    font-family: 'Poppins'; font-weight: 700; font-size: 0.95rem;
+    color: var(--cor-principal); text-align: left; min-height: 54px; }
+  body.tema-escuro .ac-cab { color: #7FD6E2; }
+  .ac-cab .ac-ic { font-size: 1.16rem; }
+  .ac-cab .ac-tit { flex: 1; }
+  .ac-cab .ac-seta { color: var(--texto-mutado); transition: transform 0.18s ease; font-size: 0.9rem; }
+  .ac-cab.aberto .ac-seta { transform: rotate(180deg); }
+  .ac-cab.aberto { border-bottom: 1px solid var(--borda-card); }
+  .ac-corpo { display: none; padding: 14px 16px 18px; }
+  .ac-corpo.aberto { display: block; }
+  .ac-corpo > label:first-child { margin-top: 0; }
+
+  /* regras editaveis da repescagem */
+  .rep-bloco { border: 1px solid var(--borda-card); border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+  .rep-bloco h4 { margin: 0 0 2px; font-size: 0.95rem; color: var(--cor-principal); }
+  body.tema-escuro .rep-bloco h4 { color: #7FD6E2; }
+  .rep-linha { display: flex; gap: 10px; }
+  .rep-linha > div { flex: 1; }
+  .rep-acoes { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .rep-acoes button { flex: 1; min-width: 130px; min-height: 42px; border-radius: 12px;
+    font-family: 'Poppins'; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+  .btn-salvar-regras { background: var(--cor-principal); color: #fff; border: none; }
+  .btn-apurar { background: transparent; color: var(--cor-saude); border: 1.4px solid var(--cor-saude); }
+
+  /* seletor de temporada */
+  .sel-edicao { display: none; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .sel-edicao label { margin: 0; font-size: var(--fs-peq); color: var(--texto-mutado); white-space: nowrap; }
+  .sel-edicao select { flex: 1; margin: 0; min-height: 42px; font-family: 'Poppins'; font-weight: 700;
+    font-size: 0.86rem; color: var(--cor-principal); }
+  body.tema-escuro .sel-edicao select { color: #7FD6E2; }
+  .faixa-historico { background: rgba(0,188,212,0.12); border: 1px solid var(--cor-azul-acao);
+    border-radius: 14px; padding: 10px 13px; margin-bottom: 14px;
+    font-size: 0.84rem; color: var(--texto-escuro); }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -737,7 +837,7 @@
   </div>
   <div class="cartao">
     <label for="loginUsuario">Usuário</label>
-    <input id="loginUsuario" autocomplete="username" placeholder="ex.: anamaria">
+    <input id="loginUsuario" autocomplete="username" placeholder="Seu usuário">
     <label for="loginSenha">Senha</label>
     <input id="loginSenha" type="password" autocomplete="current-password" placeholder="sua senha">
     <button class="botao" id="btnEntrar">Entrar</button>
@@ -790,6 +890,8 @@
     <button id="diaHoje" class="ativo">Hoje</button>
   </div>
   <div class="aviso" id="avisoMeuDia"></div>
+  <div class="faixa-repescagem" id="faixaRepescagem" style="display:none"></div>
+  <div id="blocoDesafio"></div>
   <div id="listaTarefas"></div>
 </section>
 
@@ -803,7 +905,10 @@
     <div class="mini-card"><div class="valor" id="pgStreak">0</div><div class="rot">dias seguidos</div></div>
     <div class="mini-card"><div class="valor" id="pgPerfeitos">0</div><div class="rot">dias perfeitos</div></div>
   </div>
+  <div class="sel-edicao" id="selEdProgresso"></div>
   <div class="faixa-info" id="pgAvisoPeriodo" style="display:none"></div>
+  <div class="secao-titulo">De onde vêm meus pontos</div>
+  <div id="pgQuebraPontos"></div>
   <div class="secao-titulo">Evolução da turma</div>
   <div class="grafico-caixa"><div class="grafico-cont"><canvas id="graficoEvolucao"></canvas></div></div>
   <div class="secao-titulo">Você vs grupo</div>
@@ -833,8 +938,9 @@
 
 <!-- RANKING E MURAL -->
 <section class="tela" id="telaTurma">
-  <div class="saudacao"><h2>A turma</h2><p id="turmaPeriodo"></p></div>
+  <div class="saudacao"><h2>A turma</h2></div>
 
+  <div class="sel-edicao" id="selEdTurma"></div>
   <div class="abas">
     <button id="abaRanking" class="ativo">Ranking</button>
     <button id="abaMural">Mural <span class="cont" id="muralCont">0</span></button>
@@ -941,29 +1047,170 @@
 
 <!-- ADMIN -->
 <section class="tela" id="telaAdmin">
-  <div class="saudacao"><h2>Admin</h2><p>Cadastro de participantes e moderação do mural.</p></div>
-  <div class="cartao">
-    <h3 style="color:var(--verde-escuro);margin-top:0">Cadastrar participante</h3>
-    <label for="adNome">Nome (como aparece no ranking)</label>
-    <input id="adNome" placeholder="Ana Maria">
-    <label for="adUsuario">Usuário (para o login)</label>
-    <input id="adUsuario" placeholder="anamaria">
-    <label for="adSenha">Senha inicial</label>
-    <input id="adSenha" value="trocar123">
-    <button class="botao" id="btnAdCadastrar">Cadastrar</button>
-    <div class="aviso" id="avisoAdCad"></div>
+  <div class="saudacao"><h2>Área da Administração</h2></div>
+
+  <div class="acordeao" id="acAdmin">
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acEdicoes">
+        <span class="ac-ic">🗂</span><span class="ac-tit">Edições do desafio</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acEdicoes">
+        <p class="nota" style="margin-top:0">Cada edição tem as próprias tarefas, inscrições e pontuação. A pontuação começa do zero em cada temporada, e as anteriores continuam consultáveis por todos.</p>
+        <div id="edLista"></div>
+
+        <div class="secao-titulo" style="margin-top:16px">Nova edição</div>
+        <label for="edNome">Nome</label>
+        <input id="edNome" maxlength="60" placeholder="Ex.: Desafio Mais Saúde, 2ª temporada">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="edIni">Início</label><input id="edIni" type="date"></div>
+          <div style="flex:1"><label for="edFim">Fim</label><input id="edFim" type="date"></div>
+        </div>
+        <label for="edCopiar">Copiar as tarefas de</label>
+        <select id="edCopiar"></select>
+        <button class="botao" id="btnEdCriar">Criar edição em rascunho</button>
+        <div class="aviso" id="avisoEd"></div>
+      </div>
+    </div>
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acTarefas">
+        <span class="ac-ic">✅</span><span class="ac-tit">Tarefas diárias</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acTarefas">
+        <label for="tfEdicao">Edição</label>
+        <select id="tfEdicao"></select>
+        <div class="aviso" id="avisoTfTrava"></div>
+        <div id="tfLista"></div>
+
+        <div class="secao-titulo" style="margin-top:16px">Nova tarefa</div>
+        <label for="tfDesc">Descrição</label>
+        <input id="tfDesc" maxlength="90" placeholder="Ex.: Beber água">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="tfValor">Pontuação</label>
+            <select id="tfValor">
+              <option value="1">Ganha 1 ponto</option>
+              <option value="-1">Perde 1 ponto</option>
+              <option value="0">Só acompanhamento (0)</option>
+            </select>
+          </div>
+          <div style="flex:1"><label for="tfCodigo">Código</label>
+            <input id="tfCodigo" maxlength="8" placeholder="Ex.: 3.1"></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="tfMinimo">Mínimo (número)</label>
+            <input id="tfMinimo" type="number" step="0.5" min="0" placeholder="opcional"></div>
+          <div style="flex:1"><label for="tfUnidade">Unidade</label>
+            <select id="tfUnidade">
+              <option value="">sem unidade</option>
+              <option value="L">L (litros)</option>
+              <option value="min">min (minutos)</option>
+              <option value="h">h (horas)</option>
+              <option value="unidades">unidades</option>
+              <option value="tipos">tipos</option>
+            </select>
+          </div>
+        </div>
+        <button class="botao" id="btnTfCriar">Adicionar tarefa</button>
+        <div class="aviso" id="avisoTf"></div>
+      </div>
+    </div>
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acPeriodo">
+        <span class="ac-ic">📅</span><span class="ac-tit">Período do desafio</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acPeriodo">
+        <p class="nota" style="margin-top:0">Estas datas alimentam o regulamento, a tela Sobre, os gráficos e a regra que bloqueia o registro do dia anterior no primeiro dia.</p>
+        <label for="dsNome">Nome da edição</label>
+        <input id="dsNome" maxlength="60" placeholder="Ex.: Desafio Mais Saúde 2026">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="dsIni">Início</label><input id="dsIni" type="date"></div>
+          <div style="flex:1"><label for="dsFim">Fim</label><input id="dsFim" type="date"></div>
+        </div>
+        <p class="nota" id="dsResumo" style="margin-bottom:10px"></p>
+        <button class="botao" id="btnDsSalvar">Salvar período</button>
+        <div class="aviso" id="avisoDs"></div>
+      </div>
+    </div>
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acCadastro">
+        <span class="ac-ic">👤</span><span class="ac-tit">Cadastrar participante</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acCadastro">
+        <label for="adNome">Nome (como aparece no ranking)</label>
+        <input id="adNome" placeholder="Ana Maria">
+        <label for="adUsuario">Usuário (para o login)</label>
+        <input id="adUsuario" placeholder="Sem espaços e sem acentos">
+        <label for="adSenha">Senha inicial</label>
+        <input id="adSenha" value="trocar123">
+        <button class="botao" id="btnAdCadastrar">Cadastrar</button>
+        <div class="aviso" id="avisoAdCad"></div>
+      </div>
+    </div>
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acDesafio">
+        <span class="ac-ic">🏅</span><span class="ac-tit">Tarefa Desafio (pontos bônus)</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acDesafio">
+        <label for="tdTitulo">Título</label>
+        <input id="tdTitulo" maxlength="80" placeholder="Ex.: 10 mil passos em um único dia">
+        <label for="tdDesc">Descrição (opcional)</label>
+        <input id="tdDesc" maxlength="140" placeholder="Detalhe o que precisa ser feito">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="tdIni">De</label><input id="tdIni" type="date"></div>
+          <div style="flex:1"><label for="tdFim">Até</label><input id="tdFim" type="date"></div>
+        </div>
+        <button class="botao" id="btnTdCriar">Publicar Tarefa Desafio</button>
+        <div class="aviso" id="avisoTd"></div>
+        <div id="tdLista" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acRepescagem">
+        <span class="ac-ic">🔥</span><span class="ac-tit">Repescagem</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acRepescagem">
+        <p class="nota" style="margin-top:0">A lista de elegíveis é apurada sozinha na virada do primeiro dia de cada período. Alterar as regras abaixo não refaz a apuração automaticamente: use o botão Apurar agora depois de salvar.</p>
+        <div id="repLista"></div>
+        <div class="aviso" id="avisoRep"></div>
+      </div>
+    </div>
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acParticipantes">
+        <span class="ac-ic">📋</span><span class="ac-tit">Frequência e participantes</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acParticipantes">
+        <div id="adFrequencia"></div>
+        <div class="secao-titulo" style="margin-top:10px">Participantes</div>
+        <div id="adLista"></div>
+      </div>
+    </div>
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acMural">
+        <span class="ac-ic">💬</span><span class="ac-tit">Moderação do mural</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acMural">
+        <div id="adMural"></div>
+      </div>
+    </div>
+
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acExportar">
+        <span class="ac-ic">📊</span><span class="ac-tit">Exportar dados</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acExportar">
+        <button class="botao secundario" id="btnExportarXlsx">Baixar Excel (ranking e lançamentos)</button>
+        <div class="aviso" id="avisoExport"></div>
+      </div>
+    </div>
+
   </div>
-  <div class="secao-titulo">Frequência da turma</div>
-  <div id="adFrequencia"></div>
-  <div class="secao-titulo">Participantes</div>
-  <div id="adLista"></div>
-  <div class="cartao">
-    <h3 style="color:var(--verde-escuro);margin-top:0">Exportar</h3>
-    <button class="botao secundario" id="btnExportarXlsx">Baixar Excel (ranking e lançamentos)</button>
-    <div class="aviso" id="avisoExport"></div>
-  </div>
-  <div class="secao-titulo">Moderação do mural</div>
-  <div id="adMural"></div>
 </section>
 
 
@@ -1090,7 +1337,7 @@
   <div class="saudacao"><h2>Sobre o app</h2><p>Desafio Mais Saúde · na Rotina Diária</p></div>
   <div class="cartao regulamento">
     <h4>Nosso objetivo</h4>
-    <p>Transformar pequenos hábitos diários em grandes vitórias de saúde, em grupo. Durante 2 meses, a turma cuida do sono, da alimentação, da hidratação, da atividade física e do tempo de tela, somando pontos a cada dia bem vivido e se apoiando pelo caminho.</p>
+    <p>Transformar pequenos hábitos diários em grandes vitórias de saúde, em grupo. Durante <span id="sobreDuracao">o desafio</span>, a turma cuida do sono, da alimentação, da hidratação, da atividade física e do tempo de tela, somando pontos a cada dia bem vivido e se apoiando pelo caminho.</p>
     <h4>Como funciona</h4>
     <ul>
       <li><b>Meu Dia:</b> um checklist de 1 toque para marcar as tarefas cumpridas. Cada dia pode ser lançado em até 48 horas.</li>
@@ -1104,7 +1351,7 @@
     <h4>Privacidade em primeiro lugar</h4>
     <p>O detalhe das suas tarefas e as suas medidas são só seus. O grupo vê apenas nome e pontuação, e os indicadores coletivos nunca mostram nomes.</p>
     <h4>Vencedor</h4>
-    <p>Vence quem tiver a maior pontuação acumulada ao final. O prêmio é surpresa!</p>
+    <p>Vence quem tiver a maior pontuação acumulada ao final. O prêmio é o acumulado das inscrições da turma (R$ 20,00 por pessoa).</p>
     <p class="nota">Feito com carinho para a nossa turma. Tecnologia: aplicativo web instalável (PWA) com banco seguro na nuvem.</p>
     <p class="nota">Versão <span id="verAppSobre"></span></p>
   </div>
@@ -1216,8 +1463,11 @@ const CORES_TRACO = {
 
 let sessao = null;        // { access_token, refresh_token, user: {id} }
 let perfil = null;        // linha de public.perfis
-let desafio = null;       // edicao ativa
-let tarefas = [];         // catalogo
+let desafio = null;       // edicao ATIVA (a unica que aceita lancamento)
+let tarefas = [];         // tarefas da edicao ativa
+let edicoes = [];         // todas as edicoes, para o seletor de temporada
+let edicaoVista = null;   // edicao que esta sendo consultada em Progresso e Turma
+let tarefasVista = [];    // tarefas da edicao consultada
 let marcadosPorDia = {};  // { 'YYYY-MM-DD': Set(tarefa_id) }
 let diaSelecionado = null;
 
@@ -1336,6 +1586,9 @@ async function entrar() {
   $("drawerNome").textContent = perfil.apelido || perfil.nome;
   $("itemAdmin").style.display = perfil.papel === "admin" ? "" : "none";
   if (!perfil.consentimento_lgpd) { mostraTela("telaConsent"); return; }
+  // O administrador nao compete no ranking, entao vai direto para a tela dele.
+  // As demais telas continuam acessiveis pela barra de baixo.
+  if (perfil.papel === "admin") { await abrirAdmin(); return; }
   await abrirMeuDia();
 }
 
@@ -1357,6 +1610,126 @@ $("btnAceitar").addEventListener("click", async () => {
   } finally { btn.disabled = false; }
 });
 
+
+/* ================= TAREFA DESAFIO E REPESCAGEM ================= */
+let desafiosBonus = [];        // tarefas desafio validas hoje
+let bonusMarcados = new Set(); // ids das que ja cumpri
+let repescagemAtiva = null;    // periodo em andamento
+let souElegivel = false;
+
+async function carregaBonusERepescagem() {
+  const hoje = hojeISO();
+  try {
+    const [tds, meus, pers] = await Promise.all([
+      api("/rest/v1/tarefas_desafio?ativa=eq.true&select=id,titulo,descricao,data_inicio,data_fim,valor_ponto&order=data_fim.asc"),
+      api("/rest/v1/lancamentos_desafio?user_id=eq." + sessao.user.id + "&marcado=eq.true&select=tarefa_desafio_id"),
+      api("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,nome,data_inicio,data_fim,multiplicador&order=data_inicio.asc")
+    ]);
+    desafiosBonus = (tds || []).filter(t => hoje >= t.data_inicio && hoje <= t.data_fim);
+    bonusMarcados = new Set((meus || []).map(m => m.tarefa_desafio_id));
+    repescagemAtiva = (pers || []).find(p => hoje >= p.data_inicio && hoje <= p.data_fim) || null;
+    souElegivel = false;
+    if (repescagemAtiva) {
+      const el = await api("/rest/v1/repescagem_elegiveis?periodo_id=eq." + repescagemAtiva.id +
+                           "&user_id=eq." + sessao.user.id + "&select=user_id");
+      souElegivel = !!(el && el.length);
+    }
+  } catch {
+    desafiosBonus = []; repescagemAtiva = null; souElegivel = false;
+  }
+}
+
+// multiplicador que vale para um dia, para o app calcular igual ao banco
+function multiplicadorDoDia(dataISO) {
+  if (!repescagemAtiva || !souElegivel) return 1;
+  if (dataISO < repescagemAtiva.data_inicio || dataISO > repescagemAtiva.data_fim) return 1;
+  return repescagemAtiva.multiplicador || 2;
+}
+
+function desenhaFaixaRepescagem() {
+  const f = $("faixaRepescagem");
+  if (repescagemAtiva && souElegivel) {
+    f.style.display = "flex";
+    f.innerHTML = '<span style="font-size:1.5rem">🔥</span><span>Você está na <b>repescagem</b>! Até ' +
+      fmtDia(repescagemAtiva.data_fim) + ', cada tarefa saudável vale <b>2 pontos</b>. Os hábitos a evitar seguem em -1.</span>';
+  } else {
+    f.style.display = "none";
+    f.innerHTML = "";
+  }
+}
+
+function desenhaBonus() {
+  const bloco = $("blocoDesafio");
+  if (!desafiosBonus.length) { bloco.innerHTML = ""; return; }
+  bloco.innerHTML = desafiosBonus.map(t => {
+    const feita = bonusMarcados.has(t.id);
+    return `<div class="card-desafio ${feita ? "cumprida" : ""}">
+      <span class="selo">${feita ? "DESAFIO CUMPRIDO" : "TAREFA DESAFIO"}</span>
+      <h4>${escapaHtml(t.titulo)}</h4>
+      ${t.descricao ? `<div class="desc">${escapaHtml(t.descricao)}</div>` : ""}
+      <div class="rodape">
+        <span class="prazo">Vale +${t.valor_ponto} ponto${t.valor_ponto === 1 ? "" : "s"} · até ${fmtDia(t.data_fim)}</span>
+        <button type="button" class="btn-cumprir" data-bonus="${t.id}">${feita ? "✓ Cumprida" : "Marcar como feita"}</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+$("blocoDesafio").addEventListener("click", async ev => {
+  const id = ev.target && ev.target.dataset && ev.target.dataset.bonus;
+  if (!id) return;
+  const btn = ev.target;
+  btn.disabled = true;
+  limpaAviso("avisoMeuDia");
+  const jaFeita = bonusMarcados.has(id);
+  try {
+    if (jaFeita) {
+      await api("/rest/v1/lancamentos_desafio?user_id=eq." + sessao.user.id +
+                "&tarefa_desafio_id=eq." + id, { method: "DELETE" });
+      bonusMarcados.delete(id);
+    } else {
+      await api("/rest/v1/lancamentos_desafio?on_conflict=user_id,tarefa_desafio_id", {
+        method: "POST",
+        headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify({ user_id: sessao.user.id, tarefa_desafio_id: id, marcado: true })
+      });
+      bonusMarcados.add(id);
+      soltaConfete();
+    }
+    desenhaBonus();
+  } catch (e) {
+    const m = /prazo|indisponivel/i.test(e.message)
+      ? "Esta Tarefa Desafio está fora do prazo."
+      : e.message;
+    aviso("avisoMeuDia", "erro", "Não foi possível registrar: " + m);
+    btn.disabled = false;
+  }
+});
+
+/* ---------- aviso de início da repescagem, uma vez por período ---------- */
+function avisaRepescagem() {
+  if (!repescagemAtiva) return;
+  const chave = "repescagem_avisada_" + repescagemAtiva.id;
+  try { if (localStorage.getItem(chave)) return; } catch { return; }
+  const ini = fmtDia(repescagemAtiva.data_inicio);
+  const fim = fmtDia(repescagemAtiva.data_fim);
+  const fundo = document.createElement("div");
+  fundo.className = "modal-fundo";
+  fundo.innerHTML = `<div class="modal-caixa">
+    <span class="emoji">🔥</span>
+    <h3>Começou a Repescagem!</h3>
+    <p>No período de ${ini} a ${fim} o jogo pode virar!${souElegivel
+      ? " Você está na repescagem: suas tarefas saudáveis valem <b>2 pontos</b> cada."
+      : ""}</p>
+    <button type="button">Entendi</button>
+  </div>`;
+  fundo.querySelector("button").addEventListener("click", () => {
+    try { localStorage.setItem(chave, "1"); } catch {}
+    fundo.remove();
+  });
+  document.body.appendChild(fundo);
+}
+
 /* ---------------- meu dia ---------------- */
 function desafioComecou() {
   return !!(desafio && hojeISO() >= desafio.data_inicio);
@@ -1366,6 +1739,12 @@ async function abrirMeuDia() {
   if (diaSelecionado && desafioComecou() && diaSelecionado < desafio.data_inicio && diaSelecionado === ontemISO()) {
     diaSelecionado = hojeISO();
   }
+  carregaBonusERepescagem().then(() => {
+    desenhaFaixaRepescagem();
+    desenhaBonus();
+    atualizaSaldo();
+    avisaRepescagem();
+  });
   mostraTela("telaMeuDia");
   $("listaTarefas").innerHTML = skelHtml(6, 56);
   $("ola").textContent = "Olá, " + (perfil.apelido || perfil.nome.split(" ")[0]) + "!";
@@ -1373,13 +1752,22 @@ async function abrirMeuDia() {
   atualizaSeletorDia();
   $("dataExtenso").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
   try {
-    const [ds, ts] = await Promise.all([
-      api("/rest/v1/desafios?status=eq.ativo&select=id,nome,data_inicio,data_fim&limit=1"),
-      api("/rest/v1/tarefas?ativo=eq.true&select=id,codigo,grupo,descricao,valor_ponto,minimo_padrao,minimo_valor,unidade,quantificavel&order=grupo.asc,ordem.asc")
-    ]);
-    desafio = ds && ds[0];
-    tarefas = ts || [];
-    if (!desafio) { $("listaTarefas").innerHTML = "<div class='centro'>Nenhuma edição ativa do desafio.</div>"; return; }
+    edicoes = (await api("/rest/v1/desafios?select=id,nome,data_inicio,data_fim,status&order=data_inicio.desc")) || [];
+    desafio = edicoes.find(e => e.status === "ativo") || null;
+    if (!desafio) {
+      // Entre uma temporada e outra nao ha o que lancar, mas o historico
+      // continua acessivel pelo Progresso e pela Turma.
+      tarefas = [];
+      edicaoVista = edicoes.length ? edicoes[0].id : null;
+      $("blocoDesafio").innerHTML = "";
+      $("faixaRepescagem").style.display = "none";
+      $("listaTarefas").innerHTML = "<div class='centro'>Nenhuma edição em andamento no momento." +
+        (edicoes.length ? " Você pode consultar as temporadas anteriores em Progresso e em Turma." : "") + "</div>";
+      return;
+    }
+    edicaoVista = desafio.id;
+    tarefas = await carregaTarefasDaEdicao(desafio.id);
+    tarefasVista = tarefas;
     const hoje = hojeISO();
     if (hoje < desafio.data_inicio) {
       const fx = $("faixaPeriodo");
@@ -1474,12 +1862,16 @@ async function alternaTarefa(el) {
 
 function atualizaSaldo() {
   const marc = setMarcados(diaSelecionado);
+  const mult = multiplicadorDoDia(diaSelecionado);
   let saldo = 0;
-  tarefas.forEach(t => { if (marc.has(t.id)) saldo += t.valor_ponto; });
+  tarefas.forEach(t => {
+    if (!marc.has(t.id)) return;
+    saldo += t.valor_ponto > 0 ? t.valor_ponto * mult : t.valor_ponto;
+  });
   $("saldoNum").textContent = (saldo > 0 ? "+" : "") + saldo;
   $("saldoNum").style.color = saldo >= 0 ? PAL.principal : "var(--erro)";
   const positivas = tarefas.filter(t => t.valor_ponto === 1).length;
-  if (saldo === positivas && positivas > 0) soltaConfete();
+  if (saldo === positivas * mult && positivas > 0) soltaConfete();
 }
 
 async function atualizaStreak() {
@@ -1636,13 +2028,16 @@ function diasAtras(n) { const d = new Date(); d.setDate(d.getDate() - n); return
 
 function diasDoPeriodo() {
   const hoje = hojeISO();
-  let ini = desafio.data_inicio;
-  let fim = hoje < desafio.data_fim ? hoje : desafio.data_fim;
+  const ed = edicaoVistaObj();
+  if (!ed) { periodoDeTestes = false; return []; }
+  let ini = ed.data_inicio;
+  // Numa edicao encerrada, o periodo vai ate o fim dela; na ativa, ate hoje.
+  let fim = (ed.status === "encerrado" || hoje > ed.data_fim) ? ed.data_fim : hoje;
 
   // Enquanto a edicao nao comeca, o intervalo oficial fica vazio (o inicio esta
   // no futuro) e nenhum grafico tem o que desenhar. Nesse caso, mostramos a
   // janela recente, para o app ja fazer sentido durante os testes.
-  periodoDeTestes = fim < ini;
+  periodoDeTestes = (fim < ini) && ehEdicaoAtiva();
   if (periodoDeTestes) {
     const conhecidas = (cacheSaldos || []).map(r => r.data).filter(Boolean).sort();
     const maisAntiga = conhecidas.length ? conhecidas[0] : null;
@@ -1657,20 +2052,123 @@ function diasDoPeriodo() {
   return dias;
 }
 function fmtDia(iso) { return iso.slice(8,10) + "/" + iso.slice(5,7); }
+function fmtDataCompleta(iso) { return iso.slice(8,10) + "/" + iso.slice(5,7) + "/" + iso.slice(0,4); }
+
+// Duracao do desafio em linguagem natural, calculada a partir das datas reais
+function duracaoTexto(ini, fim) {
+  const d1 = new Date(ini + "T00:00:00"), d2 = new Date(fim + "T00:00:00");
+  const dias = Math.round((d2 - d1) / 86400000) + 1;
+  if (dias >= 55) {
+    const meses = Math.round(dias / 30.44);
+    if (Math.abs(dias - meses * 30.44) <= 5) return meses + (meses === 1 ? " mês" : " meses");
+  }
+  if (dias >= 14 && dias % 7 === 0) return (dias / 7) + " semanas";
+  return dias + " dias";
+}
+
+// Texto do periodo, sempre vindo do banco: muda sozinho quando o
+// administrador ajusta as datas do desafio.
+function periodoTexto() {
+  if (!desafio) return "Período informado pelo organizador";
+  return "De " + fmtDataCompleta(desafio.data_inicio) + " a " + fmtDataCompleta(desafio.data_fim) +
+         " (" + duracaoTexto(desafio.data_inicio, desafio.data_fim) + ")";
+}
+
+const CAMPOS_TAREFA = "id,codigo,grupo,descricao,valor_ponto,minimo_padrao,minimo_valor,unidade,quantificavel,ordem";
+
+async function carregaTarefasDaEdicao(id) {
+  if (!id) return [];
+  return (await api("/rest/v1/tarefas?ativo=eq.true&desafio_id=eq." + id +
+                    "&select=" + CAMPOS_TAREFA + "&order=grupo.asc,ordem.asc")) || [];
+}
 
 async function garanteBase() {
-  if (!desafio || !tarefas.length) {
-    const [ds, ts] = await Promise.all([
-      api("/rest/v1/desafios?status=eq.ativo&select=id,nome,data_inicio,data_fim&limit=1"),
-      api("/rest/v1/tarefas?ativo=eq.true&select=id,codigo,grupo,descricao,valor_ponto,minimo_padrao,minimo_valor,unidade,quantificavel&order=grupo.asc,ordem.asc")
-    ]);
-    desafio = ds && ds[0]; tarefas = ts || [];
+  if (!edicoes.length) {
+    edicoes = (await api("/rest/v1/desafios?select=id,nome,data_inicio,data_fim,status&order=data_inicio.desc")) || [];
   }
+  if (!desafio) desafio = edicoes.find(e => e.status === "ativo") || null;
+  if (!edicaoVista) edicaoVista = desafio ? desafio.id : (edicoes[0] ? edicoes[0].id : null);
+  if (desafio && !tarefas.length) tarefas = await carregaTarefasDaEdicao(desafio.id);
+  await garanteTarefasVista();
+  if (sessao) await garanteInscricao();
+}
+
+// Tarefas da edicao consultada: reaproveita as da ativa quando for a mesma
+async function garanteTarefasVista() {
+  if (!edicaoVista) { tarefasVista = []; return; }
+  if (desafio && edicaoVista === desafio.id) { tarefasVista = tarefas; return; }
+  if (!tarefasVista.length || tarefasVista._edicao !== edicaoVista) {
+    tarefasVista = await carregaTarefasDaEdicao(edicaoVista);
+    tarefasVista._edicao = edicaoVista;
+  }
+}
+
+
+// Data de entrada do participante NA EDICAO consultada. A janela de 5 dias
+// para ajustar metas conta a partir dela, e nao mais da data do perfil.
+let minhaInscricao = null;
+async function garanteInscricao() {
+  const alvo = desafio ? desafio.id : edicaoVista;
+  if (!alvo || !sessao) return null;
+  if (minhaInscricao && minhaInscricao.desafio_id === alvo) return minhaInscricao;
+  try {
+    const r = await api("/rest/v1/inscricoes?user_id=eq." + sessao.user.id +
+                        "&desafio_id=eq." + alvo + "&select=desafio_id,data_entrada,ativo");
+    minhaInscricao = (r && r[0]) || null;
+  } catch { minhaInscricao = null; }
+  return minhaInscricao;
+}
+function dataEntradaEdicao() {
+  if (minhaInscricao && minhaInscricao.data_entrada) return minhaInscricao.data_entrada;
+  const ed = edicaoVistaObj();
+  if (ed) return ed.data_inicio;
+  return perfil ? perfil.data_entrada : null;
+}
+
+function edicaoVistaObj() { return edicoes.find(e => e.id === edicaoVista) || desafio; }
+function ehEdicaoAtiva() { return !!(desafio && edicaoVista === desafio.id); }
+// filtro pronto para as consultas por edicao
+function fEd(id) { return "&desafio_id=eq." + (id || edicaoVista); }
+
+
+/* ---------- seletor de temporada (Progresso e Turma) ---------- */
+function rotuloEdicao(e) {
+  const marca = e.status === "ativo" ? " (em andamento)" : "";
+  return e.nome + " · " + fmtDia(e.data_inicio) + " a " + fmtDia(e.data_fim) + marca;
+}
+
+function montaSeletorEdicao(idElemento, aoTrocar) {
+  const el = $(idElemento);
+  if (!el) return;
+  if (edicoes.length < 2) { el.style.display = "none"; return; }
+  el.style.display = "flex";
+  el.innerHTML = '<label for="' + idElemento + 'Sel">Temporada</label>' +
+    '<select id="' + idElemento + 'Sel">' +
+    edicoes.map(e => `<option value="${e.id}" ${e.id === edicaoVista ? "selected" : ""}>${escapaHtml(rotuloEdicao(e))}</option>`).join("") +
+    "</select>";
+  $(idElemento + "Sel").addEventListener("change", async ev => {
+    edicaoVista = ev.target.value;
+    await garanteTarefasVista();
+    aoTrocar();
+  });
+}
+
+function avisoHistorico(idAlvo) {
+  const ed = edicaoVistaObj();
+  const el = $(idAlvo);
+  if (!el) return;
+  if (!ed || ehEdicaoAtiva()) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.className = "faixa-historico";
+  el.textContent = "Você está vendo uma temporada encerrada (" + fmtDataCompleta(ed.data_inicio) +
+    " a " + fmtDataCompleta(ed.data_fim) + "). Os dados são apenas para consulta.";
 }
 
 /* ---------------- PROGRESSO ---------------- */
 async function abrirProgresso() {
   mostraTela("telaProgresso");
+  await garanteBase();
+  montaSeletorEdicao("selEdProgresso", abrirProgresso);
   $("pgIndividuais").innerHTML = skelHtml(2, 38);
   $("pgAdesao").innerHTML = skelHtml(4, 30);
   $("pgColetivos").innerHTML = skelHtml(2, 38);
@@ -1680,12 +2178,12 @@ async function abrirProgresso() {
   const uid = sessao.user.id;
   try {
     const [ranking, saldos, meus, indInd, indCol, tarGrupo] = await Promise.all([
-      api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total"),
-      api("/rest/v1/vw_saldo_diario?select=user_id,data,saldo_dia&order=data.asc"),
+      api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total" + fEd()),
+      api("/rest/v1/vw_saldo_diario?select=user_id,data,saldo_dia&order=data.asc" + fEd()),
       api("/rest/v1/lancamentos?user_id=eq." + uid + "&select=data,marcado,tarefa_id"),
-      api("/rest/v1/vw_indicadores_quantidade_individual?select=codigo,descricao,unidade,total"),
-      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,descricao,unidade,total_grupo"),
-      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=descricao,grupo,cumprimentos,taxa_adesao_pct")
+      api("/rest/v1/vw_indicadores_quantidade_individual?select=codigo,descricao,unidade,total" + fEd()),
+      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,descricao,unidade,total_grupo" + fEd()),
+      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=descricao,grupo,cumprimentos,taxa_adesao_pct" + fEd())
     ]);
     cacheRanking = ranking || []; cacheSaldos = saldos || [];
 
@@ -1701,7 +2199,9 @@ async function abrirProgresso() {
       const t = tarefas.find(x => x.id === l.tarefa_id);
       if (!t) return;
       if (!meusPorDia[l.data]) meusPorDia[l.data] = { saldo: 0, pos: 0 };
-      meusPorDia[l.data].saldo += t.valor_ponto;
+      meusPorDia[l.data].saldo += t.valor_ponto > 0
+        ? t.valor_ponto * multiplicadorDoDia(l.data)
+        : t.valor_ponto;
       if (t.grupo === 1 && t.valor_ponto === 1) meusPorDia[l.data].pos++;
     });
     let perfeitos = 0;
@@ -1722,9 +2222,17 @@ async function abrirProgresso() {
       desenhaPosicaoDia(uid);
       desenhaPontosDia(uid, meusPorDia);
       desenhaMedidas();
+      desenhaQuebraPontos();
     }
     const av = $("pgAvisoPeriodo");
-    if (periodoDeTestes) {
+    if (!ehEdicaoAtiva()) {
+      const ed = edicaoVistaObj();
+      av.style.display = "block";
+      av.className = "faixa-historico";
+      av.textContent = "Temporada encerrada (" + fmtDataCompleta(ed.data_inicio) + " a " +
+        fmtDataCompleta(ed.data_fim) + "). Dados apenas para consulta.";
+    } else if (periodoDeTestes) {
+      av.className = "faixa-info";
       av.style.display = "block";
       av.textContent = "A edição começa em " + desafio.data_inicio.split("-").reverse().join("/") +
         ". Até lá, os gráficos mostram os seus lançamentos de teste dos últimos dias.";
@@ -1794,6 +2302,32 @@ function desenhaEvolucao(uid) {
 }
 
 
+
+
+/* ---------- quebra dos pontos (consistencia, bonus, repescagem) ---------- */
+async function desenhaQuebraPontos() {
+  const alvo = $("pgQuebraPontos");
+  alvo.innerHTML = skelHtml(3, 56);
+  try {
+    const r = await api("/rest/v1/vw_pontos_detalhe?user_id=eq." + sessao.user.id + fEd() +
+                        "&select=pontos_consistencia,pontos_bonus,pontos_repescagem,pontos_total");
+    const d = (r && r[0]) || { pontos_consistencia: 0, pontos_bonus: 0, pontos_repescagem: 0, pontos_total: 0 };
+    const linhas = [
+      [PAL.principal, "Consistência", "tarefas do dia a dia", d.pontos_consistencia],
+      [PAL.laranja, "Bônus", "Tarefas Desafio cumpridas", d.pontos_bonus],
+      [PAL.saude, "Repescagem", "pontos extras dos períodos", d.pontos_repescagem]
+    ];
+    alvo.innerHTML = linhas.map(([cor, tit, sub, val]) =>
+      `<div class="quebra-linha"><span class="pill" style="background:${cor}"></span>
+        <span class="rot">${tit}<small>${sub}</small></span>
+        <span class="val">${val > 0 ? "+" : ""}${val}</span></div>`).join("") +
+      `<div class="quebra-linha quebra-total"><span class="pill" style="background:${PAL.verde}"></span>
+        <span class="rot"><b>Total acumulado</b></span>
+        <span class="val">${d.pontos_total}</span></div>`;
+  } catch (e) {
+    alvo.innerHTML = '<div class="nota">Não foi possível carregar a quebra dos pontos.</div>';
+  }
+}
 
 /* ---------- evolucao das medidas (privado) ---------- */
 let graficoMed = null;
@@ -1973,7 +2507,8 @@ $("vsPosicao").addEventListener("click", () => { modoVs = "posicao"; $("vsPosica
 
 function desenhaAdesao(meus) {
   const dias = diasDoPeriodo();
-  const ini = (perfil.data_entrada && dias.length && perfil.data_entrada > dias[0]) ? perfil.data_entrada : (dias[0] || hojeISO());
+  const entrada = dataEntradaEdicao();
+  const ini = (entrada && dias.length && entrada > dias[0]) ? entrada : (dias[0] || hojeISO());
   const possiveis = dias.filter(d => d >= ini).length;
   const porTarefa = {};
   meus.forEach(l => { if (l.marcado) porTarefa[l.tarefa_id] = (porTarefa[l.tarefa_id] || 0) + 1; });
@@ -1994,7 +2529,8 @@ async function abrirTurma() {
   mostraTela("telaTurma");
   trocaAbaTurma("ranking");
   await garanteBase();
-  if (desafio) $("turmaPeriodo").textContent = "Edição de " + fmtDia(desafio.data_inicio) + " a " + fmtDia(desafio.data_fim);
+  montaSeletorEdicao("selEdTurma", abrirTurma);
+  await garanteBase();
   await Promise.all([carregaRanking(), carregaMural()]);
   if (timerTurma) clearInterval(timerTurma);
   timerTurma = setInterval(() => {
@@ -2006,7 +2542,7 @@ async function abrirTurma() {
 async function carregaRanking() {
   if (!$("rankLista").innerHTML.trim()) $("rankLista").innerHTML = skelHtml(5, 48);
   try {
-    const linhas = await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total");
+    const linhas = await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total" + fEd());
     cacheRanking = linhas || [];
     const uid = sessao.user.id;
     $("rankLista").innerHTML = cacheRanking.length ? cacheRanking.map((r, i) => {
@@ -2049,7 +2585,7 @@ async function carregaMural() {
   if (!$("muralLista").innerHTML.trim()) $("muralLista").innerHTML = skelHtml(3, 64);
   try {
     const [msgs, reacs] = await Promise.all([
-      api("/rest/v1/mural?oculto=eq.false&select=id,autor_id,mensagem,gif_url,tipo,data_hora,perfis(nome,apelido)&order=data_hora.desc&limit=50"),
+      api("/rest/v1/mural?oculto=eq.false&select=id,autor_id,mensagem,gif_url,tipo,data_hora,perfis(nome,apelido)&order=data_hora.desc&limit=50" + fEd()),
       api("/rest/v1/mural_reacoes?select=mural_id,user_id,emoji")
     ]);
     const uid = sessao.user.id;
@@ -2090,6 +2626,44 @@ function fmtHoras(min) {
   const h = min / 60;
   return h >= 10 ? Math.round(h) : (Math.round(h * 10) / 10).toString().replace(".", ",");
 }
+
+/* ---------- cards coletivos gerados a partir das tarefas da edicao ----------
+   Antes os cards dependiam de codigos fixos (3.1, 4.1, 5.2, 6.1). Como o
+   administrador agora define as tarefas de cada edicao, eles passam a ser
+   montados a partir das tarefas quantificaveis daquela temporada. */
+function icSvg(d) {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+}
+const ICONE_POR_UNIDADE = {
+  "L":        '<path d="M12 3q6 7.2 6 11a6 6 0 0 1-12 0q0-3.8 6-11Z"/>',
+  "min":      '<circle cx="14" cy="4.5" r="1.8"/><path d="M9 20l2.2-5L8 12l3-4l4 2.5l3-1"/><path d="M8 12l-3.5 1"/>',
+  "h":        '<path d="M20 13.5A8 8 0 0 1 10.5 4a8 8 0 1 0 9.5 9.5Z"/>',
+  "unidades": '<path d="M12 8.5q-5-4.2-7 1.4Q4.2 17 12 21q7.8-4 7-11.1q-2-5.6-7-1.4Z"/>',
+  "tipos":    '<path d="M7 25 q0-14 18-18 q2 14-10 18 q-5 2-8 0 Z" transform="scale(0.75) translate(3,1)"/>'
+};
+const FUNDO_CICLO = ["rgba(0,188,212,0.28)","rgba(255,152,0,0.30)","rgba(139,195,74,0.32)","rgba(215,44,124,0.18)","rgba(0,123,142,0.20)"];
+
+function valorFormatado(total, unidade) {
+  if (unidade === "min") return fmtHoras(total) + " h";
+  return fmtNum(total) + (unidade ? " " + unidade : "");
+}
+
+function cardsColetivos(col, tarefasDaEdicao) {
+  const por = {};
+  (col || []).forEach(i => por[i.codigo] = Number(i.total_grupo || 0));
+  const quant = (tarefasDaEdicao || []).filter(t => t.quantificavel);
+  return quant.map((t, i) => {
+    const total = por[t.codigo] || 0;
+    const ic = ICONE_POR_UNIDADE[t.unidade] || ICONE_POR_UNIDADE["unidades"];
+    return [
+      valorFormatado(total, t.unidade),
+      "de " + t.descricao.toLowerCase() + ", somando a turma",
+      FUNDO_CICLO[i % FUNDO_CICLO.length],
+      ic
+    ];
+  });
+}
+
 async function abrirDesempenho() {
   mostraTela("telaDesempenho");
   $("dgCards").innerHTML = skelHtml(5, 74);
@@ -2097,9 +2671,9 @@ async function abrirDesempenho() {
   await garanteBase();
   try {
     const [col, tarGrupo, rank] = await Promise.all([
-      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,unidade,total_grupo"),
-      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,descricao,grupo,cumprimentos,taxa_adesao_pct"),
-      api("/rest/v1/vw_ranking?select=user_id")
+      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,descricao,unidade,total_grupo" + fEd()),
+      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,descricao,grupo,cumprimentos,taxa_adesao_pct" + fEd()),
+      api("/rest/v1/vw_ranking?select=user_id" + fEd())
     ]);
     const por = {};
     (col || []).forEach(i => por[i.codigo] = Number(i.total_grupo || 0));
@@ -2113,16 +2687,11 @@ async function abrirDesempenho() {
     const possivel = (rank || []).length * dias * positivas.length;
     const pct = possivel > 0 ? Math.round(100 * cumpridasPos / possivel) : 0;
 
-    const IC = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
-    const cards = [
-      [por["3.1"] ? fmtNum(por["3.1"]) + " L" : "0 L", "de água que a turma bebeu", "rgba(0,188,212,0.28)", '<path d="M12 3q6 7.2 6 11a6 6 0 0 1-12 0q0-3.8 6-11Z"/>'],
-      [(por["4.1"] ? fmtHoras(por["4.1"]) : "0") + " h", "de atividade física", "rgba(255,152,0,0.3)", '<circle cx="14" cy="4.5" r="1.8"/><path d="M9 20l2.2-5L8 12l3-4l4 2.5l3-1"/><path d="M8 12l-3.5 1"/>'],
-      ["Mais de " + (por["5.2"] ? fmtHoras(por["5.2"]) : "0") + " h", "de lazer sem tela", "rgba(139,195,74,0.35)", '<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M4 4l16 16"/>'],
-      ["Mais de " + (por["6.1"] ? fmtNum(por["6.1"]) : "0") + " h", "de sono saudável", "rgba(0,188,212,0.22)", '<path d="M20 13.5A8 8 0 0 1 10.5 4a8 8 0 1 0 9.5 9.5Z"/>'],
-      [pct + "%", "das tarefas do desafio cumpridas", "rgba(0,188,212,0.5)", '<path d="M9 11l3 3l8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>']
-    ];
+    const cards = cardsColetivos(col, tarefasVista);
+    cards.push([pct + "%", "das tarefas do desafio cumpridas", "rgba(0,188,212,0.5)",
+                '<path d="M9 11l3 3l8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>']);
     $("dgCards").innerHTML = cards.map(([v, r, bg, ic]) =>
-      `<div class="dg-card"><div class="dg-ic" style="background:${bg}">${IC(ic)}</div>
+      `<div class="dg-card"><div class="dg-ic" style="background:${bg}">${icSvg(ic)}</div>
        <div><div class="dg-val">${v}</div><div class="dg-rot">${r}</div></div></div>`).join("");
 
     const tg = (tarGrupo || []).filter(t => t.grupo === 1 && t.cumprimentos > 0)
@@ -2147,7 +2716,7 @@ function trocaAbaTurma(qual) {
   $("painelMural").classList.toggle("ativo", !rank);
 }
 $("abaRanking").addEventListener("click", () => { trocaAbaTurma("ranking"); carregaRanking(); });
-$("abaMural").addEventListener("click", () => { trocaAbaTurma("mural"); carregaMural(); });
+$("abaMural").addEventListener("click", () => { trocaAbaTurma("mural"); carregaMural(); ajustaMuralPorEdicao(); });
 
 /* ---------------- foto no mural ---------------- */
 $("btnFoto").addEventListener("click", () => $("arqFoto").click());
@@ -2250,6 +2819,15 @@ function abrePainelMural(qual) {
   });
 }
 $("btnEmoji").addEventListener("click", () => abrePainelMural("emoji"));
+
+// Numa temporada encerrada o mural fica so para leitura
+function ajustaMuralPorEdicao() {
+  const ativa = ehEdicaoAtiva();
+  ["muralTexto", "muralEnviar", "btnEmoji", "btnGif", "btnFoto"].forEach(id => {
+    const el = $(id);
+    if (el) { el.disabled = !ativa; el.style.opacity = ativa ? "" : "0.5"; }
+  });
+}
 
 /* ---------------- GIFs no mural ---------------- */
 $("btnGif").addEventListener("click", async () => {
@@ -2402,8 +2980,9 @@ $("btnSalvarMedida").addEventListener("click", async () => {
 
 /* ---------------- MINHAS METAS ---------------- */
 function janelaMetasAberta() {
-  if (!perfil || !perfil.data_entrada) return false;
-  const dias = Math.floor((new Date(hojeISO() + "T00:00:00") - new Date(perfil.data_entrada + "T00:00:00")) / 86400000);
+  const entrada = dataEntradaEdicao();
+  if (!entrada) return false;
+  const dias = Math.floor((new Date(hojeISO() + "T00:00:00") - new Date(entrada + "T00:00:00")) / 86400000);
   return dias <= 5;
 }
 const NOMES_DIAS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
@@ -2424,7 +3003,7 @@ async function abrirMetas() {
       const d = (m.dia_semana === null || m.dia_semana === undefined) ? -1 : m.dia_semana;
       (metasAtuais[m.tarefa_id] = metasAtuais[m.tarefa_id] || {})[d] = m.valor_meta;
     });
-    const quant = tarefas.filter(t => t.quantificavel);
+    const quant = tarefasVista.filter(t => t.quantificavel);
     $("metasCampos").innerHTML = quant.map(t => {
       const min = t.minimo_valor != null ? Number(t.minimo_valor) : null;
       const val = (metasAtuais[t.id] && metasAtuais[t.id][-1] != null) ? metasAtuais[t.id][-1] : "";
@@ -2783,7 +3362,16 @@ $("btnAddLembrete").addEventListener("click", async () => {
 async function abrirAdmin() {
   if (!perfil || perfil.papel !== "admin") return;
   mostraTela("telaAdmin");
-  await Promise.all([adCarregaMural(), adCarregaParticipantes()]);
+  await garanteBase();
+  const hoje = hojeISO();
+  if (!$("tdIni").value) $("tdIni").value = hoje;
+  if (!$("tdFim").value) $("tdFim").value = hoje;
+  adPintaPeriodo();
+  await adCarregaEdicoes();
+  await Promise.all([
+    adCarregaMural(), adCarregaParticipantes(),
+    adCarregaDesafios(), adCarregaRepescagem()
+  ]);
 }
 $("btnAdCadastrar").addEventListener("click", async () => {
   limpaAviso("avisoAdCad");
@@ -2812,7 +3400,7 @@ $("btnAdCadastrar").addEventListener("click", async () => {
 async function adCarregaMural() {
   if (!$("adMural").innerHTML.trim()) $("adMural").innerHTML = skelHtml(3, 60);
   try {
-    const msgs = await api("/rest/v1/mural?select=id,mensagem,gif_url,tipo,oculto,data_hora,perfis(nome,apelido)&order=data_hora.desc&limit=100");
+    const msgs = await api("/rest/v1/mural?select=id,mensagem,gif_url,tipo,oculto,data_hora,perfis(nome,apelido)&order=data_hora.desc&limit=100" + (desafio ? fEd(desafio.id) : ""));
     $("adMural").innerHTML = (msgs || []).length ? msgs.map(m => {
       const autor = m.tipo === "automatica" ? "🔥 Desafio" : ((m.perfis && (m.perfis.apelido || m.perfis.nome)) || "Participante");
       return `<div class="bolha" style="${m.oculto ? "opacity:0.55" : ""}">
@@ -2841,29 +3429,79 @@ $("adMural").addEventListener("click", async ev => {
 
 
 /* ================= FASE 5 ================= */
-const REGULAMENTO_HTML = `
+
+// Periodos de repescagem lidos do banco (o administrador pode alterar)
+let periodosRepescagem = [];
+function textoPeriodosRepescagem() {
+  if (!periodosRepescagem.length) return "definidos pelo organizador e informados no app.";
+  return periodosRepescagem.map(p => {
+    const d = Math.round((new Date(p.data_fim + "T00:00:00") - new Date(p.data_inicio + "T00:00:00")) / 86400000) + 1;
+    return fmtDia(p.data_inicio) + " a " + fmtDia(p.data_fim) + " (" + d + " dias)";
+  }).join(" e ") + ".";
+}
+
+function pintaRegulamento() {
+  const html = regulamentoHtml();
+  if ($("painelRegul")) $("painelRegul").innerHTML = html;
+  if ($("regulamentoCorpo")) $("regulamentoCorpo").innerHTML = html;
+}
+
+// Carrega o periodo do desafio e os da repescagem, inclusive sem login
+async function carregaContextoPeriodos() {
+  try {
+    if (!edicoes.length) {
+      edicoes = (await api("/rest/v1/desafios?select=id,nome,data_inicio,data_fim,status&order=data_inicio.desc")) || [];
+    }
+    if (!desafio) desafio = edicoes.find(e => e.status === "ativo") || null;
+    if (!edicaoVista) edicaoVista = desafio ? desafio.id : (edicoes[0] ? edicoes[0].id : null);
+    const pr = await api("/rest/v1/repescagem_periodos?ativo=eq.true&select=data_inicio,data_fim&order=data_inicio.asc");
+    periodosRepescagem = pr || [];
+  } catch { /* sem acesso, os textos caem no aviso generico */ }
+}
+
+function regulamentoHtml() { return `
   <h4>Período</h4>
-  <p>De 03/08/2026 a 03/10/2026 (2 meses). Novas temporadas poderão ser abertas.</p>
+  <p>${periodoTexto()}. Novas temporadas poderão ser abertas.</p>
+
   <h4>Como pontuar</h4>
+  <p><b>Pontos de Consistência</b></p>
   <ul>
-    <li>8 tarefas saudáveis valem <b>+1 ponto</b> cada, por dia.</li>
-    <li>5 hábitos a evitar valem <b>-1 ponto</b> cada, se acontecerem no dia.</li>
+    <li>8 tarefas diárias saudáveis valem <b>+1 ponto</b> cada, por dia.</li>
+    <li>5 hábitos diários a evitar valem <b>-1 ponto</b> cada, se acontecerem no dia.</li>
     <li>O saldo diário vai de -5 a +8. A pontuação é acumulada.</li>
   </ul>
-  <h4>Prazo de lançamento</h4>
-  <p>Cada dia pode ser lançado em até 48 horas. Depois disso, o dia fica bloqueado e não pontua.</p>
+  <p><b>Pontos Bônus</b></p>
+  <ul>
+    <li>Ponto adquirido quando da execução da <u>Tarefa Desafio</u>.</li>
+    <li>Cada <u>Tarefa Desafio</u> vale <b>+1 ponto</b>.</li>
+    <li>A Tarefa Desafio será apresentada pelo administrador ao longo do Desafio.</li>
+  </ul>
+  <p><b>Pontos de Repescagem</b></p>
+  <ul>
+    <li>Ponto adquirido APENAS pelo participante eleito para repescagem, ou seja, aquele que estiver com uma pontuação acumulada inferior a 70% da pontuação do líder.</li>
+    <li>Períodos de Repescagem: ${textoPeriodosRepescagem()}</li>
+    <li>Nos períodos acima o participante eleito para repescagem, ao cumprir as tarefas saudáveis diárias, marcará ponto em dobro (+2 pontos cada). Os hábitos diários a evitar continuam penalizando normalmente (-1).</li>
+    <li>A lista de participantes eleitos é apurada na virada do primeiro dia de cada período e vale até o fim daquele período.</li>
+  </ul>
+
+  <h4>Prazo de lançamento dos Pontos</h4>
+  <p>Os pontos de cada dia podem ser lançados no aplicativo em até 48h. Depois disso, o dia fica bloqueado e não pontua.</p>
+
   <h4>Metas pessoais</h4>
   <p>Nos 5 primeiros dias após a sua entrada, você pode personalizar suas metas (água, atividade, sono, lazer, frutas, legumes). Os pontos consideram sempre o mínimo oficial; sua meta pessoal alimenta os indicadores individuais e do grupo.</p>
+
   <h4>Vencedor e prêmio</h4>
-  <p>Vence quem tiver a maior pontuação acumulada. Empatados dividem a colocação, sem desempate. O prêmio é surpresa.</p>
+  <p>Vence quem tiver a maior pontuação acumulada. Empatados dividem a colocação, sem desempate. O prêmio consiste no acumulado do valor de inscrição dos participantes (R$ 20,00 por pessoa).</p>
+
   <h4>Privacidade</h4>
   <p>O detalhe das suas tarefas e as suas medidas corporais são só seus. O ranking mostra apenas nome e pontuação. Os indicadores do grupo são sempre agregados, sem nomes.</p>
+
   <h4>Mural</h4>
   <p>Espaço de incentivo entre a turma. Recados de até 100 caracteres, com respeito. O organizador pode ocultar conteúdos inadequados.</p>
-`;
+`; }
 
 /* ---------- consentimento: abas e recusa ---------- */
-$("painelRegul").innerHTML = REGULAMENTO_HTML;
+pintaRegulamento();
 $("abaDados").addEventListener("click", () => {
   $("abaDados").classList.add("ativo"); $("abaRegul").classList.remove("ativo");
   $("painelDados").classList.add("ativo"); $("painelRegul").classList.remove("ativo");
@@ -2877,13 +3515,19 @@ $("btnNaoConcordo").addEventListener("click", () => { apagaSessao(); mostraTela(
 /* ---------- tela regulamento ---------- */
 
 let origemConsulta = null; // "publica" quando aberto a partir da visualizacao publica
-function abrirSobre() {
+async function abrirSobre() {
   origemConsulta = null;
+  if ($("verAppSobre")) $("verAppSobre").textContent = APP_VERSAO;
   mostraTela("telaSobre");
+  await carregaContextoPeriodos();
+  if (desafio && $("sobreDuracao")) {
+    $("sobreDuracao").textContent = duracaoTexto(desafio.data_inicio, desafio.data_fim);
+  }
 }
-function abrirRegulamento() {
-  $("regulamentoCorpo").innerHTML = REGULAMENTO_HTML;
+async function abrirRegulamento() {
   mostraTela("telaRegulamento");
+  await carregaContextoPeriodos();
+  pintaRegulamento();
 }
 
 /* ---------- tema escuro ---------- */
@@ -2915,12 +3559,15 @@ async function carregaDesempenhoPublico() {
   if (desempPublicoCarregado) return;
   $("pubDesemp").innerHTML = skelHtml(5, 74);
   try {
+    await carregaContextoPeriodos();
+    const idPub = desafio ? desafio.id : null;
+    if (!idPub) { $("pubDesemp").innerHTML = '<div class="nota">Nenhuma edição em andamento.</div>'; return; }
     const [col, tarGrupo, rank, tars, des] = await Promise.all([
-      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,unidade,total_grupo"),
-      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,grupo,cumprimentos"),
-      api("/rest/v1/vw_ranking?select=user_id"),
-      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,valor_ponto"),
-      api("/rest/v1/desafios?status=eq.ativo&select=data_inicio,data_fim&limit=1")
+      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,descricao,unidade,total_grupo" + fEd(idPub)),
+      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,grupo,cumprimentos" + fEd(idPub)),
+      api("/rest/v1/vw_ranking?select=user_id" + fEd(idPub)),
+      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,valor_ponto" + fEd(idPub)),
+      Promise.resolve(desafio ? [desafio] : [])
     ]);
     const por = {};
     (col || []).forEach(i2 => por[i2.codigo] = Number(i2.total_grupo || 0));
@@ -2939,16 +3586,11 @@ async function carregaDesempenhoPublico() {
     }
     const possivel = (rank || []).length * dias * positivas.length;
     const pct = possivel > 0 ? Math.round(100 * cumpridas / possivel) : 0;
-    const IC = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
-    const cards = [
-      [por["3.1"] ? fmtNum(por["3.1"]) + " L" : "0 L", "de água que a turma bebeu", "rgba(0,188,212,0.18)", '<path d="M12 3q6 7.2 6 11a6 6 0 0 1-12 0q0-3.8 6-11Z"/>'],
-      [(por["4.1"] ? fmtHoras(por["4.1"]) : "0") + " h", "de atividade física", "rgba(255,152,0,0.18)", '<circle cx="14.6" cy="4.6" r="1.9"/><path d="M9 20.5l2.4-5.4L8 12.2l3.2-4.3l4.2 2.7l3-1.1"/><path d="M8 12.2l-3.6 1.1"/>'],
-      ["Mais de " + (por["5.2"] ? fmtHoras(por["5.2"]) : "0") + " h", "de lazer sem tela", "rgba(139,195,74,0.20)", '<rect x="7" y="3" width="10" height="18" rx="2.6"/><path d="M4 4l16 16"/>'],
-      ["Mais de " + (por["6.1"] ? fmtNum(por["6.1"]) : "0") + " h", "de sono saudável", "rgba(0,123,142,0.14)", '<path d="M20 13.5A8 8 0 0 1 10.5 4a8 8 0 1 0 9.5 9.5Z"/>'],
-      [pct + "%", "das tarefas do desafio cumpridas", "rgba(215,44,124,0.14)", '<path d="M9 11l3 3l8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>']
-    ];
+    const cards = cardsColetivos(col, tars || []);
+    cards.push([pct + "%", "das tarefas do desafio cumpridas", "rgba(215,44,124,0.14)",
+                '<path d="M9 11l3 3l8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>']);
     $("pubDesemp").innerHTML = cards.map(([v, r, bg, ic]) =>
-      `<div class="dg-card"><div class="dg-ic" style="background:${bg}">${IC(ic)}</div>
+      `<div class="dg-card"><div class="dg-ic" style="background:${bg}">${icSvg(ic)}</div>
        <div><div class="dg-val">${v}</div><div class="dg-rot">${r}</div></div></div>`).join("");
     desempPublicoCarregado = true;
   } catch (e) {
@@ -2960,12 +3602,13 @@ async function abrirPublico() {
   mostraTela("telaPublica");
   trocaAbaPublica("rank");
   desempPublicoCarregado = false;
+  await carregaContextoPeriodos();
   $("pubRank").innerHTML = skelHtml(5, 44);
   $("pubTarefas").innerHTML = skelHtml(5, 34);
   try {
     const [rank, tars] = await Promise.all([
-      api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total&order=pontos_total.desc"),
-      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,grupo,descricao,valor_ponto,minimo_padrao&order=grupo.asc,ordem.asc")
+      api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total&order=pontos_total.desc" + (desafio ? fEd(desafio.id) : "")),
+      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,grupo,descricao,valor_ponto,minimo_padrao&order=grupo.asc,ordem.asc" + (desafio ? fEd(desafio.id) : ""))
     ]);
     $("pubRank").innerHTML = (rank || []).length
       ? (rank || []).map((r, i) => `
@@ -2998,6 +3641,8 @@ $("btnRegVoltar").addEventListener("click", abrirPublico);
 /* ---------- compartilhar no WhatsApp ---------- */
 let compTipo = null;
 let compDados = null;
+let compLegenda = "";
+let compCanvas = null;
 
 function abrirCompartilhar() {
   compTipo = null;
@@ -3024,7 +3669,8 @@ $("btnCompVoltar").addEventListener("click", () => mostraTela("telaMeuDia"));
 async function coletaDadosComp() {
   await garanteBase();
   const uid = sessao.user.id;
-  const rank = (cacheRanking && cacheRanking.length) ? cacheRanking : (await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total&order=pontos_total.desc"));
+  const idComp = desafio ? desafio.id : edicaoVista;
+  const rank = (cacheRanking && cacheRanking.length) ? cacheRanking : (await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total&order=pontos_total.desc" + fEd(idComp)));
   cacheRanking = rank || [];
   const pos = cacheRanking.findIndex(r => r.user_id === uid) + 1;
   const meu = cacheRanking.find(r => r.user_id === uid);
@@ -3041,7 +3687,7 @@ async function coletaDadosComp() {
     cumpriu = saldoHoje > 0;
   } else {
     try {
-      const r2 = await api("/rest/v1/vw_saldo_diario?user_id=eq." + uid + "&data=eq." + hoje + "&select=saldo_dia");
+      const r2 = await api("/rest/v1/vw_saldo_diario?user_id=eq." + uid + "&data=eq." + hoje + "&select=saldo_dia" + fEd(idComp));
       if (r2 && r2[0]) { saldoHoje = r2[0].saldo_dia; cumpriu = saldoHoje > 0; }
     } catch {}
   }
@@ -3050,10 +3696,10 @@ async function coletaDadosComp() {
   let grupo = [];
   try {
     const [col, tarGrupo, tars, des] = await Promise.all([
-      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,total_grupo"),
-      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,cumprimentos"),
-      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,valor_ponto"),
-      api("/rest/v1/desafios?status=eq.ativo&select=data_inicio,data_fim&limit=1")
+      api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,total_grupo" + fEd(idComp)),
+      api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,cumprimentos" + fEd(idComp)),
+      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,descricao,unidade,quantificavel,valor_ponto" + fEd(idComp)),
+      Promise.resolve(desafio ? [desafio] : [])
     ]);
     const por = {}; (col || []).forEach(x => por[x.codigo] = Number(x.total_grupo || 0));
     const positivas = (tars || []).filter(t => t.valor_ponto === 1);
@@ -3063,9 +3709,8 @@ async function coletaDadosComp() {
     const possivel = total * dias * positivas.length;
     const pct = possivel > 0 ? Math.round(100*cumpridas/possivel) : 0;
     grupo = [
-      [por["3.1"] ? fmtNum(por["3.1"])+" L" : "0 L", "de água"],
-      [(por["4.1"] ? fmtHoras(por["4.1"]) : "0")+" h", "de atividade física"],
-      [(por["6.1"] ? fmtNum(por["6.1"]) : "0")+" h", "de sono saudável"],
+      ...(tars || []).filter(t => t.quantificavel).slice(0, 3)
+        .map(t => [valorFormatado(por[t.codigo] || 0, t.unidade), "de " + t.descricao.toLowerCase()]),
       [pct+"%", "das tarefas cumpridas"]
     ];
   } catch {}
@@ -3144,7 +3789,6 @@ async function preparaPreviaComp() {
   }
 }
 
-let compLegenda = "", compCanvas = null;
 $("btnCompartilharAgora").addEventListener("click", async () => {
   if (!compCanvas) return;
   try {
@@ -3164,6 +3808,412 @@ $("btnCompartilharAgora").addEventListener("click", async () => {
 
 // invalida os dados ao reabrir, para refletir pontuacao atual
 function compartilharCard() { compDados = null; abrirCompartilhar(); }
+
+
+
+
+
+/* ================= ADMIN: EDICOES E TAREFAS DIARIAS ================= */
+let tarefasAdmin = [];   // tarefas da edicao escolhida no editor
+
+async function adCarregaEdicoes() {
+  $("edLista").innerHTML = skelHtml(2, 54);
+  try {
+    edicoes = (await api("/rest/v1/desafios?select=id,nome,data_inicio,data_fim,status&order=data_inicio.desc")) || [];
+    const contagens = await api("/rest/v1/inscricoes?select=desafio_id&ativo=eq.true");
+    const inscritos = {};
+    (contagens || []).forEach(i => inscritos[i.desafio_id] = (inscritos[i.desafio_id] || 0) + 1);
+
+    $("edLista").innerHTML = edicoes.length ? edicoes.map(e => {
+      const cor = e.status === "ativo" ? "var(--cor-verde-rotina)"
+                : e.status === "rascunho" ? "var(--cor-laranja-diaria)" : "var(--texto-mutado)";
+      const acoes = [];
+      if (e.status !== "ativo") acoes.push(`<button type="button" class="btn-mini" data-edativar="${e.id}" style="border:1.4px solid var(--cor-principal);border-radius:10px;color:var(--cor-principal)">Ativar</button>`);
+      if (e.status === "ativo") acoes.push(`<button type="button" class="btn-mini" data-edencerrar="${e.id}" style="border:1.4px solid var(--cor-saude);border-radius:10px;color:var(--cor-saude)">Encerrar</button>`);
+      return `<div class="rep-bloco">
+        <h4>${escapaHtml(e.nome)}</h4>
+        <div class="nota" style="margin-bottom:8px">
+          ${fmtDataCompleta(e.data_inicio)} a ${fmtDataCompleta(e.data_fim)} ·
+          <b style="color:${cor}">${e.status}</b> · ${inscritos[e.id] || 0} inscritos
+        </div>
+        <div class="rep-acoes">${acoes.join("")}</div>
+      </div>`;
+    }).join("") : '<div class="nota">Nenhuma edição cadastrada.</div>';
+
+    const opts = edicoes.map(e => `<option value="${e.id}">${escapaHtml(e.nome)}</option>`).join("");
+    $("edCopiar").innerHTML = '<option value="">Edição ativa (padrão)</option>' + opts;
+    const anterior = $("tfEdicao").value;
+    $("tfEdicao").innerHTML = opts;
+    if (anterior && edicoes.some(e => e.id === anterior)) $("tfEdicao").value = anterior;
+    else if (desafio) $("tfEdicao").value = desafio.id;
+    await adCarregaTarefas();
+  } catch (e) {
+    $("edLista").innerHTML = '<div class="nota">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+
+$("btnEdCriar").addEventListener("click", async () => {
+  limpaAviso("avisoEd");
+  const nome = $("edNome").value.trim();
+  const ini = $("edIni").value, fim = $("edFim").value;
+  if (!nome) { aviso("avisoEd", "erro", "Dê um nome à edição."); return; }
+  if (!ini || !fim) { aviso("avisoEd", "erro", "Informe as duas datas."); return; }
+  if (fim < ini) { aviso("avisoEd", "erro", "A data final não pode ser anterior à inicial."); return; }
+  const btn = $("btnEdCriar"); btn.disabled = true;
+  try {
+    await api("/rest/v1/rpc/fn_criar_edicao", {
+      method: "POST",
+      body: JSON.stringify({ p_nome: nome, p_inicio: ini, p_fim: fim, p_copiar_de: $("edCopiar").value || null })
+    });
+    aviso("avisoEd", "ok", "Edição criada em rascunho, com as tarefas copiadas e todos os participantes inscritos. Revise as tarefas antes de ativar.");
+    $("edNome").value = "";
+    await adCarregaEdicoes();
+  } catch (e) {
+    aviso("avisoEd", "erro", "Não foi possível criar: " + e.message);
+  } finally { btn.disabled = false; }
+});
+
+$("edLista").addEventListener("click", async ev => {
+  const t = ev.target;
+  limpaAviso("avisoEd");
+  const idAtivar = t.dataset && t.dataset.edativar;
+  const idEncerrar = t.dataset && t.dataset.edencerrar;
+  if (idAtivar) {
+    const alvo = edicoes.find(e => e.id === idAtivar);
+    if (!confirm("Ativar \"" + (alvo ? alvo.nome : "") + "\"? A edição ativa atual será encerrada e os lançamentos passarão a valer para a nova temporada.")) return;
+    t.disabled = true;
+    try {
+      await api("/rest/v1/rpc/fn_ativar_edicao", { method: "POST", body: JSON.stringify({ p_id: idAtivar }) });
+      desafio = null; tarefas = []; edicaoVista = null; tarefasVista = [];
+      await garanteBase();
+      aviso("avisoEd", "ok", "Edição ativada.");
+      await adCarregaEdicoes();
+      adPintaPeriodo();
+    } catch (e) { aviso("avisoEd", "erro", "Não foi possível ativar: " + e.message); t.disabled = false; }
+    return;
+  }
+  if (idEncerrar) {
+    if (!confirm("Encerrar esta edição? Ninguém poderá lançar tarefas até que outra seja ativada.")) return;
+    t.disabled = true;
+    try {
+      await api("/rest/v1/rpc/fn_encerrar_edicao", { method: "POST", body: JSON.stringify({ p_id: idEncerrar }) });
+      desafio = null; tarefas = []; edicaoVista = null; tarefasVista = [];
+      await garanteBase();
+      aviso("avisoEd", "ok", "Edição encerrada.");
+      await adCarregaEdicoes();
+    } catch (e) { aviso("avisoEd", "erro", "Não foi possível encerrar: " + e.message); t.disabled = false; }
+  }
+});
+
+/* ---------- editor de tarefas diarias ---------- */
+function edicaoDoEditor() { return edicoes.find(e => e.id === $("tfEdicao").value) || null; }
+
+async function adCarregaTarefas() {
+  const ed = edicaoDoEditor();
+  if (!ed) { $("tfLista").innerHTML = ""; return; }
+  $("tfLista").innerHTML = skelHtml(3, 44);
+  limpaAviso("avisoTfTrava");
+  if (ed.status !== "rascunho") {
+    aviso("avisoTfTrava", "erro", "Esta edição já saiu do rascunho. Alterar tarefas agora muda a pontuação de quem já lançou, então só é possível ativar ou desativar itens.");
+  }
+  try {
+    tarefasAdmin = (await api("/rest/v1/tarefas?desafio_id=eq." + ed.id +
+      "&select=id,codigo,grupo,descricao,valor_ponto,minimo_valor,unidade,quantificavel,ordem,ativo&order=grupo.asc,ordem.asc")) || [];
+    const rascunho = ed.status === "rascunho";
+    $("tfLista").innerHTML = tarefasAdmin.length ? tarefasAdmin.map(t => {
+      const sinal = t.valor_ponto > 0 ? "+1" : (t.valor_ponto < 0 ? "-1" : "0");
+      const cor = t.valor_ponto > 0 ? "var(--cor-principal)" : (t.valor_ponto < 0 ? "var(--cor-laranja-diaria)" : "var(--texto-mutado)");
+      const min = t.minimo_valor != null ? (" · mín. " + fmtNum(t.minimo_valor) + (t.unidade ? " " + t.unidade : "")) : "";
+      return `<div class="medida-linha">
+        <span><b style="color:${cor}">${sinal}</b> ${escapaHtml(t.descricao)}
+          <br><small style="color:var(--texto-mutado)">cód. ${escapaHtml(t.codigo)}${min}</small></span>
+        <span>
+          <button class="reac ${t.ativo ? "minha" : ""}" data-tftgl="${t.id}" data-tfatv="${t.ativo ? 1 : 0}">${t.ativo ? "ativa" : "off"}</button>
+          ${rascunho ? `<button class="apagar" data-tfdel="${t.id}" aria-label="Apagar">🗑</button>` : ""}
+        </span>
+      </div>`;
+    }).join("") : '<div class="nota">Nenhuma tarefa nesta edição.</div>';
+    $("btnTfCriar").style.display = rascunho ? "" : "none";
+  } catch (e) {
+    $("tfLista").innerHTML = '<div class="nota">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+$("tfEdicao").addEventListener("change", adCarregaTarefas);
+
+$("btnTfCriar").addEventListener("click", async () => {
+  limpaAviso("avisoTf");
+  const ed = edicaoDoEditor();
+  if (!ed) return;
+  const desc = $("tfDesc").value.trim();
+  const codigo = $("tfCodigo").value.trim();
+  const valor = Number($("tfValor").value);
+  const unidade = $("tfUnidade").value;
+  const minimo = $("tfMinimo").value === "" ? null : Number($("tfMinimo").value);
+  if (!desc) { aviso("avisoTf", "erro", "Escreva a descrição da tarefa."); return; }
+  if (!codigo) { aviso("avisoTf", "erro", "Informe um código (ele identifica a tarefa entre edições)."); return; }
+  if (tarefasAdmin.some(t => t.codigo === codigo)) { aviso("avisoTf", "erro", "Já existe uma tarefa com este código nesta edição."); return; }
+  const btn = $("btnTfCriar"); btn.disabled = true;
+  try {
+    await api("/rest/v1/tarefas", {
+      method: "POST", headers: { "Prefer": "return=minimal" },
+      body: JSON.stringify({
+        desafio_id: ed.id, codigo: codigo, descricao: desc,
+        grupo: valor >= 0 ? 1 : 2, valor_ponto: valor,
+        minimo_valor: minimo, unidade: unidade || null,
+        quantificavel: !!(minimo != null && unidade),
+        minimo_padrao: (minimo != null && unidade) ? (fmtNum(minimo) + " " + unidade) : null,
+        ordem: tarefasAdmin.length + 1, ativo: true
+      })
+    });
+    aviso("avisoTf", "ok", "Tarefa adicionada.");
+    $("tfDesc").value = ""; $("tfCodigo").value = ""; $("tfMinimo").value = "";
+    await adCarregaTarefas();
+  } catch (e) {
+    aviso("avisoTf", "erro", "Não foi possível adicionar: " + e.message);
+  } finally { btn.disabled = false; }
+});
+
+$("tfLista").addEventListener("click", async ev => {
+  const t = ev.target;
+  limpaAviso("avisoTf");
+  if (t.dataset && t.dataset.tftgl) {
+    try {
+      await api("/rest/v1/tarefas?id=eq." + t.dataset.tftgl, {
+        method: "PATCH", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({ ativo: t.dataset.tfatv !== "1" })
+      });
+      await adCarregaTarefas();
+    } catch (e) { aviso("avisoTf", "erro", e.message); }
+    return;
+  }
+  if (t.dataset && t.dataset.tfdel) {
+    if (!confirm("Apagar esta tarefa da edição?")) return;
+    try {
+      await api("/rest/v1/tarefas?id=eq." + t.dataset.tfdel, { method: "DELETE" });
+      await adCarregaTarefas();
+    } catch (e) {
+      aviso("avisoTf", "erro", /foreign key|violates/i.test(e.message)
+        ? "Esta tarefa já tem lançamentos e não pode ser apagada. Desative-a."
+        : e.message);
+    }
+  }
+});
+
+/* ---------- admin: periodo do desafio ---------- */
+function adPintaPeriodo() {
+  if (!desafio) return;
+  $("dsNome").value = desafio.nome || "";
+  $("dsIni").value = desafio.data_inicio;
+  $("dsFim").value = desafio.data_fim;
+  adResumoPeriodo();
+}
+function adResumoPeriodo() {
+  const ini = $("dsIni").value, fim = $("dsFim").value;
+  $("dsResumo").textContent = (ini && fim && fim >= ini)
+    ? "Duração: " + duracaoTexto(ini, fim)
+    : "Informe as duas datas.";
+}
+$("dsIni").addEventListener("change", adResumoPeriodo);
+$("dsFim").addEventListener("change", adResumoPeriodo);
+
+$("btnDsSalvar").addEventListener("click", async () => {
+  limpaAviso("avisoDs");
+  const nome = $("dsNome").value.trim();
+  const ini = $("dsIni").value, fim = $("dsFim").value;
+  if (!nome) { aviso("avisoDs", "erro", "Dê um nome à edição."); return; }
+  if (!ini || !fim) { aviso("avisoDs", "erro", "Informe as duas datas."); return; }
+  if (fim < ini) { aviso("avisoDs", "erro", "A data final não pode ser anterior à inicial."); return; }
+  const btn = $("btnDsSalvar"); btn.disabled = true;
+  try {
+    await api("/rest/v1/desafios?id=eq." + desafio.id, {
+      method: "PATCH", headers: { "Prefer": "return=minimal" },
+      body: JSON.stringify({ nome: nome, data_inicio: ini, data_fim: fim })
+    });
+    // atualiza o que o app ja tinha em memoria, para os textos mudarem na hora
+    desafio.nome = nome; desafio.data_inicio = ini; desafio.data_fim = fim;
+    pintaRegulamento();
+    aviso("avisoDs", "ok", "Período salvo. O regulamento e as demais telas já usam as novas datas.");
+    adResumoPeriodo();
+  } catch (e) {
+    aviso("avisoDs", "erro", "Não foi possível salvar: " + e.message);
+  } finally { btn.disabled = false; }
+});
+
+/* ---------- acordeao da area de administracao ---------- */
+$("acAdmin").addEventListener("click", ev => {
+  const cab = ev.target && ev.target.closest ? ev.target.closest(".ac-cab") : null;
+  if (!cab) return;
+  const corpo = $(cab.dataset.ac);
+  if (!corpo) return;
+  const abrindo = !corpo.classList.contains("aberto");
+  // um aberto por vez, para a tela nao virar uma lista gigante
+  document.querySelectorAll("#acAdmin .ac-corpo").forEach(c => c.classList.remove("aberto"));
+  document.querySelectorAll("#acAdmin .ac-cab").forEach(c => c.classList.remove("aberto"));
+  if (abrindo) {
+    corpo.classList.add("aberto");
+    cab.classList.add("aberto");
+  }
+});
+
+/* ---------- admin: Tarefa Desafio ---------- */
+async function adCarregaDesafios() {
+  $("tdLista").innerHTML = skelHtml(2, 40);
+  try {
+    const [lista, feitos] = await Promise.all([
+      api("/rest/v1/tarefas_desafio?select=id,titulo,data_inicio,data_fim,valor_ponto,ativa&order=data_inicio.desc"),
+      api("/rest/v1/lancamentos_desafio?marcado=eq.true&select=tarefa_desafio_id")
+    ]);
+    const conta = {};
+    (feitos || []).forEach(f => conta[f.tarefa_desafio_id] = (conta[f.tarefa_desafio_id] || 0) + 1);
+    $("tdLista").innerHTML = (lista || []).length ? lista.map(t =>
+      `<div class="medida-linha">
+        <span><b>${escapaHtml(t.titulo)}</b><br>
+          <small style="color:var(--texto-mutado)">${fmtDia(t.data_inicio)} a ${fmtDia(t.data_fim)} · ${conta[t.id] || 0} cumpriram</small></span>
+        <span>
+          <button class="reac ${t.ativa ? "minha" : ""}" data-tdtgl="${t.id}" data-tdatv="${t.ativa ? 1 : 0}">${t.ativa ? "ativa" : "pausada"}</button>
+          <button class="apagar" data-tddel="${t.id}" aria-label="Apagar">🗑</button>
+        </span>
+      </div>`).join("") : '<div class="nota">Nenhuma Tarefa Desafio publicada ainda.</div>';
+  } catch (e) {
+    $("tdLista").innerHTML = '<div class="nota">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+
+$("btnTdCriar").addEventListener("click", async () => {
+  limpaAviso("avisoTd");
+  const titulo = $("tdTitulo").value.trim();
+  const ini = $("tdIni").value, fim = $("tdFim").value;
+  if (!titulo) { aviso("avisoTd", "erro", "Escreva o título da tarefa."); return; }
+  if (!ini || !fim) { aviso("avisoTd", "erro", "Informe o período em que ela pode ser cumprida."); return; }
+  if (fim < ini) { aviso("avisoTd", "erro", "A data final não pode ser anterior à inicial."); return; }
+  const btn = $("btnTdCriar"); btn.disabled = true;
+  try {
+    await api("/rest/v1/tarefas_desafio", {
+      method: "POST", headers: { "Prefer": "return=minimal" },
+      body: JSON.stringify({
+        desafio_id: desafio.id, titulo: titulo,
+        descricao: $("tdDesc").value.trim() || null,
+        data_inicio: ini, data_fim: fim
+      })
+    });
+    aviso("avisoTd", "ok", "Tarefa Desafio publicada. Ela aparece no Meu Dia dos participantes.");
+    $("tdTitulo").value = ""; $("tdDesc").value = "";
+    await adCarregaDesafios();
+  } catch (e) {
+    aviso("avisoTd", "erro", "Não foi possível publicar: " + e.message);
+  } finally { btn.disabled = false; }
+});
+
+$("tdLista").addEventListener("click", async ev => {
+  const t = ev.target;
+  limpaAviso("avisoTd");
+  if (t.dataset && t.dataset.tdtgl) {
+    try {
+      await api("/rest/v1/tarefas_desafio?id=eq." + t.dataset.tdtgl, {
+        method: "PATCH", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({ ativa: t.dataset.tdatv !== "1" })
+      });
+      await adCarregaDesafios();
+    } catch (e) { aviso("avisoTd", "erro", e.message); }
+    return;
+  }
+  if (t.dataset && t.dataset.tddel) {
+    if (!confirm("Apagar esta Tarefa Desafio? Os pontos de quem já cumpriu serão removidos.")) return;
+    try {
+      await api("/rest/v1/tarefas_desafio?id=eq." + t.dataset.tddel, { method: "DELETE" });
+      await adCarregaDesafios();
+    } catch (e) { aviso("avisoTd", "erro", e.message); }
+  }
+});
+
+/* ---------- admin: repescagem ---------- */
+async function adCarregaRepescagem() {
+  $("repLista").innerHTML = skelHtml(2, 60);
+  try {
+    const pers = await api("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,nome,data_inicio,data_fim,multiplicador,percentual,apurado_em&order=data_inicio.asc");
+    if (!pers || !pers.length) { $("repLista").innerHTML = '<div class="nota">Nenhum período cadastrado.</div>'; return; }
+    const hoje = hojeISO();
+    const blocos = [];
+    for (const p of pers) {
+      const eleg = await api("/rest/v1/repescagem_elegiveis?periodo_id=eq." + p.id +
+                             "&select=user_id,pontos_participante,pontos_lider,perfis(nome,apelido)");
+      const emCurso = hoje >= p.data_inicio && hoje <= p.data_fim;
+      const nomes = (eleg || []).map(e => {
+        const n = e.perfis ? (e.perfis.apelido || e.perfis.nome) : "participante";
+        const pct = e.pontos_lider > 0 ? Math.round(100 * e.pontos_participante / e.pontos_lider) : 0;
+        return `<div class="linha-tarefa"><span>${escapaHtml(n)}</span><span class="pct">${e.pontos_participante} pts (${pct}% do líder)</span></div>`;
+      }).join("");
+      blocos.push(`<div class="rep-bloco">
+        <h4>${escapaHtml(p.nome)}${emCurso ? " (em curso)" : ""}</h4>
+        <div class="nota" style="margin-bottom:10px">${p.apurado_em ? "Apurado em " + fmtDia(String(p.apurado_em).slice(0,10)) : "Ainda não apurado"}</div>
+        <div class="rep-linha">
+          <div><label for="rIni_${p.id}">Início</label><input id="rIni_${p.id}" type="date" value="${p.data_inicio}"></div>
+          <div><label for="rFim_${p.id}">Fim</label><input id="rFim_${p.id}" type="date" value="${p.data_fim}"></div>
+        </div>
+        <div class="rep-linha">
+          <div><label for="rMul_${p.id}">Multiplicador</label>
+            <input id="rMul_${p.id}" type="number" min="1" max="5" step="1" value="${p.multiplicador}"></div>
+          <div><label for="rPct_${p.id}">Corte (% do líder)</label>
+            <input id="rPct_${p.id}" type="number" min="1" max="99" step="1" value="${Number(p.percentual)}"></div>
+        </div>
+        <div class="rep-acoes">
+          <button type="button" class="btn-salvar-regras" data-salvarrep="${p.id}">Salvar regras</button>
+          <button type="button" class="btn-apurar" data-apurar="${p.id}">Apurar agora</button>
+        </div>
+        <div style="margin-top:10px">
+          <div class="nota" style="margin-bottom:4px">Elegíveis apurados:</div>
+          ${nomes || '<div class="nota">Ninguém elegível até agora.</div>'}
+        </div>
+      </div>`);
+    }
+    $("repLista").innerHTML = blocos.join("");
+  } catch (e) {
+    $("repLista").innerHTML = '<div class="nota">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+
+$("repLista").addEventListener("click", async ev => {
+  const alvo = ev.target;
+  const idSalvar = alvo && alvo.dataset && alvo.dataset.salvarrep;
+  if (idSalvar) {
+    limpaAviso("avisoRep");
+    const ini = $("rIni_" + idSalvar).value;
+    const fim = $("rFim_" + idSalvar).value;
+    const mul = Number($("rMul_" + idSalvar).value);
+    const pct = Number($("rPct_" + idSalvar).value);
+    if (!ini || !fim) { aviso("avisoRep", "erro", "Informe as duas datas do período."); return; }
+    if (fim < ini) { aviso("avisoRep", "erro", "A data final não pode ser anterior à inicial."); return; }
+    if (!(mul >= 1 && mul <= 5)) { aviso("avisoRep", "erro", "O multiplicador deve ficar entre 1 e 5."); return; }
+    if (!(pct >= 1 && pct <= 99)) { aviso("avisoRep", "erro", "O corte deve ficar entre 1% e 99%."); return; }
+    alvo.disabled = true;
+    try {
+      await api("/rest/v1/repescagem_periodos?id=eq." + idSalvar, {
+        method: "PATCH", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({ data_inicio: ini, data_fim: fim, multiplicador: mul, percentual: pct })
+      });
+      aviso("avisoRep", "ok", "Regras salvas. Use Apurar agora para refazer a lista de elegíveis com o novo corte.");
+      await adCarregaRepescagem();
+    } catch (e) {
+      aviso("avisoRep", "erro", "Não foi possível salvar: " + e.message);
+      alvo.disabled = false;
+    }
+    return;
+  }
+  const id = alvo && alvo.dataset && alvo.dataset.apurar;
+  if (!id) return;
+  limpaAviso("avisoRep");
+  alvo.disabled = true;
+  try {
+    const r = await api("/rest/v1/rpc/fn_apurar_repescagem", {
+      method: "POST", body: JSON.stringify({ p_periodo: id })
+    });
+    const qtd = typeof r === "number" ? r : (r && r[0]) || 0;
+    aviso("avisoRep", "ok", qtd + " participante(s) na repescagem deste período.");
+    await adCarregaRepescagem();
+  } catch (e) {
+    aviso("avisoRep", "erro", "Não foi possível apurar: " + e.message);
+  }
+});
 
 /* ---------- admin: lista, senha, editar, excluir, exportar ---------- */
 async function chamaGerir(corpo) {
@@ -3260,10 +4310,11 @@ async function exportarXlsx() {
         document.head.appendChild(sc);
       });
     }
+    const idExp = desafio ? desafio.id : edicaoVista;
     const [rank, lanc, tars, perfs] = await Promise.all([
-      api("/rest/v1/vw_ranking?select=nome,apelido,pontos_total"),
-      api("/rest/v1/lancamentos?select=user_id,data,tarefa_id,marcado&order=data.asc"),
-      api("/rest/v1/tarefas?select=id,codigo,descricao"),
+      api("/rest/v1/vw_ranking?select=nome,apelido,pontos_total" + fEd(idExp)),
+      api("/rest/v1/lancamentos?select=user_id,data,tarefa_id,marcado&order=data.asc" + fEd(idExp)),
+      api("/rest/v1/tarefas?select=id,codigo,descricao" + fEd(idExp)),
       api("/rest/v1/perfis?select=id,nome")
     ]);
     const nomePor = {}; (perfs || []).forEach(p => nomePor[p.id] = p.nome);
@@ -3506,7 +4557,6 @@ function executaAcao(acao) {
   if (acao === "metas") abrirMetas();
   if (acao === "lembretes") abrirConfig("lembretes");
   if (acao === "regulamento") abrirRegulamento();
-  if (acao === "sobre") abrirSobre();
   if (acao === "sobre") abrirSobre();
   if (acao === "compartilhar") compartilharCard();
   if (acao === "tema") alternaTema();
