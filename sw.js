@@ -6,7 +6,7 @@
 //     em segundo plano.
 //   - API do Supabase (outro dominio): nunca passa por aqui.
 
-const CACHE = "mais-saude-1_7";
+const CACHE = "mais-saude-1_8";
 const ARQUIVOS = [
   "./",
   "./index.html",

@@ -790,6 +790,14 @@
   .faixa-historico { background: rgba(0,188,212,0.12); border: 1px solid var(--cor-azul-acao);
     border-radius: 14px; padding: 10px 13px; margin-bottom: 14px;
     font-size: 0.84rem; color: var(--texto-escuro); }
+
+  .ac-perigo { border-color: rgba(215,44,124,0.45); }
+  .ac-perigo .ac-cab { color: var(--cor-saude); }
+  .caixa-perigo { background: rgba(215,44,124,0.09); border: 1px solid var(--cor-saude);
+    border-radius: 14px; padding: 12px 14px; margin-bottom: 14px;
+    font-size: 0.86rem; color: var(--texto-escuro); }
+  .caixa-perigo b { color: var(--cor-saude); }
+  .botao-perigo { background: var(--cor-saude) !important; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -1177,6 +1185,21 @@
         <p class="nota" style="margin-top:0">A lista de elegíveis é apurada sozinha na virada do primeiro dia de cada período. Alterar as regras abaixo não refaz a apuração automaticamente: use o botão Apurar agora depois de salvar.</p>
         <div id="repLista"></div>
         <div class="aviso" id="avisoRep"></div>
+
+        <div class="secao-titulo" style="margin-top:16px">Novo período de repescagem</div>
+        <label for="rpNome">Nome</label>
+        <input id="rpNome" maxlength="40" placeholder="Ex.: Repescagem 3">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="rpIni">Início</label><input id="rpIni" type="date"></div>
+          <div style="flex:1"><label for="rpFim">Fim</label><input id="rpFim" type="date"></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="rpMul">Multiplicador</label>
+            <input id="rpMul" type="number" min="1" max="5" step="1" value="2"></div>
+          <div style="flex:1"><label for="rpPct">Corte (% do líder)</label>
+            <input id="rpPct" type="number" min="1" max="99" step="1" value="70"></div>
+        </div>
+        <button class="botao" id="btnRpCriar">Adicionar período</button>
       </div>
     </div>
 
@@ -1207,6 +1230,29 @@
       <div class="ac-corpo" id="acExportar">
         <button class="botao secundario" id="btnExportarXlsx">Baixar Excel (ranking e lançamentos)</button>
         <div class="aviso" id="avisoExport"></div>
+      </div>
+    </div>
+
+    <div class="ac-item ac-perigo">
+      <button class="ac-cab" type="button" data-ac="acLimpar">
+        <span class="ac-ic">🧹</span><span class="ac-tit">Zerar dados da fase de testes</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acLimpar">
+        <div class="caixa-perigo">
+          <b>Atenção: esta ação não pode ser desfeita.</b>
+          <p style="margin:6px 0 0">Serão apagados os lançamentos diários, os cumprimentos de Tarefa Desafio, os recados do mural com suas reações e as listas de elegíveis da repescagem. Participantes, tarefas, inscrições e edições permanecem intactos.</p>
+        </div>
+        <label for="lmEdicao">Edição a limpar</label>
+        <select id="lmEdicao"></select>
+        <div id="lmResumo" class="nota"></div>
+        <label class="comp-check"><input type="checkbox" id="lmMetas"> Apagar também as metas personalizadas</label>
+        <label class="comp-check"><input type="checkbox" id="lmMedidas"> Apagar também as medidas corporais de todos</label>
+        <label for="lmSenha">Sua senha de administrador</label>
+        <input id="lmSenha" type="password" autocomplete="current-password" placeholder="Digite sua senha">
+        <label for="lmPalavra">Digite APAGAR para confirmar</label>
+        <input id="lmPalavra" maxlength="10" placeholder="APAGAR">
+        <button class="botao botao-perigo" id="btnLimpar">Apagar definitivamente</button>
+        <div class="aviso" id="avisoLimpar"></div>
       </div>
     </div>
 
@@ -1651,7 +1697,7 @@ function desenhaFaixaRepescagem() {
   if (repescagemAtiva && souElegivel) {
     f.style.display = "flex";
     f.innerHTML = '<span style="font-size:1.5rem">🔥</span><span>Você está na <b>repescagem</b>! Até ' +
-      fmtDia(repescagemAtiva.data_fim) + ', cada tarefa saudável vale <b>2 pontos</b>. Os hábitos a evitar seguem em -1.</span>';
+      fmtDataCompleta(repescagemAtiva.data_fim) + ', cada tarefa saudável vale <b>2 pontos</b>. Os hábitos a evitar seguem em -1.</span>';
   } else {
     f.style.display = "none";
     f.innerHTML = "";
@@ -1668,7 +1714,7 @@ function desenhaBonus() {
       <h4>${escapaHtml(t.titulo)}</h4>
       ${t.descricao ? `<div class="desc">${escapaHtml(t.descricao)}</div>` : ""}
       <div class="rodape">
-        <span class="prazo">Vale +${t.valor_ponto} ponto${t.valor_ponto === 1 ? "" : "s"} · até ${fmtDia(t.data_fim)}</span>
+        <span class="prazo">Vale +${t.valor_ponto} ponto${t.valor_ponto === 1 ? "" : "s"} · até ${fmtDataCompleta(t.data_fim)}</span>
         <button type="button" class="btn-cumprir" data-bonus="${t.id}">${feita ? "✓ Cumprida" : "Marcar como feita"}</button>
       </div>
     </div>`;
@@ -1711,8 +1757,8 @@ function avisaRepescagem() {
   if (!repescagemAtiva) return;
   const chave = "repescagem_avisada_" + repescagemAtiva.id;
   try { if (localStorage.getItem(chave)) return; } catch { return; }
-  const ini = fmtDia(repescagemAtiva.data_inicio);
-  const fim = fmtDia(repescagemAtiva.data_fim);
+  const ini = fmtDataCompleta(repescagemAtiva.data_inicio);
+  const fim = fmtDataCompleta(repescagemAtiva.data_fim);
   const fundo = document.createElement("div");
   fundo.className = "modal-fundo";
   fundo.innerHTML = `<div class="modal-caixa">
@@ -1750,7 +1796,7 @@ async function abrirMeuDia() {
   $("ola").textContent = "Olá, " + (perfil.apelido || perfil.nome.split(" ")[0]) + "!";
   diaSelecionado = hojeISO();
   atualizaSeletorDia();
-  $("dataExtenso").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+  $("dataExtenso").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   try {
     edicoes = (await api("/rest/v1/desafios?select=id,nome,data_inicio,data_fim,status&order=data_inicio.desc")) || [];
     desafio = edicoes.find(e => e.status === "ativo") || null;
@@ -1975,7 +2021,15 @@ function opcoesBase(extras) {
       tooltip: {
         backgroundColor: "rgba(26,48,56,0.94)", padding: 10, cornerRadius: 10,
         titleFont: { family: "Poppins", size: 12 }, bodyFont: { family: "Open Sans", size: 12 },
-        displayColors: true, usePointStyle: true
+        displayColors: true, usePointStyle: true,
+        callbacks: {
+          // o eixo mostra dd/mm; ao tocar no ponto, aparece a data completa
+          title: (itens) => {
+            const i = itens && itens[0] ? itens[0].dataIndex : -1;
+            const dias = diasDoPeriodo();
+            return (i >= 0 && dias[i]) ? fmtDataCompleta(dias[i]) : (itens && itens[0] ? itens[0].label : "");
+          }
+        }
       }
     },
     scales: {
@@ -2051,6 +2105,8 @@ function diasDoPeriodo() {
   while (dataLocalISO(d) <= fim && dias.length < 400) { dias.push(dataLocalISO(d)); d.setDate(d.getDate() + 1); }
   return dias;
 }
+// fmtDia (dd/mm) e usado APENAS nos eixos dos graficos, onde a data completa
+// nao cabe sem embolar os rotulos. No resto do app usamos fmtDataCompleta.
 function fmtDia(iso) { return iso.slice(8,10) + "/" + iso.slice(5,7); }
 function fmtDataCompleta(iso) { return iso.slice(8,10) + "/" + iso.slice(5,7) + "/" + iso.slice(0,4); }
 
@@ -2134,7 +2190,7 @@ function fEd(id) { return "&desafio_id=eq." + (id || edicaoVista); }
 /* ---------- seletor de temporada (Progresso e Turma) ---------- */
 function rotuloEdicao(e) {
   const marca = e.status === "ativo" ? " (em andamento)" : "";
-  return e.nome + " · " + fmtDia(e.data_inicio) + " a " + fmtDia(e.data_fim) + marca;
+  return e.nome + " · " + fmtDataCompleta(e.data_inicio) + " a " + fmtDataCompleta(e.data_fim) + marca;
 }
 
 function montaSeletorEdicao(idElemento, aoTrocar) {
@@ -2521,7 +2577,7 @@ function desenhaAdesao(meus) {
     const evitou = Math.max(possiveis - feitos, 0);
     return `<div class="linha-tarefa"><span>Evitou: ${t.descricao.toLowerCase()}</span><span class="pct">${evitou}/${possiveis}</span></div>`;
   });
-  $("pgAdesao").innerHTML = possiveis > 0 ? linhas.join("") : '<span class="nota">A contagem começa em ' + fmtDia(ini) + '.</span>';
+  $("pgAdesao").innerHTML = possiveis > 0 ? linhas.join("") : '<span class="nota">A contagem começa em ' + fmtDataCompleta(ini) + '.</span>';
 }
 
 /* ---------------- TURMA: RANKING + MURAL ---------------- */
@@ -2599,7 +2655,7 @@ async function carregaMural() {
     $("muralCont").textContent = (msgs || []).length;
     $("muralLista").innerHTML = (msgs || []).length ? msgs.map(m => {
       const autor = m.tipo === "automatica" ? "🔥 Desafio" : ((m.perfis && (m.perfis.apelido || m.perfis.nome)) || "Participante");
-      const quando = new Date(m.data_hora).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) + " " +
+      const quando = new Date(m.data_hora).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }) + " " +
                      new Date(m.data_hora).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
       const podeApagar = m.autor_id === uid || (perfil && perfil.papel === "admin");
       const reacoes = EMOJIS_REACAO.map(e => {
@@ -2943,7 +2999,7 @@ async function listaMedidas() {
   try {
     const linhas = await api("/rest/v1/medidas_pessoais?user_id=eq." + sessao.user.id + "&select=id,data,peso_kg,gordura_pct,massa_magra_kg&order=data.desc&limit=12");
     $("listaMedidas").innerHTML = (linhas || []).length ? linhas.map(m =>
-      `<div class="medida-linha"><span>${fmtDia(m.data)}</span>
+      `<div class="medida-linha"><span>${fmtDataCompleta(m.data)}</span>
        <span>${m.peso_kg != null ? fmtNum(m.peso_kg) + " kg" : ""} ${m.gordura_pct != null ? "| " + fmtNum(m.gordura_pct) + "% gord." : ""} ${m.massa_magra_kg != null ? "| " + fmtNum(m.massa_magra_kg) + " kg magra" : ""}</span>
        <button class="apagar" data-delm="${m.id}" aria-label="Apagar registro">🗑</button></div>`
     ).join("") : '<div class="nota">Nenhum registro ainda.</div>';
@@ -3368,6 +3424,7 @@ async function abrirAdmin() {
   if (!$("tdFim").value) $("tdFim").value = hoje;
   adPintaPeriodo();
   await adCarregaEdicoes();
+  await adCarregaLimpeza();
   await Promise.all([
     adCarregaMural(), adCarregaParticipantes(),
     adCarregaDesafios(), adCarregaRepescagem()
@@ -3436,7 +3493,7 @@ function textoPeriodosRepescagem() {
   if (!periodosRepescagem.length) return "definidos pelo organizador e informados no app.";
   return periodosRepescagem.map(p => {
     const d = Math.round((new Date(p.data_fim + "T00:00:00") - new Date(p.data_inicio + "T00:00:00")) / 86400000) + 1;
-    return fmtDia(p.data_inicio) + " a " + fmtDia(p.data_fim) + " (" + d + " dias)";
+    return fmtDataCompleta(p.data_inicio) + " a " + fmtDataCompleta(p.data_fim) + " (" + d + " dias)";
   }).join(" e ") + ".";
 }
 
@@ -3813,6 +3870,97 @@ function compartilharCard() { compDados = null; abrirCompartilhar(); }
 
 
 
+
+/* ================= ADMIN: ZERAR DADOS DA FASE DE TESTES ================= */
+async function adCarregaLimpeza() {
+  const sel = $("lmEdicao");
+  sel.innerHTML = edicoes.map(e =>
+    `<option value="${e.id}">${escapaHtml(e.nome)} (${e.status})</option>`).join("");
+  if (desafio) sel.value = desafio.id;
+  await adResumoLimpeza();
+}
+
+async function adResumoLimpeza() {
+  const id = $("lmEdicao").value;
+  if (!id) { $("lmResumo").textContent = ""; return; }
+  $("lmResumo").textContent = "Conferindo o que existe nesta edição...";
+  try {
+    const [lanc, mur] = await Promise.all([
+      api("/rest/v1/lancamentos?select=id" + fEd(id), { headers: { "Prefer": "count=exact", "Range": "0-0" } }),
+      api("/rest/v1/mural?select=id" + fEd(id), { headers: { "Prefer": "count=exact", "Range": "0-0" } })
+    ]);
+    $("lmResumo").textContent = "Nesta edição existem " + (lanc ? lanc.length : 0) +
+      " lançamento(s) e " + (mur ? mur.length : 0) + " recado(s) visíveis na amostra. " +
+      "A contagem exata aparece no resultado da limpeza.";
+  } catch {
+    $("lmResumo").textContent = "";
+  }
+}
+$("lmEdicao").addEventListener("change", adResumoLimpeza);
+
+// Verifica a senha do administrador de verdade, refazendo o login com ela.
+async function confirmaSenhaAdmin(senha) {
+  if (!perfil || !perfil.username) return false;
+  try {
+    await api("/auth/v1/token?grant_type=password", {
+      method: "POST",
+      body: JSON.stringify({ email: perfil.username + "@desafio.saude", password: senha })
+    });
+    return true;
+  } catch { return false; }
+}
+
+$("btnLimpar").addEventListener("click", async () => {
+  limpaAviso("avisoLimpar");
+  const id = $("lmEdicao").value;
+  const senha = $("lmSenha").value;
+  const palavra = $("lmPalavra").value.trim().toUpperCase();
+  const ed = edicoes.find(e => e.id === id);
+
+  if (!id) { aviso("avisoLimpar", "erro", "Escolha a edição a limpar."); return; }
+  if (palavra !== "APAGAR") { aviso("avisoLimpar", "erro", 'Digite a palavra APAGAR no campo de confirmação.'); return; }
+  if (!senha) { aviso("avisoLimpar", "erro", "Digite a sua senha de administrador."); return; }
+
+  // primeiro check
+  if (!confirm("Apagar os dados de \"" + (ed ? ed.nome : "") + "\"?\n\nIsto remove lançamentos, mural e cumprimentos de Tarefa Desafio desta edição. Não há como desfazer.")) return;
+  // segundo check
+  if (!confirm("Confirmação final.\n\nTem certeza absoluta? Os dados serão apagados agora.")) return;
+
+  const btn = $("btnLimpar");
+  btn.disabled = true; btn.textContent = "Verificando senha...";
+  try {
+    const ok = await confirmaSenhaAdmin(senha);
+    if (!ok) { aviso("avisoLimpar", "erro", "Senha incorreta. Nada foi apagado."); return; }
+
+    btn.textContent = "Apagando...";
+    const r = await api("/rest/v1/rpc/fn_limpar_dados_edicao", {
+      method: "POST",
+      body: JSON.stringify({
+        p_desafio: id,
+        p_apagar_metas: $("lmMetas").checked,
+        p_apagar_medidas: $("lmMedidas").checked
+      })
+    });
+    const c = (r && typeof r === "object") ? r : {};
+    aviso("avisoLimpar", "ok",
+      "Pronto. Foram apagados: " + (c.lancamentos || 0) + " lançamento(s), " +
+      (c.tarefas_desafio || 0) + " cumprimento(s) de Tarefa Desafio, " +
+      (c.mural || 0) + " recado(s), " + (c.reacoes || 0) + " reação(ões), " +
+      (c.elegiveis_repescagem || 0) + " registro(s) de repescagem" +
+      (c.metas ? ", " + c.metas + " meta(s)" : "") +
+      (c.medidas ? ", " + c.medidas + " medida(s)" : "") + ".");
+    $("lmSenha").value = ""; $("lmPalavra").value = "";
+    $("lmMetas").checked = false; $("lmMedidas").checked = false;
+    // recarrega o que o app tinha em memoria
+    marcadosPorDia = {}; cacheSaldos = []; cacheRanking = [];
+    await adResumoLimpeza();
+  } catch (e) {
+    aviso("avisoLimpar", "erro", "Não foi possível apagar: " + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Apagar definitivamente";
+  }
+});
+
 /* ================= ADMIN: EDICOES E TAREFAS DIARIAS ================= */
 let tarefasAdmin = [];   // tarefas da edicao escolhida no editor
 
@@ -3999,6 +4147,38 @@ $("tfLista").addEventListener("click", async ev => {
   }
 });
 
+
+$("btnRpCriar").addEventListener("click", async () => {
+  limpaAviso("avisoRep");
+  const alvo = desafio || edicaoVistaObj();
+  if (!alvo) { aviso("avisoRep", "erro", "Não há edição ativa para receber o período."); return; }
+  const nome = $("rpNome").value.trim();
+  const ini = $("rpIni").value, fim = $("rpFim").value;
+  const mul = Number($("rpMul").value), pct = Number($("rpPct").value);
+  if (!nome) { aviso("avisoRep", "erro", "Dê um nome ao período."); return; }
+  if (!ini || !fim) { aviso("avisoRep", "erro", "Informe as duas datas."); return; }
+  if (fim < ini) { aviso("avisoRep", "erro", "A data final não pode ser anterior à inicial."); return; }
+  if (!(mul >= 1 && mul <= 5)) { aviso("avisoRep", "erro", "O multiplicador deve ficar entre 1 e 5."); return; }
+  if (!(pct >= 1 && pct <= 99)) { aviso("avisoRep", "erro", "O corte deve ficar entre 1% e 99%."); return; }
+  const btn = $("btnRpCriar"); btn.disabled = true;
+  try {
+    await api("/rest/v1/repescagem_periodos", {
+      method: "POST", headers: { "Prefer": "return=minimal" },
+      body: JSON.stringify({
+        desafio_id: alvo.id, nome: nome, data_inicio: ini, data_fim: fim,
+        multiplicador: mul, percentual: pct, ativo: true
+      })
+    });
+    aviso("avisoRep", "ok", "Período adicionado. A apuração acontece sozinha na virada do primeiro dia.");
+    $("rpNome").value = "";
+    await adCarregaRepescagem();
+  } catch (e) {
+    aviso("avisoRep", "erro", /duplicate|unique/i.test(e.message)
+      ? "Já existe um período com essa data de início nesta edição."
+      : "Não foi possível adicionar: " + e.message);
+  } finally { btn.disabled = false; }
+});
+
 /* ---------- admin: periodo do desafio ---------- */
 function adPintaPeriodo() {
   if (!desafio) return;
@@ -4068,7 +4248,7 @@ async function adCarregaDesafios() {
     $("tdLista").innerHTML = (lista || []).length ? lista.map(t =>
       `<div class="medida-linha">
         <span><b>${escapaHtml(t.titulo)}</b><br>
-          <small style="color:var(--texto-mutado)">${fmtDia(t.data_inicio)} a ${fmtDia(t.data_fim)} · ${conta[t.id] || 0} cumpriram</small></span>
+          <small style="color:var(--texto-mutado)">${fmtDataCompleta(t.data_inicio)} a ${fmtDataCompleta(t.data_fim)} · ${conta[t.id] || 0} cumpriram</small></span>
         <span>
           <button class="reac ${t.ativa ? "minha" : ""}" data-tdtgl="${t.id}" data-tdatv="${t.ativa ? 1 : 0}">${t.ativa ? "ativa" : "pausada"}</button>
           <button class="apagar" data-tddel="${t.id}" aria-label="Apagar">🗑</button>
@@ -4130,7 +4310,9 @@ $("tdLista").addEventListener("click", async ev => {
 async function adCarregaRepescagem() {
   $("repLista").innerHTML = skelHtml(2, 60);
   try {
-    const pers = await api("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,nome,data_inicio,data_fim,multiplicador,percentual,apurado_em&order=data_inicio.asc");
+    const alvoEd = desafio || edicaoVistaObj();
+    const pers = await api("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,nome,data_inicio,data_fim,multiplicador,percentual,apurado_em&order=data_inicio.asc" +
+                           (alvoEd ? fEd(alvoEd.id) : ""));
     if (!pers || !pers.length) { $("repLista").innerHTML = '<div class="nota">Nenhum período cadastrado.</div>'; return; }
     const hoje = hojeISO();
     const blocos = [];
@@ -4145,7 +4327,7 @@ async function adCarregaRepescagem() {
       }).join("");
       blocos.push(`<div class="rep-bloco">
         <h4>${escapaHtml(p.nome)}${emCurso ? " (em curso)" : ""}</h4>
-        <div class="nota" style="margin-bottom:10px">${p.apurado_em ? "Apurado em " + fmtDia(String(p.apurado_em).slice(0,10)) : "Ainda não apurado"}</div>
+        <div class="nota" style="margin-bottom:10px">${p.apurado_em ? "Apurado em " + fmtDataCompleta(String(p.apurado_em).slice(0,10)) : "Ainda não apurado"}</div>
         <div class="rep-linha">
           <div><label for="rIni_${p.id}">Início</label><input id="rIni_${p.id}" type="date" value="${p.data_inicio}"></div>
           <div><label for="rFim_${p.id}">Fim</label><input id="rFim_${p.id}" type="date" value="${p.data_fim}"></div>
@@ -4159,6 +4341,7 @@ async function adCarregaRepescagem() {
         <div class="rep-acoes">
           <button type="button" class="btn-salvar-regras" data-salvarrep="${p.id}">Salvar regras</button>
           <button type="button" class="btn-apurar" data-apurar="${p.id}">Apurar agora</button>
+          <button type="button" class="btn-apurar" data-excluirrep="${p.id}" style="color:var(--texto-mutado);border-color:var(--borda-card)">Excluir</button>
         </div>
         <div style="margin-top:10px">
           <div class="nota" style="margin-bottom:4px">Elegíveis apurados:</div>
@@ -4197,6 +4380,18 @@ $("repLista").addEventListener("click", async ev => {
       aviso("avisoRep", "erro", "Não foi possível salvar: " + e.message);
       alvo.disabled = false;
     }
+    return;
+  }
+  const idExcluir = alvo && alvo.dataset && alvo.dataset.excluirrep;
+  if (idExcluir) {
+    if (!confirm("Excluir este período de repescagem? Os pontos em dobro já concedidos deixam de valer.")) return;
+    limpaAviso("avisoRep");
+    alvo.disabled = true;
+    try {
+      await api("/rest/v1/repescagem_periodos?id=eq." + idExcluir, { method: "DELETE" });
+      aviso("avisoRep", "ok", "Período excluído.");
+      await adCarregaRepescagem();
+    } catch (e) { aviso("avisoRep", "erro", "Não foi possível excluir: " + e.message); alvo.disabled = false; }
     return;
   }
   const id = alvo && alvo.dataset && alvo.dataset.apurar;
