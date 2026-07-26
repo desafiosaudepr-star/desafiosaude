@@ -798,6 +798,19 @@
     font-size: 0.86rem; color: var(--texto-escuro); }
   .caixa-perigo b { color: var(--cor-saude); }
   .botao-perigo { background: var(--cor-saude) !important; }
+
+  /* segundo nivel do acordeao */
+  .sub-item { border: 1px solid var(--borda-card); border-radius: 14px; margin-bottom: 8px; overflow: hidden; }
+  .sub-cab { width: 100%; display: flex; align-items: center; gap: 10px; background: transparent;
+    border: none; cursor: pointer; padding: 12px 13px; min-height: 46px;
+    font-family: 'Poppins'; font-weight: 700; font-size: 0.87rem; color: var(--texto-escuro); text-align: left; }
+  .sub-cab .sub-tit { flex: 1; }
+  .sub-cab.aberto { background: rgba(0,123,142,0.06); }
+  body.tema-escuro .sub-cab { color: var(--texto-escuro); }
+  body.tema-escuro .sub-cab.aberto { background: rgba(255,255,255,0.05); }
+  .sub-corpo { display: none; padding: 4px 13px 14px; }
+  .sub-corpo.aberto { display: block; }
+  .sub-corpo > label:first-child { margin-top: 0; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -1060,32 +1073,107 @@
   <div class="acordeao" id="acAdmin">
 
     <div class="ac-item">
-      <button class="ac-cab" type="button" data-ac="acEdicoes">
-        <span class="ac-ic">🗂</span><span class="ac-tit">Edições do desafio</span><span class="ac-seta">▾</span>
+      <button class="ac-cab" type="button" data-ac="acParticipantes">
+        <span class="ac-ic">👤</span><span class="ac-tit">Participantes</span><span class="ac-seta">▾</span>
       </button>
-      <div class="ac-corpo" id="acEdicoes">
-        <p class="nota" style="margin-top:0">Cada edição tem as próprias tarefas, inscrições e pontuação. A pontuação começa do zero em cada temporada, e as anteriores continuam consultáveis por todos.</p>
-        <div id="edLista"></div>
+      <div class="ac-corpo" id="acParticipantes">
+        <div class="sub-item">
+          <button class="sub-cab" type="button" data-sub="subCadastrar">
+            <span class="sub-tit">Cadastrar novos</span><span class="ac-seta">▾</span>
+          </button>
+          <div class="sub-corpo" id="subCadastrar">
 
-        <div class="secao-titulo" style="margin-top:16px">Nova edição</div>
-        <label for="edNome">Nome</label>
-        <input id="edNome" maxlength="60" placeholder="Ex.: Desafio Mais Saúde, 2ª temporada">
-        <div style="display:flex;gap:10px">
-          <div style="flex:1"><label for="edIni">Início</label><input id="edIni" type="date"></div>
-          <div style="flex:1"><label for="edFim">Fim</label><input id="edFim" type="date"></div>
+        <label for="adNome">Nome (como aparece no ranking)</label>
+        <input id="adNome" placeholder="Ana Maria">
+        <label for="adUsuario">Usuário (para o login)</label>
+        <input id="adUsuario" placeholder="Sem espaços e sem acentos">
+        <label for="adSenha">Senha inicial</label>
+        <input id="adSenha" value="trocar123">
+        <button class="botao" id="btnAdCadastrar">Cadastrar</button>
+        <div class="aviso" id="avisoAdCad"></div>
+      
+          </div>
         </div>
-        <label for="edCopiar">Copiar as tarefas de</label>
-        <select id="edCopiar"></select>
-        <button class="botao" id="btnEdCriar">Criar edição em rascunho</button>
-        <div class="aviso" id="avisoEd"></div>
+        <div class="sub-item">
+          <button class="sub-cab" type="button" data-sub="subLista">
+            <span class="sub-tit">Lista (editar, senha, exclusão)</span><span class="ac-seta">▾</span>
+          </button>
+          <div class="sub-corpo" id="subLista">
+<div id="adLista"></div>
+          </div>
+        </div>
+        <div class="sub-item">
+          <button class="sub-cab" type="button" data-sub="subFrequencia">
+            <span class="sub-tit">Frequência</span><span class="ac-seta">▾</span>
+          </button>
+          <div class="sub-corpo" id="subFrequencia">
+<div id="adFrequencia"></div>
+          </div>
+        </div>
+
       </div>
     </div>
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acDesafio">
+        <span class="ac-ic">🏅</span><span class="ac-tit">Tarefa Desafio (pontos bônus)</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acDesafio">
 
+        <label for="tdTitulo">Título</label>
+        <input id="tdTitulo" maxlength="80" placeholder="Ex.: 10 mil passos em um único dia">
+        <label for="tdDesc">Descrição (opcional)</label>
+        <input id="tdDesc" maxlength="140" placeholder="Detalhe o que precisa ser feito">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="tdIni">De</label><input id="tdIni" type="date"></div>
+          <div style="flex:1"><label for="tdFim">Até</label><input id="tdFim" type="date"></div>
+        </div>
+        <label for="tdPontos">Quantos pontos vale</label>
+        <select id="tdPontos">
+          <option value="1">1 ponto</option>
+          <option value="2">2 pontos</option>
+          <option value="3">3 pontos</option>
+          <option value="4">4 pontos</option>
+          <option value="5">5 pontos</option>
+        </select>
+        <button class="botao" id="btnTdCriar">Publicar Tarefa Desafio</button>
+        <div class="aviso" id="avisoTd"></div>
+        <div id="tdLista" style="margin-top:12px"></div>
+      
+      </div>
+    </div>
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acRepescagem">
+        <span class="ac-ic">🔥</span><span class="ac-tit">Repescagem</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acRepescagem">
+
+        <p class="nota" style="margin-top:0">A lista de elegíveis é apurada sozinha na virada do primeiro dia de cada período. Alterar as regras abaixo não refaz a apuração automaticamente: use o botão Apurar agora depois de salvar.</p>
+        <div id="repLista"></div>
+        <div class="aviso" id="avisoRep"></div>
+
+        <div class="secao-titulo" style="margin-top:16px">Novo período de repescagem</div>
+        <label for="rpNome">Nome</label>
+        <input id="rpNome" maxlength="40" placeholder="Ex.: Repescagem 3">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="rpIni">Início</label><input id="rpIni" type="date"></div>
+          <div style="flex:1"><label for="rpFim">Fim</label><input id="rpFim" type="date"></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="rpMul">Multiplicador</label>
+            <input id="rpMul" type="number" min="1" max="5" step="1" value="2"></div>
+          <div style="flex:1"><label for="rpPct">Corte (% do líder)</label>
+            <input id="rpPct" type="number" min="1" max="99" step="1" value="70"></div>
+        </div>
+        <button class="botao" id="btnRpCriar">Adicionar período</button>
+      
+      </div>
+    </div>
     <div class="ac-item">
       <button class="ac-cab" type="button" data-ac="acTarefas">
         <span class="ac-ic">✅</span><span class="ac-tit">Tarefas diárias</span><span class="ac-seta">▾</span>
       </button>
       <div class="ac-corpo" id="acTarefas">
+
         <label for="tfEdicao">Edição</label>
         <select id="tfEdicao"></select>
         <div class="aviso" id="avisoTfTrava"></div>
@@ -1119,16 +1207,45 @@
             </select>
           </div>
         </div>
+        <label class="comp-check"><input type="checkbox" id="tfCard"> Mostrar esta tarefa nos cards do Desempenho geral</label>
         <button class="botao" id="btnTfCriar">Adicionar tarefa</button>
         <div class="aviso" id="avisoTf"></div>
+      
       </div>
     </div>
-
     <div class="ac-item">
-      <button class="ac-cab" type="button" data-ac="acPeriodo">
-        <span class="ac-ic">📅</span><span class="ac-tit">Período do desafio</span><span class="ac-seta">▾</span>
+      <button class="ac-cab" type="button" data-ac="acMural">
+        <span class="ac-ic">💬</span><span class="ac-tit">Moderação do mural</span><span class="ac-seta">▾</span>
       </button>
-      <div class="ac-corpo" id="acPeriodo">
+      <div class="ac-corpo" id="acMural">
+
+        <div id="adMural"></div>
+      
+      </div>
+    </div>
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acEdicoes">
+        <span class="ac-ic">🗂</span><span class="ac-tit">Edições do desafio</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acEdicoes">
+
+        <p class="nota" style="margin-top:0">Cada edição tem as próprias tarefas, inscrições e pontuação. A pontuação começa do zero em cada temporada, e as anteriores continuam consultáveis por todos.</p>
+        <div id="edLista"></div>
+
+        <div class="secao-titulo" style="margin-top:16px">Nova edição</div>
+        <label for="edNome">Nome</label>
+        <input id="edNome" maxlength="60" placeholder="Ex.: Desafio Mais Saúde, 2ª temporada">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="edIni">Início</label><input id="edIni" type="date"></div>
+          <div style="flex:1"><label for="edFim">Fim</label><input id="edFim" type="date"></div>
+        </div>
+        <label for="edCopiar">Copiar as tarefas de</label>
+        <select id="edCopiar"></select>
+        <button class="botao" id="btnEdCriar">Criar edição em rascunho</button>
+        <div class="aviso" id="avisoEd"></div>
+      
+        <div class="secao-titulo" style="margin-top:18px">Edição atual: nome e período</div>
+
         <p class="nota" style="margin-top:0">Estas datas alimentam o regulamento, a tela Sobre, os gráficos e a regra que bloqueia o registro do dia anterior no primeiro dia.</p>
         <label for="dsNome">Nome da edição</label>
         <input id="dsNome" maxlength="60" placeholder="Ex.: Desafio Mais Saúde 2026">
@@ -1139,105 +1256,21 @@
         <p class="nota" id="dsResumo" style="margin-bottom:10px"></p>
         <button class="botao" id="btnDsSalvar">Salvar período</button>
         <div class="aviso" id="avisoDs"></div>
+      
       </div>
     </div>
-
     <div class="ac-item">
-      <button class="ac-cab" type="button" data-ac="acCadastro">
-        <span class="ac-ic">👤</span><span class="ac-tit">Cadastrar participante</span><span class="ac-seta">▾</span>
+      <button class="ac-cab" type="button" data-ac="acDados">
+        <span class="ac-ic">📊</span><span class="ac-tit">Dados e Backup</span><span class="ac-seta">▾</span>
       </button>
-      <div class="ac-corpo" id="acCadastro">
-        <label for="adNome">Nome (como aparece no ranking)</label>
-        <input id="adNome" placeholder="Ana Maria">
-        <label for="adUsuario">Usuário (para o login)</label>
-        <input id="adUsuario" placeholder="Sem espaços e sem acentos">
-        <label for="adSenha">Senha inicial</label>
-        <input id="adSenha" value="trocar123">
-        <button class="botao" id="btnAdCadastrar">Cadastrar</button>
-        <div class="aviso" id="avisoAdCad"></div>
-      </div>
-    </div>
+      <div class="ac-corpo" id="acDados">
+        <div class="secao-titulo" style="margin-top:0">Exportar</div>
 
-    <div class="ac-item">
-      <button class="ac-cab" type="button" data-ac="acDesafio">
-        <span class="ac-ic">🏅</span><span class="ac-tit">Tarefa Desafio (pontos bônus)</span><span class="ac-seta">▾</span>
-      </button>
-      <div class="ac-corpo" id="acDesafio">
-        <label for="tdTitulo">Título</label>
-        <input id="tdTitulo" maxlength="80" placeholder="Ex.: 10 mil passos em um único dia">
-        <label for="tdDesc">Descrição (opcional)</label>
-        <input id="tdDesc" maxlength="140" placeholder="Detalhe o que precisa ser feito">
-        <div style="display:flex;gap:10px">
-          <div style="flex:1"><label for="tdIni">De</label><input id="tdIni" type="date"></div>
-          <div style="flex:1"><label for="tdFim">Até</label><input id="tdFim" type="date"></div>
-        </div>
-        <button class="botao" id="btnTdCriar">Publicar Tarefa Desafio</button>
-        <div class="aviso" id="avisoTd"></div>
-        <div id="tdLista" style="margin-top:12px"></div>
-      </div>
-    </div>
-
-    <div class="ac-item">
-      <button class="ac-cab" type="button" data-ac="acRepescagem">
-        <span class="ac-ic">🔥</span><span class="ac-tit">Repescagem</span><span class="ac-seta">▾</span>
-      </button>
-      <div class="ac-corpo" id="acRepescagem">
-        <p class="nota" style="margin-top:0">A lista de elegíveis é apurada sozinha na virada do primeiro dia de cada período. Alterar as regras abaixo não refaz a apuração automaticamente: use o botão Apurar agora depois de salvar.</p>
-        <div id="repLista"></div>
-        <div class="aviso" id="avisoRep"></div>
-
-        <div class="secao-titulo" style="margin-top:16px">Novo período de repescagem</div>
-        <label for="rpNome">Nome</label>
-        <input id="rpNome" maxlength="40" placeholder="Ex.: Repescagem 3">
-        <div style="display:flex;gap:10px">
-          <div style="flex:1"><label for="rpIni">Início</label><input id="rpIni" type="date"></div>
-          <div style="flex:1"><label for="rpFim">Fim</label><input id="rpFim" type="date"></div>
-        </div>
-        <div style="display:flex;gap:10px">
-          <div style="flex:1"><label for="rpMul">Multiplicador</label>
-            <input id="rpMul" type="number" min="1" max="5" step="1" value="2"></div>
-          <div style="flex:1"><label for="rpPct">Corte (% do líder)</label>
-            <input id="rpPct" type="number" min="1" max="99" step="1" value="70"></div>
-        </div>
-        <button class="botao" id="btnRpCriar">Adicionar período</button>
-      </div>
-    </div>
-
-    <div class="ac-item">
-      <button class="ac-cab" type="button" data-ac="acParticipantes">
-        <span class="ac-ic">📋</span><span class="ac-tit">Frequência e participantes</span><span class="ac-seta">▾</span>
-      </button>
-      <div class="ac-corpo" id="acParticipantes">
-        <div id="adFrequencia"></div>
-        <div class="secao-titulo" style="margin-top:10px">Participantes</div>
-        <div id="adLista"></div>
-      </div>
-    </div>
-
-    <div class="ac-item">
-      <button class="ac-cab" type="button" data-ac="acMural">
-        <span class="ac-ic">💬</span><span class="ac-tit">Moderação do mural</span><span class="ac-seta">▾</span>
-      </button>
-      <div class="ac-corpo" id="acMural">
-        <div id="adMural"></div>
-      </div>
-    </div>
-
-    <div class="ac-item">
-      <button class="ac-cab" type="button" data-ac="acExportar">
-        <span class="ac-ic">📊</span><span class="ac-tit">Exportar dados</span><span class="ac-seta">▾</span>
-      </button>
-      <div class="ac-corpo" id="acExportar">
         <button class="botao secundario" id="btnExportarXlsx">Baixar Excel (ranking e lançamentos)</button>
         <div class="aviso" id="avisoExport"></div>
-      </div>
-    </div>
+      
+        <div class="secao-titulo" style="margin-top:18px">Zerar dados da fase de testes</div>
 
-    <div class="ac-item ac-perigo">
-      <button class="ac-cab" type="button" data-ac="acLimpar">
-        <span class="ac-ic">🧹</span><span class="ac-tit">Zerar dados da fase de testes</span><span class="ac-seta">▾</span>
-      </button>
-      <div class="ac-corpo" id="acLimpar">
         <div class="caixa-perigo">
           <b>Atenção: esta ação não pode ser desfeita.</b>
           <p style="margin:6px 0 0">Serão apagados os lançamentos diários, os cumprimentos de Tarefa Desafio, os recados do mural com suas reações e as listas de elegíveis da repescagem. Participantes, tarefas, inscrições e edições permanecem intactos.</p>
@@ -1253,6 +1286,7 @@
         <input id="lmPalavra" maxlength="10" placeholder="APAGAR">
         <button class="botao botao-perigo" id="btnLimpar">Apagar definitivamente</button>
         <div class="aviso" id="avisoLimpar"></div>
+      
       </div>
     </div>
 
@@ -2130,7 +2164,7 @@ function periodoTexto() {
          " (" + duracaoTexto(desafio.data_inicio, desafio.data_fim) + ")";
 }
 
-const CAMPOS_TAREFA = "id,codigo,grupo,descricao,valor_ponto,minimo_padrao,minimo_valor,unidade,quantificavel,ordem";
+const CAMPOS_TAREFA = "id,codigo,grupo,descricao,valor_ponto,minimo_padrao,minimo_valor,unidade,quantificavel,ordem,mostrar_desempenho";
 
 async function carregaTarefasDaEdicao(id) {
   if (!id) return [];
@@ -2372,7 +2406,11 @@ async function desenhaQuebraPontos() {
       [PAL.principal, "Consistência", "tarefas do dia a dia", d.pontos_consistencia],
       [PAL.laranja, "Bônus", "Tarefas Desafio cumpridas", d.pontos_bonus],
       [PAL.saude, "Repescagem", "pontos extras dos períodos", d.pontos_repescagem]
-    ];
+    ].filter(l => Number(l[3]) !== 0);   // so aparece o que realmente pontuou
+    if (!linhas.length) {
+      alvo.innerHTML = '<div class="nota">Você ainda não somou pontos nesta temporada.</div>';
+      return;
+    }
     alvo.innerHTML = linhas.map(([cor, tit, sub, val]) =>
       `<div class="quebra-linha"><span class="pill" style="background:${cor}"></span>
         <span class="rot">${tit}<small>${sub}</small></span>
@@ -2707,17 +2745,20 @@ function valorFormatado(total, unidade) {
 function cardsColetivos(col, tarefasDaEdicao) {
   const por = {};
   (col || []).forEach(i => por[i.codigo] = Number(i.total_grupo || 0));
-  const quant = (tarefasDaEdicao || []).filter(t => t.quantificavel);
-  return quant.map((t, i) => {
-    const total = por[t.codigo] || 0;
-    const ic = ICONE_POR_UNIDADE[t.unidade] || ICONE_POR_UNIDADE["unidades"];
-    return [
-      valorFormatado(total, t.unidade),
-      "de " + t.descricao.toLowerCase() + ", somando a turma",
-      FUNDO_CICLO[i % FUNDO_CICLO.length],
-      ic
-    ];
+  // Aparecem apenas as tarefas que o administrador marcou para o Desempenho
+  // geral (coluna mostrar_desempenho). Edicoes antigas, sem a marcacao, caem
+  // no criterio padrao: medidas em volume ou tempo.
+  const quant = (tarefasDaEdicao || []).filter(t => {
+    if (!t.quantificavel) return false;
+    if (t.mostrar_desempenho !== undefined && t.mostrar_desempenho !== null) return !!t.mostrar_desempenho;
+    return ["L", "min", "h"].includes(t.unidade);
   });
+  return quant.map((t, i) => [
+    valorFormatado(por[t.codigo] || 0, t.unidade),
+    t.descricao,
+    FUNDO_CICLO[i % FUNDO_CICLO.length],
+    ICONE_POR_UNIDADE[t.unidade] || ICONE_POR_UNIDADE["unidades"]
+  ]);
 }
 
 async function abrirDesempenho() {
@@ -3623,7 +3664,7 @@ async function carregaDesempenhoPublico() {
       api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,descricao,unidade,total_grupo" + fEd(idPub)),
       api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,grupo,cumprimentos" + fEd(idPub)),
       api("/rest/v1/vw_ranking?select=user_id" + fEd(idPub)),
-      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,valor_ponto" + fEd(idPub)),
+      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,descricao,unidade,quantificavel,mostrar_desempenho,valor_ponto" + fEd(idPub)),
       Promise.resolve(desafio ? [desafio] : [])
     ]);
     const por = {};
@@ -3755,7 +3796,7 @@ async function coletaDadosComp() {
     const [col, tarGrupo, tars, des] = await Promise.all([
       api("/rest/v1/vw_indicadores_quantidade_coletivo?select=codigo,total_grupo" + fEd(idComp)),
       api("/rest/v1/vw_tarefas_cumpridas_coletivo?select=codigo,cumprimentos" + fEd(idComp)),
-      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,descricao,unidade,quantificavel,valor_ponto" + fEd(idComp)),
+      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,descricao,unidade,quantificavel,mostrar_desempenho,valor_ponto" + fEd(idComp)),
       Promise.resolve(desafio ? [desafio] : [])
     ]);
     const por = {}; (col || []).forEach(x => por[x.codigo] = Number(x.total_grupo || 0));
@@ -3766,8 +3807,7 @@ async function coletaDadosComp() {
     const possivel = total * dias * positivas.length;
     const pct = possivel > 0 ? Math.round(100*cumpridas/possivel) : 0;
     grupo = [
-      ...(tars || []).filter(t => t.quantificavel).slice(0, 3)
-        .map(t => [valorFormatado(por[t.codigo] || 0, t.unidade), "de " + t.descricao.toLowerCase()]),
+      ...cardsColetivos(col, tars || []).slice(0, 3).map(c => [c[0], c[1]]),
       [pct+"%", "das tarefas cumpridas"]
     ];
   } catch {}
@@ -4062,12 +4102,13 @@ async function adCarregaTarefas() {
   $("tfLista").innerHTML = skelHtml(3, 44);
   limpaAviso("avisoTfTrava");
   if (ed.status !== "rascunho") {
-    aviso("avisoTfTrava", "erro", "Esta edição já saiu do rascunho. Alterar tarefas agora muda a pontuação de quem já lançou, então só é possível ativar ou desativar itens.");
+    aviso("avisoTfTrava", "erro", "Esta edição já está em andamento. Você pode incluir novas tarefas, mas saiba que isso aumenta o máximo de pontos por dia e reduz o percentual de tarefas cumpridas da turma, inclusive nos dias já passados. Tarefas que já têm lançamentos não podem ser apagadas, apenas desativadas.");
   }
   try {
     tarefasAdmin = (await api("/rest/v1/tarefas?desafio_id=eq." + ed.id +
-      "&select=id,codigo,grupo,descricao,valor_ponto,minimo_valor,unidade,quantificavel,ordem,ativo&order=grupo.asc,ordem.asc")) || [];
+      "&select=id,codigo,grupo,descricao,valor_ponto,minimo_valor,unidade,quantificavel,ordem,ativo,mostrar_desempenho&order=grupo.asc,ordem.asc")) || [];
     const rascunho = ed.status === "rascunho";
+    // apagar so no rascunho; incluir e permitido a qualquer momento
     $("tfLista").innerHTML = tarefasAdmin.length ? tarefasAdmin.map(t => {
       const sinal = t.valor_ponto > 0 ? "+1" : (t.valor_ponto < 0 ? "-1" : "0");
       const cor = t.valor_ponto > 0 ? "var(--cor-principal)" : (t.valor_ponto < 0 ? "var(--cor-laranja-diaria)" : "var(--texto-mutado)");
@@ -4076,12 +4117,13 @@ async function adCarregaTarefas() {
         <span><b style="color:${cor}">${sinal}</b> ${escapaHtml(t.descricao)}
           <br><small style="color:var(--texto-mutado)">cód. ${escapaHtml(t.codigo)}${min}</small></span>
         <span>
+          ${t.quantificavel ? `<button class="reac ${t.mostrar_desempenho ? "minha" : ""}" data-tfcard="${t.id}" data-tfcardv="${t.mostrar_desempenho ? 1 : 0}" title="Aparece nos cards do Desempenho geral">card</button>` : ""}
           <button class="reac ${t.ativo ? "minha" : ""}" data-tftgl="${t.id}" data-tfatv="${t.ativo ? 1 : 0}">${t.ativo ? "ativa" : "off"}</button>
           ${rascunho ? `<button class="apagar" data-tfdel="${t.id}" aria-label="Apagar">🗑</button>` : ""}
         </span>
       </div>`;
     }).join("") : '<div class="nota">Nenhuma tarefa nesta edição.</div>';
-    $("btnTfCriar").style.display = rascunho ? "" : "none";
+    $("btnTfCriar").style.display = "";
   } catch (e) {
     $("tfLista").innerHTML = '<div class="nota">Erro ao carregar: ' + e.message + '</div>';
   }
@@ -4110,6 +4152,7 @@ $("btnTfCriar").addEventListener("click", async () => {
         minimo_valor: minimo, unidade: unidade || null,
         quantificavel: !!(minimo != null && unidade),
         minimo_padrao: (minimo != null && unidade) ? (fmtNum(minimo) + " " + unidade) : null,
+        mostrar_desempenho: $("tfCard").checked && !!(minimo != null && unidade),
         ordem: tarefasAdmin.length + 1, ativo: true
       })
     });
@@ -4124,6 +4167,16 @@ $("btnTfCriar").addEventListener("click", async () => {
 $("tfLista").addEventListener("click", async ev => {
   const t = ev.target;
   limpaAviso("avisoTf");
+  if (t.dataset && t.dataset.tfcard) {
+    try {
+      await api("/rest/v1/tarefas?id=eq." + t.dataset.tfcard, {
+        method: "PATCH", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({ mostrar_desempenho: t.dataset.tfcardv !== "1" })
+      });
+      await adCarregaTarefas();
+    } catch (e) { aviso("avisoTf", "erro", e.message); }
+    return;
+  }
   if (t.dataset && t.dataset.tftgl) {
     try {
       await api("/rest/v1/tarefas?id=eq." + t.dataset.tftgl, {
@@ -4221,7 +4274,24 @@ $("btnDsSalvar").addEventListener("click", async () => {
 
 /* ---------- acordeao da area de administracao ---------- */
 $("acAdmin").addEventListener("click", ev => {
-  const cab = ev.target && ev.target.closest ? ev.target.closest(".ac-cab") : null;
+  if (!ev.target || !ev.target.closest) return;
+
+  // segundo nivel: abre e fecha sem mexer no acordeao de cima
+  const sub = ev.target.closest(".sub-cab");
+  if (sub) {
+    const corpoSub = $(sub.dataset.sub);
+    if (!corpoSub) return;
+    const abrindoSub = !corpoSub.classList.contains("aberto");
+    const pai = sub.closest(".ac-corpo");
+    if (pai) {
+      pai.querySelectorAll(".sub-corpo").forEach(c => c.classList.remove("aberto"));
+      pai.querySelectorAll(".sub-cab").forEach(c => c.classList.remove("aberto"));
+    }
+    if (abrindoSub) { corpoSub.classList.add("aberto"); sub.classList.add("aberto"); }
+    return;
+  }
+
+  const cab = ev.target.closest(".ac-cab");
   if (!cab) return;
   const corpo = $(cab.dataset.ac);
   if (!corpo) return;
@@ -4229,6 +4299,8 @@ $("acAdmin").addEventListener("click", ev => {
   // um aberto por vez, para a tela nao virar uma lista gigante
   document.querySelectorAll("#acAdmin .ac-corpo").forEach(c => c.classList.remove("aberto"));
   document.querySelectorAll("#acAdmin .ac-cab").forEach(c => c.classList.remove("aberto"));
+  document.querySelectorAll("#acAdmin .sub-corpo").forEach(c => c.classList.remove("aberto"));
+  document.querySelectorAll("#acAdmin .sub-cab").forEach(c => c.classList.remove("aberto"));
   if (abrindo) {
     corpo.classList.add("aberto");
     cab.classList.add("aberto");
@@ -4248,7 +4320,7 @@ async function adCarregaDesafios() {
     $("tdLista").innerHTML = (lista || []).length ? lista.map(t =>
       `<div class="medida-linha">
         <span><b>${escapaHtml(t.titulo)}</b><br>
-          <small style="color:var(--texto-mutado)">${fmtDataCompleta(t.data_inicio)} a ${fmtDataCompleta(t.data_fim)} · ${conta[t.id] || 0} cumpriram</small></span>
+          <small style="color:var(--texto-mutado)">+${t.valor_ponto} ponto${t.valor_ponto === 1 ? "" : "s"} · ${fmtDataCompleta(t.data_inicio)} a ${fmtDataCompleta(t.data_fim)} · ${conta[t.id] || 0} cumpriram</small></span>
         <span>
           <button class="reac ${t.ativa ? "minha" : ""}" data-tdtgl="${t.id}" data-tdatv="${t.ativa ? 1 : 0}">${t.ativa ? "ativa" : "pausada"}</button>
           <button class="apagar" data-tddel="${t.id}" aria-label="Apagar">🗑</button>
@@ -4273,7 +4345,8 @@ $("btnTdCriar").addEventListener("click", async () => {
       body: JSON.stringify({
         desafio_id: desafio.id, titulo: titulo,
         descricao: $("tdDesc").value.trim() || null,
-        data_inicio: ini, data_fim: fim
+        data_inicio: ini, data_fim: fim,
+        valor_ponto: Number($("tdPontos").value) || 1
       })
     });
     aviso("avisoTd", "ok", "Tarefa Desafio publicada. Ela aparece no Meu Dia dos participantes.");
