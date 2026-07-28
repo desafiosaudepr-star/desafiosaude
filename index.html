@@ -4658,6 +4658,7 @@ let promptInstalacao = null;
 window.addEventListener("beforeinstallprompt", (ev) => {
   ev.preventDefault();            // guarda o convite para disparar no toque do botao
   promptInstalacao = ev;
+  // se a aba estiver aberta e ainda mostrando instrucoes, troca pelo botao real
   if ($("painelInstalar") && $("painelInstalar").classList.contains("ativo")) estadoInstalacao();
 });
 window.addEventListener("appinstalled", () => { promptInstalacao = null; estadoInstalacao(); });
@@ -4680,63 +4681,87 @@ const PASSO = (n, txt) => `<div style="display:flex;gap:10px;align-items:flex-st
   <div style="min-width:24px;height:24px;border-radius:50%;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.78rem;flex-shrink:0">${n}</div>
   <div style="font-size:var(--fs-corpo)">${txt}</div></div>`;
 
-function estadoInstalacao() {
-  const est = $("instEstado"), btn = $("btnInstalar"), passos = $("instPassos");
-  limpaAviso("avisoInstalar");
-  btn.style.display = "none";
-  passos.innerHTML = "";
-
-  if (appInstalado()) {
-    est.textContent = "✅ O app já está instalado neste aparelho. Você está usando a versão instalada.";
-    return;
-  }
+// Passos de instalacao conforme o aparelho, montados sob demanda
+function passosInstalacao() {
   if (navegadorEmbutido()) {
-    est.textContent = "Você abriu o app pelo navegador interno de outro aplicativo (WhatsApp, Instagram ou similar), e por ali a instalação não é permitida.";
-    passos.innerHTML =
+    return "<p class='nota' style='margin-top:0'>Você abriu o app pelo navegador interno de outro aplicativo (WhatsApp, Instagram ou similar), e por ali a instalação não é permitida.</p>" +
       PASSO(1, "Toque nos três pontinhos (ou no menu) no canto da tela.") +
       PASSO(2, "Escolha <b>Abrir no navegador</b> (Chrome no Android, Safari no iPhone).") +
-      PASSO(3, "Já no navegador, volte a esta tela e a instalação fica disponível.");
-    return;
+      PASSO(3, "Já no navegador, volte a esta tela e toque de novo em Instalar.");
   }
   if (ehIOS()) {
-    est.textContent = "No iPhone e no iPad a instalação é feita em três toques, pelo próprio Safari:";
-    passos.innerHTML =
+    return "<p class='nota' style='margin-top:0'>No iPhone e no iPad a instalação é feita pelo próprio Safari, em três toques:</p>" +
       PASSO(1, "Toque no botão <b>Compartilhar</b>, o quadradinho com a seta para cima, na barra do Safari.") +
       PASSO(2, "Role a lista e escolha <b>Adicionar à Tela de Início</b>.") +
       PASSO(3, "Confirme em <b>Adicionar</b>. O ícone do desafio aparece na sua tela inicial.") +
       '<p class="nota">Precisa ser pelo Safari e no iOS 16.4 ou mais novo. Depois de instalado, abra o app sempre pelo ícone: é assim que as notificações funcionam no iPhone.</p>';
-    return;
   }
-  if (promptInstalacao) {
-    est.textContent = "Este aparelho pode instalar o app com um toque:";
-    btn.style.display = "";
-    return;
-  }
-  est.textContent = "A instalação automática não foi oferecida por este navegador. Dá para instalar pelo menu dele:";
-  passos.innerHTML =
+  return "<p class='nota' style='margin-top:0'>Seu navegador não ofereceu a instalação automática. Dá para instalar pelo menu dele:</p>" +
     PASSO(1, "Toque nos três pontinhos no canto do navegador.") +
     PASSO(2, "Escolha <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.") +
     PASSO(3, "Confirme. O ícone do desafio aparece junto dos seus outros apps.") +
-    '<p class="nota">Se não encontrar a opção, abra o app pelo Chrome e tente de novo.</p>';
+    '<p class="nota">Se não encontrar a opção, abra o app pelo Chrome e tente de novo. No Chrome, a instalação costuma ficar disponível depois de alguns segundos de uso da página.</p>';
+}
+
+function estadoInstalacao() {
+  const est = $("instEstado"), btn = $("btnInstalar"), passos = $("instPassos");
+  limpaAviso("avisoInstalar");
+  passos.innerHTML = "";
+
+  if (appInstalado()) {
+    btn.style.display = "none";
+    est.textContent = "✅ O app já está instalado neste aparelho. Você está usando a versão instalada.";
+    return;
+  }
+
+  // O botao aparece SEMPRE. Se o navegador oferecer a instalacao, ele instala
+  // de fato; se nao oferecer, abre as instrucoes do aparelho em questao.
+  btn.style.display = "";
+  btn.textContent = "Instalar o app agora";
+  if (promptInstalacao) {
+    est.textContent = "Este aparelho pode instalar o app com um toque:";
+  } else if (ehIOS()) {
+    est.textContent = "Toque no botão abaixo para ver como instalar no seu iPhone ou iPad:";
+  } else {
+    est.textContent = "Toque no botão abaixo para instalar:";
+  }
 }
 
 $("btnInstalar").addEventListener("click", async () => {
-  if (!promptInstalacao) { estadoInstalacao(); return; }
   const btn = $("btnInstalar");
+  limpaAviso("avisoInstalar");
+
+  // Sem convite do navegador: mostra o passo a passo do aparelho.
+  if (!promptInstalacao) {
+    $("instPassos").innerHTML = passosInstalacao();
+    $("instEstado").textContent = "";
+    btn.style.display = "none";
+    return;
+  }
+
   btn.disabled = true;
+  const antes = btn.textContent;
+  btn.textContent = "Abrindo o instalador...";
   try {
     promptInstalacao.prompt();
     const escolha = await promptInstalacao.userChoice;
     promptInstalacao = null;
     if (escolha && escolha.outcome === "accepted") {
       aviso("avisoInstalar", "ok", "Instalação concluída. Procure o ícone do desafio na sua tela inicial.");
+      btn.style.display = "none";
+      $("instEstado").textContent = "";
     } else {
       aviso("avisoInstalar", "erro", "Instalação cancelada. Você pode tentar de novo quando quiser.");
+      // o convite se gasta ao ser usado: se ele quiser tentar de novo, resta o manual
+      $("instPassos").innerHTML = passosInstalacao();
     }
-    estadoInstalacao();
   } catch (e) {
-    aviso("avisoInstalar", "erro", "Não foi possível abrir o instalador: " + e.message);
-  } finally { btn.disabled = false; }
+    // o navegador recusou o convite: cai para as instrucoes, sem deixar o usuario na mao
+    $("instPassos").innerHTML = passosInstalacao();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = antes;
+  }
 });
 
 /* ================= AJUSTES: header, config, historico ================= */
