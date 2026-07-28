@@ -6,10 +6,16 @@
 //     em segundo plano.
 //   - API do Supabase (outro dominio): nunca passa por aqui.
 
-const CACHE = "mais-saude-1_9b";
-const ARQUIVOS = [
+const CACHE = "mais-saude-2_0";
+
+// Essencial: sem estes o app nao abre offline.
+const ESSENCIAIS = [
   "./",
-  "./index.html",
+  "./index.html"
+];
+
+// Desejaveis: se algum faltar no servidor, o app continua funcionando.
+const OPCIONAIS = [
   "./manifest.webmanifest",
   "./icons/icone-192.png",
   "./icons/icone-512.png",
@@ -19,10 +25,29 @@ const ARQUIVOS = [
   "./icons/og-card.png"
 ];
 
+// IMPORTANTE: guardamos os arquivos UM A UM, tolerando falhas.
+// Com addAll, um unico arquivo ausente no servidor faz a instalacao inteira
+// falhar, o service worker nunca ativa e o Chrome deixa de reconhecer o app
+// como instalavel, oferecendo apenas "criar atalho".
+async function guardaTolerante(cache, lista, obrigatorio) {
+  for (const arq of lista) {
+    try {
+      const resp = await fetch(arq, { cache: "reload" });
+      if (resp && resp.ok) await cache.put(arq, resp);
+      else if (obrigatorio) console.warn("[sw] sem resposta boa para", arq);
+    } catch (e) {
+      if (obrigatorio) console.warn("[sw] falhou ao guardar", arq, e);
+    }
+  }
+}
+
 self.addEventListener("install", (ev) => {
-  ev.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ARQUIVOS)).then(() => self.skipWaiting())
-  );
+  ev.waitUntil((async () => {
+    const c = await caches.open(CACHE);
+    await guardaTolerante(c, ESSENCIAIS, true);
+    await guardaTolerante(c, OPCIONAIS, false);
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (ev) => {
@@ -48,6 +73,16 @@ self.addEventListener("fetch", (ev) => {
   const url = new URL(ev.request.url);
   if (url.origin !== self.location.origin) return;      // API passa direto
   if (ev.request.method !== "GET") return;
+
+  // O manifesto e o proprio service worker vao SEMPRE pela rede: o navegador
+  // precisa enxergar a versao atual deles para reconhecer o app como
+  // instalavel. So caem no cache se o aparelho estiver sem conexao.
+  if (url.pathname.endsWith("/manifest.webmanifest") || url.pathname.endsWith("/sw.js")) {
+    ev.respondWith(
+      fetch(ev.request).catch(() => caches.match(ev.request))
+    );
+    return;
+  }
 
   // 1. Paginas: rede primeiro
   if (ehDocumento(ev.request)) {

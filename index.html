@@ -1391,6 +1391,8 @@
       <button class="botao" id="btnInstalar" style="display:none">Instalar o app agora</button>
       <div id="instPassos"></div>
       <div class="aviso" id="avisoInstalar"></div>
+      <button class="btn-mini" id="btnDiagInstalar" style="border:1px solid rgba(0,123,142,0.35);border-radius:10px;margin-top:6px">Verificar requisitos de instalação</button>
+      <div id="instDiag"></div>
       <p class="nota">Instalado, o app abre em tela cheia, com ícone próprio, e as notificações passam a funcionar também no iPhone.</p>
       <hr style="border:none;border-top:1px solid var(--borda-card);margin:14px 0">
       <h4 style="margin:0 0 4px;font-size:0.95rem;color:var(--cor-principal)">Versão instalada</h4>
@@ -4726,6 +4728,65 @@ function estadoInstalacao() {
     est.textContent = "Toque no botão abaixo para instalar:";
   }
 }
+
+
+/* ---------- diagnostico: por que o navegador nao oferece a instalacao ---------- */
+$("btnDiagInstalar").addEventListener("click", async () => {
+  const alvo = $("instDiag");
+  alvo.innerHTML = '<div class="nota">Verificando...</div>';
+  const linhas = [];
+  const marca = (ok, txt) => linhas.push(
+    `<div style="display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:0.84rem">
+       <span>${ok ? "✅" : "❌"}</span><span>${escapaHtml(txt)}</span></div>`);
+
+  marca(location.protocol === "https:" || location.hostname === "localhost",
+        "Conexão segura (https): " + location.protocol);
+
+  let man = null;
+  try {
+    const r = await fetch("manifest.webmanifest", { cache: "no-store" });
+    marca(r.ok, "Manifesto encontrado (código " + r.status + ")");
+    man = await r.json();
+    marca(!!man.name && !!man.start_url, "Manifesto com nome e endereço inicial");
+    const t192 = (man.icons || []).some(i => String(i.sizes).includes("192"));
+    const t512 = (man.icons || []).some(i => String(i.sizes).includes("512"));
+    marca(t192 && t512, "Ícones de 192 e 512 declarados");
+    marca(["standalone", "fullscreen", "minimal-ui"].includes(man.display),
+          "Modo de exibição: " + man.display);
+  } catch (e) {
+    marca(false, "Manifesto NÃO pôde ser lido: " + e.message);
+  }
+
+  if (man && man.icons) {
+    for (const ic of man.icons) {
+      try {
+        const r = await fetch(ic.src, { cache: "no-store" });
+        marca(r.ok, "Ícone " + ic.src + " (código " + r.status + ")");
+      } catch {
+        marca(false, "Ícone " + ic.src + " não encontrado no servidor");
+      }
+    }
+  }
+
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    marca(regs.length > 0, "Service worker registrado (" + regs.length + ")");
+    marca(regs.some(r => r.active), regs.some(r => r.active)
+      ? "Service worker ativo"
+      : "Service worker registrado mas NÃO ativo (é isto que bloqueia a instalação)");
+  } catch (e) {
+    marca(false, "Service worker indisponível: " + e.message);
+  }
+
+  marca(!!promptInstalacao, promptInstalacao
+    ? "O navegador ofereceu a instalação"
+    : "O navegador ainda não ofereceu a instalação (no Chrome pode levar alguns segundos de uso da página; no Safari e no Firefox essa oferta não existe)");
+
+  alvo.innerHTML = '<div class="cartao" style="margin-top:10px;padding:12px 14px">' +
+    '<b style="font-family:Poppins;color:var(--cor-principal)">Requisitos de instalação</b>' +
+    linhas.join("") +
+    '<p class="nota" style="margin-bottom:0">Qualquer item com ❌ é o que impede a instalação automática.</p></div>';
+});
 
 $("btnInstalar").addEventListener("click", async () => {
   const btn = $("btnInstalar");
