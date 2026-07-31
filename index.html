@@ -811,6 +811,56 @@
   .sub-corpo { display: none; padding: 4px 13px 14px; }
   .sub-corpo.aberto { display: block; }
   .sub-corpo > label:first-child { margin-top: 0; }
+
+  .reg-tarefas li { margin-bottom: 8px; }
+  .reg-detalhe { display: block; font-size: 0.82rem; color: var(--texto-mutado);
+    line-height: 1.45; margin-top: 3px; }
+
+  /* calendario do historico */
+  .cal-topo { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .cal-topo span { flex: 1; text-align: center; font-family: 'Poppins'; font-weight: 700;
+    font-size: 1rem; color: var(--cor-principal); text-transform: capitalize; }
+  body.tema-escuro .cal-topo span { color: #7FD6E2; }
+  .cal-topo button { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--borda-card);
+    background: transparent; color: var(--cor-principal); font-size: 1.3rem; cursor: pointer; line-height: 1; }
+  .cal-topo button:disabled { opacity: 0.3; cursor: default; }
+  body.tema-escuro .cal-topo button { color: #7FD6E2; }
+  .cal-semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
+  .cal-semana span { text-align: center; font-size: 0.72rem; color: var(--texto-mutado); font-weight: 600; }
+  .cal-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dia { aspect-ratio: 1; border-radius: 11px; border: 1px solid transparent;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1px; cursor: pointer; background: rgba(96,125,139,0.10); padding: 2px; }
+  .cal-dia.vazio { background: transparent; cursor: default; }
+  .cal-dia .n { font-size: 0.8rem; color: var(--texto-escuro); font-weight: 600; line-height: 1; }
+  .cal-dia .p { font-size: 0.62rem; font-weight: 700; line-height: 1; font-family: 'Poppins'; }
+  .cal-dia.pos { background: rgba(0,123,142,0.16); }
+  .cal-dia.pos .p { color: var(--cor-principal); }
+  .cal-dia.neg { background: rgba(255,152,0,0.20); }
+  .cal-dia.neg .p { color: #b06a00; }
+  .cal-dia.hoje { border-color: var(--cor-saude); }
+  .cal-dia.sel { outline: 2px solid var(--cor-azul-acao); outline-offset: 1px; }
+  .cal-dia.forapp { opacity: 0.35; }
+  body.tema-escuro .cal-dia { background: rgba(255,255,255,0.05); }
+  body.tema-escuro .cal-dia .n { color: var(--texto-escuro); }
+  body.tema-escuro .cal-dia.pos { background: rgba(0,188,212,0.20); }
+  body.tema-escuro .cal-dia.pos .p { color: #7FD6E2; }
+  body.tema-escuro .cal-dia.neg { background: rgba(255,152,0,0.24); }
+  body.tema-escuro .cal-dia.neg .p { color: #FFB74D; }
+  .cal-legenda { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px;
+    font-size: 0.72rem; color: var(--texto-mutado); }
+  .cal-legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+    margin-right: 4px; vertical-align: middle; }
+  .det-cab { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .det-cab h4 { margin: 0; font-size: 1rem; color: var(--cor-principal); text-transform: capitalize; }
+  body.tema-escuro .det-cab h4 { color: #7FD6E2; }
+  .det-saldo { margin-left: auto; font-family: 'Poppins'; font-weight: 700; font-size: 1.24rem; }
+  .det-linha { display: flex; align-items: center; gap: 9px; padding: 7px 0;
+    border-bottom: 1px solid var(--borda-card); font-size: 0.87rem; }
+  .det-linha:last-child { border-bottom: none; }
+  .det-linha .sinal { font-family: 'Poppins'; font-weight: 700; font-size: 0.82rem; min-width: 26px; }
+  .det-grupo { font-size: 0.74rem; color: var(--texto-mutado); font-weight: 700;
+    letter-spacing: 0.04em; margin: 12px 0 2px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -1207,6 +1257,8 @@
             </select>
           </div>
         </div>
+        <label for="tfDetalhe">Detalhamento (opcional)</label>
+        <textarea id="tfDetalhe" rows="3" maxlength="600" placeholder="Explicação que aparece no regulamento, por exemplo o que entra e o que não entra na regra."></textarea>
         <label class="comp-check"><input type="checkbox" id="tfCard"> Mostrar esta tarefa nos cards do Desempenho geral</label>
         <button class="botao" id="btnTfCriar">Adicionar tarefa</button>
         <div class="aviso" id="avisoTf"></div>
@@ -1294,6 +1346,30 @@
 </section>
 
 
+
+
+<!-- HISTORICO -->
+<section class="tela" id="telaHistorico">
+  <div class="saudacao"><h2>Histórico</h2><p>Toque em um dia para ver o que você registrou.</p></div>
+  <div class="sel-edicao" id="selEdHistorico"></div>
+  <div class="cartao" style="padding:14px 12px">
+    <div class="cal-topo">
+      <button type="button" id="calAnterior" aria-label="Mês anterior">‹</button>
+      <span id="calMes"></span>
+      <button type="button" id="calProximo" aria-label="Mês seguinte">›</button>
+    </div>
+    <div class="cal-semana">
+      <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+    </div>
+    <div class="cal-grade" id="calGrade"></div>
+    <div class="cal-legenda">
+      <span><i style="background:var(--cor-principal)"></i> saldo positivo</span>
+      <span><i style="background:var(--cor-laranja-diaria)"></i> saldo negativo</span>
+      <span><i style="background:rgba(96,125,139,0.30)"></i> sem registro</span>
+    </div>
+  </div>
+  <div id="calDetalhe"></div>
+</section>
 
 <!-- COMPARTILHAR -->
 <section class="tela" id="telaCompartilhar">
@@ -1423,7 +1499,8 @@
     <h4>Como funciona</h4>
     <ul>
       <li><b>Meu Dia:</b> um checklist de 1 toque para marcar as tarefas cumpridas. Cada dia pode ser lançado em até 48 horas.</li>
-      <li><b>Pontos:</b> 8 tarefas saudáveis valem +1; 5 hábitos a evitar valem -1. O saldo diário vai de -5 a +8.</li>
+      <li><b>Pontos:</b> <span id="sobrePontos">as tarefas saudáveis valem +1 e os hábitos a evitar valem -1</span>. Há ainda os pontos bônus das Tarefas Desafio e o ponto em dobro nos períodos de repescagem.</li>
+      <li><b>Histórico:</b> um calendário onde você revê o que registrou em cada dia e quanto pontuou.</li>
       <li><b>Progresso:</b> gráficos da sua evolução e da turma, sequência de dias (streak), dias perfeitos e indicadores de água, atividade, sono e mais.</li>
       <li><b>Turma:</b> ranking com a pontuação de todos e um mural de recados com reações, para a torcida ficar acesa.</li>
       <li><b>Metas pessoais:</b> nos 5 primeiros dias você personaliza suas metas; os pontos seguem o mínimo oficial, e as metas alimentam os indicadores.</li>
@@ -1556,7 +1633,7 @@ let diaSelecionado = null;
 /* ---------------- utilidades ---------------- */
 function $(id) { return document.getElementById(id); }
 const TAB_POR_TELA = { telaMeuDia: "tabMeudia", telaProgresso: "tabProgresso", telaTurma: "tabTurma", telaMais: "tabMais", telaCompartilhar: "tabMais",
-  telaMedidas: "tabMais", telaMetas: "tabMais", telaLembretes: "tabMais", telaRegulamento: "tabMais", telaSobre: "tabMais", telaConfig: "tabMais", telaDesempenho: "tabTurma", telaAdmin: "tabMais", telaSenha: "tabMais" };
+  telaMedidas: "tabMais", telaMetas: "tabMais", telaLembretes: "tabMais", telaRegulamento: "tabMais", telaSobre: "tabMais", telaConfig: "tabMais", telaHistorico: "tabMais", telaDesempenho: "tabTurma", telaAdmin: "tabMais", telaSenha: "tabMais" };
 // declarada aqui, antes de mostraTela, que a preenche a cada troca de tela
 var telaAtual = "";
 
@@ -2166,7 +2243,7 @@ function periodoTexto() {
          " (" + duracaoTexto(desafio.data_inicio, desafio.data_fim) + ")";
 }
 
-const CAMPOS_TAREFA = "id,codigo,grupo,descricao,valor_ponto,minimo_padrao,minimo_valor,unidade,quantificavel,ordem,mostrar_desempenho";
+const CAMPOS_TAREFA = "id,codigo,grupo,descricao,detalhe,valor_ponto,minimo_padrao,minimo_valor,unidade,quantificavel,ordem,mostrar_desempenho";
 
 async function carregaTarefasDaEdicao(id) {
   if (!id) return [];
@@ -3559,39 +3636,62 @@ async function carregaContextoPeriodos() {
   } catch { /* sem acesso, os textos caem no aviso generico */ }
 }
 
-function regulamentoHtml() { return `
+function regulamentoHtml() {
+  const pos = (tarefasVista || []).filter(t => t.valor_ponto > 0);
+  const neg = (tarefasVista || []).filter(t => t.valor_ponto < 0);
+  const linha = (t) =>
+    `<li><b>${t.valor_ponto > 0 ? "+1" : "-1"}</b> ${escapaHtml(t.descricao)}` +
+    (t.detalhe ? `<br><span class="reg-detalhe">${escapaHtml(t.detalhe)}</span>` : "") +
+    `</li>`;
+  const listaTarefas = (pos.length || neg.length)
+    ? `<p><b>Ganha 1 ponto</b></p><ul class="reg-tarefas">${pos.map(linha).join("")}</ul>
+       <p><b>Perde 1 ponto (marque se aconteceu)</b></p><ul class="reg-tarefas">${neg.map(linha).join("")}</ul>`
+    : '<p class="nota">A lista de tarefas aparece aqui assim que a edição for carregada.</p>';
+
+  return `
   <h4>Período</h4>
   <p>${periodoTexto()}. Novas temporadas poderão ser abertas.</p>
 
   <h4>Como pontuar</h4>
-  <p><b>Pontos de Consistência</b></p>
+  <p>A pontuação tem três origens: consistência, bônus e repescagem.</p>
+
+  <p><b>1. Pontos de Consistência</b></p>
   <ul>
-    <li>8 tarefas diárias saudáveis valem <b>+1 ponto</b> cada, por dia.</li>
-    <li>5 hábitos diários a evitar valem <b>-1 ponto</b> cada, se acontecerem no dia.</li>
-    <li>O saldo diário vai de -5 a +8. A pontuação é acumulada.</li>
-  </ul>
-  <p><b>Pontos Bônus</b></p>
-  <ul>
-    <li>Ponto adquirido quando da execução da <u>Tarefa Desafio</u>.</li>
-    <li>Cada <u>Tarefa Desafio</u> vale <b>+1 ponto</b>.</li>
-    <li>A Tarefa Desafio será apresentada pelo administrador ao longo do Desafio.</li>
-  </ul>
-  <p><b>Pontos de Repescagem</b></p>
-  <ul>
-    <li>Ponto adquirido APENAS pelo participante eleito para repescagem, ou seja, aquele que estiver com uma pontuação acumulada inferior a 70% da pontuação do líder.</li>
-    <li>Períodos de Repescagem: ${textoPeriodosRepescagem()}</li>
-    <li>Nos períodos acima o participante eleito para repescagem, ao cumprir as tarefas saudáveis diárias, marcará ponto em dobro (+2 pontos cada). Os hábitos diários a evitar continuam penalizando normalmente (-1).</li>
-    <li>A lista de participantes eleitos é apurada na virada do primeiro dia de cada período e vale até o fim daquele período.</li>
+    <li>${pos.length} tarefas diárias saudáveis valem <b>+1 ponto</b> cada, por dia.</li>
+    <li>${neg.length} hábitos diários a evitar valem <b>-1 ponto</b> cada, se acontecerem no dia.</li>
+    <li>O saldo diário vai de <b>-${neg.length}</b> a <b>+${pos.length}</b>. A pontuação é acumulada ao longo do desafio.</li>
+    <li>Cada tarefa é marcada uma vez por dia, no aplicativo.</li>
   </ul>
 
-  <h4>Prazo de lançamento dos Pontos</h4>
+  <p><b>2. Pontos Bônus (Tarefa Desafio)</b></p>
+  <ul>
+    <li>A <b>Tarefa Desafio</b> é uma missão extra publicada pelo organizador, que aparece na tela Meu Dia enquanto estiver valendo.</li>
+    <li>Serão publicadas <b>2 Tarefas Desafio por semana</b>, ao longo de todo o desafio.</li>
+    <li>Cada Tarefa Desafio cumprida dentro do prazo vale <b>+1 ponto</b>, somado à pontuação de consistência.</li>
+    <li>São opcionais: quem não cumprir não perde ponto, apenas deixa de ganhar o bônus.</li>
+  </ul>
+
+  <p><b>3. Pontos de Repescagem</b></p>
+  <ul>
+    <li>A repescagem existe para quem ficou para trás ter chance real de voltar à disputa.</li>
+    <li>Entra na repescagem quem estiver com pontuação acumulada <b>inferior a 70% da pontuação do líder</b>.</li>
+    <li>Períodos de Repescagem: ${textoPeriodosRepescagem()}</li>
+    <li>Nesses períodos, quem foi eleito para a repescagem marca <b>ponto em dobro (+2)</b> a cada tarefa saudável cumprida. Os hábitos a evitar continuam penalizando normalmente (-1) e a Tarefa Desafio continua valendo +1.</li>
+    <li>A lista de participantes eleitos é apurada na virada do primeiro dia de cada período e vale até o fim daquele período, mesmo que a pontuação mude no meio do caminho.</li>
+    <li>O aplicativo avisa quem está na repescagem e mostra a marcação em dobro na tela Meu Dia.</li>
+  </ul>
+
+  <h4>As tarefas do desafio</h4>
+  ${listaTarefas}
+
+  <h4>Prazo de lançamento dos pontos</h4>
   <p>Os pontos de cada dia podem ser lançados no aplicativo em até 48h. Depois disso, o dia fica bloqueado e não pontua.</p>
 
   <h4>Metas pessoais</h4>
-  <p>Nos 5 primeiros dias após a sua entrada, você pode personalizar suas metas (água, atividade, sono, lazer, frutas, legumes). Os pontos consideram sempre o mínimo oficial; sua meta pessoal alimenta os indicadores individuais e do grupo.</p>
+  <p>Nos 5 primeiros dias após a sua entrada, você pode personalizar as metas das tarefas que têm quantidade mínima (água, sono, atividade física, lazer sem tela, frutas e legumes). A meta pessoal nunca pode ser menor que o mínimo oficial, e é possível definir metas diferentes para cada dia da semana. A pontuação considera sempre o mínimo oficial; sua meta pessoal alimenta os indicadores individuais e do grupo.</p>
 
   <h4>Vencedor e prêmio</h4>
-  <p>Vence quem tiver a maior pontuação acumulada. Empatados dividem a colocação, sem desempate. O prêmio consiste no acumulado do valor de inscrição dos participantes (R$ 20,00 por pessoa).</p>
+  <p>Vence quem tiver a maior pontuação acumulada ao final. Empatados dividem a colocação, sem desempate. O prêmio consiste no acumulado do valor de inscrição dos participantes (R$ 20,00 por pessoa).</p>
 
   <h4>Privacidade</h4>
   <p>O detalhe das suas tarefas e as suas medidas corporais são só seus. O ranking mostra apenas nome e pontuação. Os indicadores do grupo são sempre agregados, sem nomes.</p>
@@ -3609,6 +3709,8 @@ $("abaDados").addEventListener("click", () => {
 $("abaRegul").addEventListener("click", () => {
   $("abaRegul").classList.add("ativo"); $("abaDados").classList.remove("ativo");
   $("painelRegul").classList.add("ativo"); $("painelDados").classList.remove("ativo");
+  // as tarefas vem do banco, entao carrega antes de pintar o texto
+  carregaContextoPeriodos().then(garanteTarefasVista).then(pintaRegulamento);
 });
 $("btnNaoConcordo").addEventListener("click", () => { apagaSessao(); mostraTela("telaLogin"); });
 
@@ -3623,10 +3725,18 @@ async function abrirSobre() {
   if (desafio && $("sobreDuracao")) {
     $("sobreDuracao").textContent = duracaoTexto(desafio.data_inicio, desafio.data_fim);
   }
+  await garanteTarefasVista();
+  const p = (tarefasVista || []).filter(t => t.valor_ponto > 0).length;
+  const n = (tarefasVista || []).filter(t => t.valor_ponto < 0).length;
+  if (p && $("sobrePontos")) {
+    $("sobrePontos").textContent = p + " tarefas saudáveis valem +1 e " + n +
+      " hábitos a evitar valem -1, com saldo diário de -" + n + " a +" + p;
+  }
 }
 async function abrirRegulamento() {
   mostraTela("telaRegulamento");
   await carregaContextoPeriodos();
+  await garanteTarefasVista();
   pintaRegulamento();
 }
 
@@ -3708,7 +3818,7 @@ async function abrirPublico() {
   try {
     const [rank, tars] = await Promise.all([
       api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total&order=pontos_total.desc" + (desafio ? fEd(desafio.id) : "")),
-      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,grupo,descricao,valor_ponto,minimo_padrao&order=grupo.asc,ordem.asc" + (desafio ? fEd(desafio.id) : ""))
+      api("/rest/v1/tarefas?ativo=eq.true&select=codigo,grupo,descricao,detalhe,valor_ponto,minimo_padrao&order=grupo.asc,ordem.asc" + (desafio ? fEd(desafio.id) : ""))
     ]);
     $("pubRank").innerHTML = (rank || []).length
       ? (rank || []).map((r, i) => `
@@ -3722,7 +3832,10 @@ async function abrirPublico() {
     const g1 = (tars || []).filter(t => t.valor_ponto === 1);
     const g2 = (tars || []).filter(t => t.valor_ponto === -1);
     const lista = (arr) => arr.map(t =>
-      `<div class="linha-tarefa"><span>${escapaHtml(t.descricao)}${t.minimo_padrao ? ' <small style="color:var(--texto-mutado)">(' + escapaHtml(t.minimo_padrao) + ')</small>' : ""}</span></div>`).join("");
+      `<div class="linha-tarefa" style="display:block">
+         <span>${escapaHtml(t.descricao)}</span>
+         ${t.detalhe ? `<span class="reg-detalhe">${escapaHtml(t.detalhe)}</span>` : ""}
+       </div>`).join("");
     $("pubTarefas").innerHTML =
       '<div class="secao-titulo">Ganha 1 ponto</div>' + (g1.length ? lista(g1) : '<div class="nota">Sem tarefas cadastradas.</div>') +
       '<div class="secao-titulo">Perde 1 ponto</div>' + (g2.length ? lista(g2) : '<div class="nota">Sem tarefas cadastradas.</div>');
@@ -3912,6 +4025,214 @@ function compartilharCard() { compDados = null; abrirCompartilhar(); }
 
 
 
+
+
+/* ================= HISTORICO (calendario) ================= */
+let calMesAtual = null;      // "AAAA-MM" em exibicao
+let calDados = null;         // { mes, saldos:{data:saldo}, marcados:{data:Set}, bonus:[], eleg:{} }
+let calDiaSel = null;
+
+const MESES_NOME = ["janeiro","fevereiro","março","abril","maio","junho",
+                    "julho","agosto","setembro","outubro","novembro","dezembro"];
+
+function mesDe(iso) { return iso.slice(0, 7); }
+function primeiroDiaMes(mes) { return mes + "-01"; }
+function ultimoDiaMes(mes) {
+  const [a, m] = mes.split("-").map(Number);
+  return mes + "-" + String(new Date(a, m, 0).getDate()).padStart(2, "0");
+}
+function mesVizinho(mes, passo) {
+  const [a, m] = mes.split("-").map(Number);
+  const d = new Date(a, m - 1 + passo, 1);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+}
+
+async function abrirHistorico() {
+  mostraTela("telaHistorico");
+  await garanteBase();
+  montaSeletorEdicao("selEdHistorico", () => { calMesAtual = null; calDados = null; abrirHistorico(); });
+  const ed = edicaoVistaObj();
+  if (!ed) {
+    $("calGrade").innerHTML = "";
+    $("calDetalhe").innerHTML = '<div class="nota">Nenhuma edição para consultar.</div>';
+    return;
+  }
+  if (!calMesAtual) {
+    const hoje = hojeISO();
+    // abre no mes de hoje quando ele pertence a edicao, senao no mes de inicio
+    calMesAtual = (hoje >= ed.data_inicio && hoje <= ed.data_fim) ? mesDe(hoje) : mesDe(ed.data_inicio);
+  }
+  await carregaMesHistorico();
+}
+
+async function carregaMesHistorico() {
+  const ed = edicaoVistaObj();
+  $("calGrade").innerHTML = '<div class="nota" style="grid-column:1/-1">Carregando...</div>';
+  const ini = primeiroDiaMes(calMesAtual), fim = ultimoDiaMes(calMesAtual);
+  try {
+    const [saldos, lancs, bonus, eleg] = await Promise.all([
+      api("/rest/v1/vw_saldo_diario?user_id=eq." + sessao.user.id +
+          "&data=gte." + ini + "&data=lte." + fim + "&select=data,saldo_dia" + fEd(ed.id)),
+      api("/rest/v1/lancamentos?user_id=eq." + sessao.user.id + "&marcado=eq.true" +
+          "&data=gte." + ini + "&data=lte." + fim + "&select=data,tarefa_id" + fEd(ed.id)),
+      api("/rest/v1/lancamentos_desafio?user_id=eq." + sessao.user.id + "&marcado=eq.true" +
+          "&select=criado_em,tarefa_desafio_id,tarefas_desafio(titulo,valor_ponto,data_inicio,data_fim,desafio_id)"),
+      api("/rest/v1/repescagem_elegiveis?user_id=eq." + sessao.user.id +
+          "&select=periodo_id,repescagem_periodos(data_inicio,data_fim,multiplicador,desafio_id)")
+    ]);
+    const porData = {};
+    (saldos || []).forEach(x => porData[x.data] = Number(x.saldo_dia || 0));
+    const marc = {};
+    (lancs || []).forEach(l => { (marc[l.data] = marc[l.data] || new Set()).add(l.tarefa_id); });
+    calDados = {
+      mes: calMesAtual,
+      saldos: porData,
+      marcados: marc,
+      bonus: (bonus || []).filter(b => b.tarefas_desafio && b.tarefas_desafio.desafio_id === ed.id),
+      eleg: (eleg || []).filter(e => e.repescagem_periodos && e.repescagem_periodos.desafio_id === ed.id)
+                        .map(e => e.repescagem_periodos)
+    };
+    // as tarefas do historico incluem as desativadas, senao o dia antigo fica incompleto
+    if (!calDados.tarefas) {
+      calDados.tarefas = (await api("/rest/v1/tarefas?desafio_id=eq." + ed.id +
+        "&select=id,codigo,descricao,valor_ponto,minimo_padrao&order=grupo.asc,ordem.asc")) || [];
+    }
+    desenhaCalendario();
+  } catch (e) {
+    $("calGrade").innerHTML = '<div class="nota" style="grid-column:1/-1">Não foi possível carregar: ' + e.message + '</div>';
+  }
+}
+
+function multiplicadorHistorico(dataISO) {
+  if (!calDados) return 1;
+  const p = calDados.eleg.find(x => dataISO >= x.data_inicio && dataISO <= x.data_fim);
+  return p ? (p.multiplicador || 2) : 1;
+}
+
+function desenhaCalendario() {
+  const ed = edicaoVistaObj();
+  const [ano, mes] = calMesAtual.split("-").map(Number);
+  $("calMes").textContent = MESES_NOME[mes - 1] + " de " + ano;
+
+  // navegacao limitada ao periodo da edicao
+  $("calAnterior").disabled = mesVizinho(calMesAtual, -1) < mesDe(ed.data_inicio);
+  $("calProximo").disabled = mesVizinho(calMesAtual, 1) > mesDe(ed.data_fim);
+
+  const diasNoMes = new Date(ano, mes, 0).getDate();
+  const primeiroDiaSemana = new Date(ano, mes - 1, 1).getDay();
+  const hoje = hojeISO();
+  let html = "";
+  for (let i = 0; i < primeiroDiaSemana; i++) html += '<div class="cal-dia vazio"></div>';
+  for (let d = 1; d <= diasNoMes; d++) {
+    const iso = calMesAtual + "-" + String(d).padStart(2, "0");
+    const dentro = iso >= ed.data_inicio && iso <= ed.data_fim;
+    const saldo = calDados.saldos[iso];
+    const temReg = saldo !== undefined || (calDados.marcados[iso] && calDados.marcados[iso].size);
+    const cls = ["cal-dia"];
+    if (!dentro) cls.push("forapp");
+    if (temReg) cls.push(Number(saldo) < 0 ? "neg" : "pos");
+    if (iso === hoje) cls.push("hoje");
+    if (iso === calDiaSel) cls.push("sel");
+    html += `<div class="${cls.join(" ")}" data-dia="${iso}">
+      <span class="n">${d}</span>
+      ${temReg ? `<span class="p">${Number(saldo) > 0 ? "+" : ""}${Number(saldo) || 0}</span>` : ""}
+    </div>`;
+  }
+  $("calGrade").innerHTML = html;
+  if (calDiaSel && mesDe(calDiaSel) === calMesAtual) desenhaDetalheDia(calDiaSel);
+  else $("calDetalhe").innerHTML = '<div class="nota" style="text-align:center;padding:14px">Toque em um dia do calendário.</div>';
+}
+
+function desenhaDetalheDia(iso) {
+  const ed = edicaoVistaObj();
+  const marc = calDados.marcados[iso] || new Set();
+  const saldo = calDados.saldos[iso];
+  const mult = multiplicadorHistorico(iso);
+  const tars = calDados.tarefas || [];
+  const feitas = tars.filter(t => marc.has(t.id));
+  const pos = feitas.filter(t => t.valor_ponto > 0);
+  const neg = feitas.filter(t => t.valor_ponto < 0);
+
+  // Tarefas Desafio cumpridas neste dia
+  const bonusDoDia = (calDados.bonus || []).filter(b =>
+    String(b.criado_em).slice(0, 10) === iso);
+
+  const d = new Date(iso + "T00:00:00");
+  const titulo = d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+  const totalBonus = bonusDoDia.reduce((a, b) => a + Number(b.tarefas_desafio.valor_ponto || 1), 0);
+  const total = (saldo !== undefined ? Number(saldo) : 0) + totalBonus;
+  const corTotal = total > 0 ? "var(--cor-principal)" : (total < 0 ? "var(--cor-laranja-diaria)" : "var(--texto-mutado)");
+
+  let corpo = "";
+  if (!feitas.length && !bonusDoDia.length) {
+    const noPrazo = (new Date(hojeISO() + "T00:00:00") - d) / 86400000 <= 1 && iso >= ed.data_inicio && ehEdicaoAtiva();
+    corpo = '<div class="nota">Nenhum registro neste dia.' +
+      (noPrazo ? ' Ainda dá tempo de lançar.' : '') + '</div>' +
+      (noPrazo ? '<button class="botao secundario" id="btnIrMeuDia" style="margin-top:10px">Ir para Meu Dia</button>' : '');
+  } else {
+    if (mult > 1) {
+      corpo += `<div class="faixa-repescagem" style="margin:0 0 12px">
+        <span style="font-size:1.3rem">🔥</span>
+        <span>Dia de <b>repescagem</b>: cada tarefa saudável valeu <b>${mult} pontos</b>.</span></div>`;
+    }
+    if (pos.length) {
+      corpo += '<div class="det-grupo">GANHOU PONTO</div>';
+      corpo += pos.map(t => `<div class="det-linha">
+        <span class="sinal" style="color:var(--cor-principal)">+${t.valor_ponto * mult}</span>
+        <span>${escapaHtml(t.descricao)}</span></div>`).join("");
+    }
+    if (neg.length) {
+      corpo += '<div class="det-grupo">PERDEU PONTO</div>';
+      corpo += neg.map(t => `<div class="det-linha">
+        <span class="sinal" style="color:var(--cor-laranja-diaria)">${t.valor_ponto}</span>
+        <span>${escapaHtml(t.descricao)}</span></div>`).join("");
+    }
+    if (bonusDoDia.length) {
+      corpo += '<div class="det-grupo">TAREFA DESAFIO</div>';
+      corpo += bonusDoDia.map(b => `<div class="det-linha">
+        <span class="sinal" style="color:var(--cor-saude)">+${b.tarefas_desafio.valor_ponto || 1}</span>
+        <span>${escapaHtml(b.tarefas_desafio.titulo)}</span></div>`).join("");
+    }
+    const naoFeitas = tars.filter(t => t.valor_ponto > 0 && !marc.has(t.id));
+    if (naoFeitas.length) {
+      corpo += `<div class="nota" style="margin-top:12px">${naoFeitas.length} tarefa(s) que ganham ponto não foram marcadas neste dia.</div>`;
+    }
+  }
+
+  $("calDetalhe").innerHTML = `<div class="cartao" style="margin-top:14px">
+    <div class="det-cab">
+      <h4>${titulo}</h4>
+      <span class="det-saldo" style="color:${corTotal}">${total > 0 ? "+" : ""}${total}</span>
+    </div>
+    ${corpo}
+  </div>`;
+
+  if ($("btnIrMeuDia")) {
+    $("btnIrMeuDia").addEventListener("click", () => {
+      diaSelecionado = iso;
+      abrirMeuDia();
+    });
+  }
+}
+
+$("calGrade").addEventListener("click", ev => {
+  const cel = ev.target && ev.target.closest ? ev.target.closest(".cal-dia") : null;
+  if (!cel || !cel.dataset.dia) return;
+  calDiaSel = cel.dataset.dia;
+  desenhaCalendario();
+  $("calDetalhe").scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+
+$("calAnterior").addEventListener("click", async () => {
+  calMesAtual = mesVizinho(calMesAtual, -1);
+  calDiaSel = null;
+  await carregaMesHistorico();
+});
+$("calProximo").addEventListener("click", async () => {
+  calMesAtual = mesVizinho(calMesAtual, 1);
+  calDiaSel = null;
+  await carregaMesHistorico();
+});
 
 /* ================= ADMIN: ZERAR DADOS DA FASE DE TESTES ================= */
 async function adCarregaLimpeza() {
@@ -4108,7 +4429,7 @@ async function adCarregaTarefas() {
   }
   try {
     tarefasAdmin = (await api("/rest/v1/tarefas?desafio_id=eq." + ed.id +
-      "&select=id,codigo,grupo,descricao,valor_ponto,minimo_valor,unidade,quantificavel,ordem,ativo,mostrar_desempenho&order=grupo.asc,ordem.asc")) || [];
+      "&select=id,codigo,grupo,descricao,detalhe,valor_ponto,minimo_valor,unidade,quantificavel,ordem,ativo,mostrar_desempenho&order=grupo.asc,ordem.asc")) || [];
     const rascunho = ed.status === "rascunho";
     // apagar so no rascunho; incluir e permitido a qualquer momento
     $("tfLista").innerHTML = tarefasAdmin.length ? tarefasAdmin.map(t => {
@@ -4117,7 +4438,9 @@ async function adCarregaTarefas() {
       const min = t.minimo_valor != null ? (" · mín. " + fmtNum(t.minimo_valor) + (t.unidade ? " " + t.unidade : "")) : "";
       return `<div class="medida-linha">
         <span><b style="color:${cor}">${sinal}</b> ${escapaHtml(t.descricao)}
-          <br><small style="color:var(--texto-mutado)">cód. ${escapaHtml(t.codigo)}${min}</small></span>
+          <br><small style="color:var(--texto-mutado)">cód. ${escapaHtml(t.codigo)}${min}</small>
+          ${t.detalhe ? `<br><small class="reg-detalhe" style="margin-top:2px">${escapaHtml(t.detalhe)}</small>` : ""}
+          <br><button class="link-editar" data-tfdet="${t.id}" style="padding:4px 0">${t.detalhe ? "Editar detalhamento" : "Adicionar detalhamento"}</button></span>
         <span>
           ${t.quantificavel ? `<button class="reac ${t.mostrar_desempenho ? "minha" : ""}" data-tfcard="${t.id}" data-tfcardv="${t.mostrar_desempenho ? 1 : 0}" title="Aparece nos cards do Desempenho geral">card</button>` : ""}
           <button class="reac ${t.ativo ? "minha" : ""}" data-tftgl="${t.id}" data-tfatv="${t.ativo ? 1 : 0}">${t.ativo ? "ativa" : "off"}</button>
@@ -4150,6 +4473,7 @@ $("btnTfCriar").addEventListener("click", async () => {
       method: "POST", headers: { "Prefer": "return=minimal" },
       body: JSON.stringify({
         desafio_id: ed.id, codigo: codigo, descricao: desc,
+        detalhe: $("tfDetalhe").value.trim() || null,
         grupo: valor >= 0 ? 1 : 2, valor_ponto: valor,
         minimo_valor: minimo, unidade: unidade || null,
         quantificavel: !!(minimo != null && unidade),
@@ -4160,6 +4484,7 @@ $("btnTfCriar").addEventListener("click", async () => {
     });
     aviso("avisoTf", "ok", "Tarefa adicionada.");
     $("tfDesc").value = ""; $("tfCodigo").value = ""; $("tfMinimo").value = "";
+    $("tfDetalhe").value = ""; $("tfCard").checked = false;
     await adCarregaTarefas();
   } catch (e) {
     aviso("avisoTf", "erro", "Não foi possível adicionar: " + e.message);
@@ -4169,6 +4494,20 @@ $("btnTfCriar").addEventListener("click", async () => {
 $("tfLista").addEventListener("click", async ev => {
   const t = ev.target;
   limpaAviso("avisoTf");
+  if (t.dataset && t.dataset.tfdet) {
+    const atual = (tarefasAdmin.find(x => x.id === t.dataset.tfdet) || {}).detalhe || "";
+    const novo = prompt("Detalhamento da tarefa (aparece no regulamento). Deixe em branco para remover.", atual);
+    if (novo === null) return;
+    try {
+      await api("/rest/v1/tarefas?id=eq." + t.dataset.tfdet, {
+        method: "PATCH", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({ detalhe: novo.trim() || null })
+      });
+      aviso("avisoTf", "ok", "Detalhamento salvo. O regulamento já mostra o texto novo.");
+      await adCarregaTarefas();
+    } catch (e) { aviso("avisoTf", "erro", e.message); }
+    return;
+  }
   if (t.dataset && t.dataset.tfcard) {
     try {
       await api("/rest/v1/tarefas?id=eq." + t.dataset.tfcard, {
@@ -4891,6 +5230,7 @@ const SVGM = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" strok
 const ITENS_MAIS = [
   ["medidas", "Minhas Medidas", '<path d="M3 12h3l2-6l4 12l2-6h7"/>'],
   ["metas", "Minhas Metas", '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.8"/>'],
+  ["historico", "Histórico", '<rect x="3.5" y="4.5" width="17" height="16" rx="2.6"/><path d="M8 3v3M16 3v3M3.5 9.5h17"/><path d="M8 13.5h2M14 13.5h2M8 17h2M14 17h2"/>'],
   ["regulamento", "Regulamento", '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h6"/>'],
   ["sobre", "Sobre o app", '<circle cx="12" cy="12" r="9"/><path d="M12 8.2v0.2M12 11v5"/>'],
   ["compartilhar", "Compartilhar no WhatsApp", '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>'],
@@ -4910,6 +5250,7 @@ function executaAcao(acao) {
   if (acao === "medidas") abrirMedidas();
   if (acao === "metas") abrirMetas();
   if (acao === "lembretes") abrirConfig("lembretes");
+  if (acao === "historico") abrirHistorico();
   if (acao === "regulamento") abrirRegulamento();
   if (acao === "sobre") abrirSobre();
   if (acao === "compartilhar") compartilharCard();
@@ -4948,6 +5289,7 @@ $("drawer").addEventListener("click", ev => {
   if (acao === "medidas") abrirMedidas();
   if (acao === "metas") abrirMetas();
   if (acao === "lembretes") abrirConfig("lembretes");
+  if (acao === "historico") abrirHistorico();
   if (acao === "regulamento") abrirRegulamento();
   if (acao === "sobre") abrirSobre();
   if (acao === "compartilhar") compartilharCard();
