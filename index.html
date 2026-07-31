@@ -1522,7 +1522,7 @@
 
 <!-- REGULAMENTO -->
 <section class="tela" id="telaRegulamento">
-  <div class="saudacao"><h2>Regulamento</h2><p>versão simplificada</p></div>
+  <div class="saudacao"><h2>Regulamento</h2></div>
   <div class="cartao regulamento" id="regulamentoCorpo"></div>
   <button class="botao secundario" id="btnRegVoltar" style="display:none">Voltar</button>
 </section>
@@ -1931,11 +1931,13 @@ async function abrirMeuDia() {
     if (hoje < desafio.data_inicio) {
       const fx = $("faixaPeriodo");
       fx.style.display = "block";
-      fx.textContent = "A edição começa em " + desafio.data_inicio.split("-").reverse().join("/") + ". Você já pode conhecer o app e testar as marcações.";
+      // O registro fica bloqueado no banco ate a data de inicio, entao o aviso
+      // apenas informa quando comeca, sem convidar a testar marcacoes.
+      fx.textContent = "A edição começa em " + fmtDataCompleta(desafio.data_inicio) + ". O registro das tarefas será liberado nesse dia.";
     } else if (hoje > desafio.data_fim) {
       const fx = $("faixaPeriodo");
       fx.style.display = "block";
-      fx.textContent = "Esta edição encerrou em " + desafio.data_fim.split("-").reverse().join("/") + ".";
+      fx.textContent = "Esta edição encerrou em " + fmtDataCompleta(desafio.data_fim) + ".";
     }
     await carregaLancamentos();
     desenhaTarefas();
@@ -1973,6 +1975,8 @@ function desenhaTarefas() {
         <div class="check">✓</div>
       </div>`;
     }).join("");
+    // Sem tarefas no grupo, nem o titulo aparece: evita secao vazia na tela.
+    if (!itens) return "";
     return `<div class="grupo-titulo ${classe}">${titulo}</div>` + itens;
   };
   $("listaTarefas").innerHTML =
