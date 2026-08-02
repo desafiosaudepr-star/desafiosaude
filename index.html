@@ -2269,7 +2269,9 @@ async function garanteBase() {
 // Tarefas da edicao consultada: reaproveita as da ativa quando for a mesma
 async function garanteTarefasVista() {
   if (!edicaoVista) { tarefasVista = []; return; }
-  if (desafio && edicaoVista === desafio.id) { tarefasVista = tarefas; return; }
+  // Sem login, "tarefas" (da edicao ativa) esta vazio, entao nao da para
+  // reaproveita-lo: nesse caso buscamos direto, como em qualquer outra edicao.
+  if (desafio && edicaoVista === desafio.id && tarefas.length) { tarefasVista = tarefas; return; }
   if (!tarefasVista.length || tarefasVista._edicao !== edicaoVista) {
     tarefasVista = await carregaTarefasDaEdicao(edicaoVista);
     tarefasVista._edicao = edicaoVista;
@@ -3934,6 +3936,29 @@ async function coletaDadosComp() {
   return { nome, pontos, pos, total, cumpriu, saldoHoje, grupo };
 }
 
+
+/* ---------- imagens usadas nos cards de compartilhamento ---------- */
+let imgFundoCard = null, imgIconeCard = null;
+function carregaImagem(src) {
+  return new Promise((res) => {
+    const im = new Image();
+    im.onload = () => res(im);
+    im.onerror = () => res(null);
+    im.src = src;
+  });
+}
+async function garanteImagensCard() {
+  if (!imgFundoCard) imgFundoCard = await carregaImagem("img/fundo.jpg");
+  if (!imgIconeCard) imgIconeCard = await carregaImagem("icons/icone-192.png");
+}
+
+// Desenha a imagem cobrindo a area toda, sem distorcer (equivalente ao cover do CSS)
+function desenhaCobrindo(cx, img, x, y, w, h) {
+  const r = Math.max(w / img.width, h / img.height);
+  const lw = img.width * r, lh = img.height * r;
+  cx.drawImage(img, x + (w - lw) / 2, y + (h - lh) / 2, lw, lh);
+}
+
 function arredCanvas(cx, x, y, w, h, r) {
   cx.beginPath(); cx.moveTo(x+r, y);
   cx.arcTo(x+w, y, x+w, y+h, r); cx.arcTo(x+w, y+h, x, y+h, r);
@@ -3944,41 +3969,75 @@ function desenhaCard(dados, tipo, mostrarValor) {
   const cv = document.createElement("canvas");
   cv.width = 800; cv.height = 800;
   const cx = cv.getContext("2d");
+
+  // 1. Fundo: a mesma textura do app, coberta por um veu na cor da identidade
+  //    para o texto branco continuar legivel.
   const grad = cx.createLinearGradient(0, 0, 0, 800);
   grad.addColorStop(0, PAL.principal); grad.addColorStop(1, PAL.azul);
   cx.fillStyle = grad; cx.fillRect(0, 0, 800, 800);
+  if (imgFundoCard) {
+    cx.save();
+    cx.globalAlpha = 0.22;
+    desenhaCobrindo(cx, imgFundoCard, 0, 0, 800, 800);
+    cx.restore();
+    cx.fillStyle = "rgba(0,123,142,0.30)";
+    cx.fillRect(0, 0, 800, 800);
+  }
+
+  // 2. Cartao translucido central
   cx.fillStyle = "rgba(255,255,255,0.14)"; arredCanvas(cx, 56, 56, 688, 688, 40);
+
+  // 3. Icone do app, discreto, no canto superior esquerdo
+  if (imgIconeCard) {
+    cx.save();
+    cx.globalAlpha = 0.92;
+    const t = 84, mx = 92, my = 92;
+    arredCanvas(cx, mx, my, t, t, 20);   // base clara, para o icone destacar
+    cx.fillStyle = "rgba(255,255,255,0.92)";
+    arredCanvas(cx, mx, my, t, t, 20);
+    cx.save();
+    cx.beginPath();
+    const rr = 20, x2 = mx + t, y2 = my + t;
+    cx.moveTo(mx + rr, my);
+    cx.arcTo(x2, my, x2, y2, rr); cx.arcTo(x2, y2, mx, y2, rr);
+    cx.arcTo(mx, y2, mx, my, rr); cx.arcTo(mx, my, x2, my, rr);
+    cx.closePath(); cx.clip();
+    cx.drawImage(imgIconeCard, mx, my, t, t);
+    cx.restore();
+    cx.restore();
+  }
+
   cx.textAlign = "center"; cx.fillStyle = "#fff";
-  cx.font = "800 50px Poppins, Arial"; cx.fillText("Desafio Mais Saúde", 400, 160);
-  cx.font = "600 24px Open Sans, Arial"; cx.fillText("na Rotina Diária", 400, 196);
+  cx.font = "800 50px Poppins, Arial"; cx.fillText("Desafio Mais Saúde", 400, 240);
+  cx.font = "600 24px Open Sans, Arial"; cx.fillText("na Rotina Diária", 400, 276);
 
   let legenda = "";
   if (tipo === "pontos") {
-    cx.font = "800 168px Poppins, Arial"; cx.fillText(String(dados.pontos), 400, 430);
-    cx.font = "600 36px Open Sans, Arial"; cx.fillText("pontos no desafio", 400, 490);
-    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 600);
+    cx.font = "800 168px Poppins, Arial"; cx.fillText(String(dados.pontos), 400, 480);
+    cx.font = "600 36px Open Sans, Arial"; cx.fillText("pontos no desafio", 400, 540);
+    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 646);
     legenda = "Estou no Desafio Mais Saúde e já fiz " + dados.pontos + " pontos! 🌱💪";
   } else if (tipo === "posicao") {
-    cx.font = "800 150px Poppins, Arial"; cx.fillText(dados.pos + "º", 400, 420);
-    cx.font = "600 34px Open Sans, Arial"; cx.fillText("lugar entre " + dados.total + " participantes", 400, 480);
-    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 600);
+    cx.font = "800 150px Poppins, Arial"; cx.fillText(dados.pos + "º", 400, 476);
+    cx.font = "600 34px Open Sans, Arial"; cx.fillText("lugar entre " + dados.total + " participantes", 400, 536);
+    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 646);
     legenda = "Estou em " + dados.pos + "º lugar no Desafio Mais Saúde! 🏆";
   } else if (tipo === "meta") {
-    cx.font = "90px Arial"; cx.fillText(dados.cumpriu ? "✅" : "💪", 400, 360);
+    cx.font = "90px Arial"; cx.fillText(dados.cumpriu ? "✅" : "💪", 400, 420);
     cx.font = "700 44px Poppins, Arial";
-    cx.fillText(dados.cumpriu ? "Meta de hoje cumprida!" : "Firme no desafio de hoje!", 400, 470);
+    cx.fillText(dados.cumpriu ? "Meta de hoje cumprida!" : "Firme no desafio de hoje!", 400, 516);
     if (dados.cumpriu && mostrarValor) {
       cx.font = "600 34px Open Sans, Arial";
-      cx.fillText("Saldo do dia: +" + dados.saldoHoje + " ponto" + (dados.saldoHoje === 1 ? "" : "s"), 400, 530);
+      cx.fillText("Saldo do dia: +" + dados.saldoHoje + " ponto" + (dados.saldoHoje === 1 ? "" : "s"), 400, 570);
     }
-    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 620);
+    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 654);
     legenda = dados.cumpriu
       ? "Hoje eu cumpri a minha meta no Desafio Mais Saúde" + (mostrarValor ? " e fiz +" + dados.saldoHoje + " pontos" : "") + "! 🌱"
       : "Seguindo firme no Desafio Mais Saúde! 💪";
   } else if (tipo === "grupo") {
-    cx.font = "700 34px Poppins, Arial"; cx.fillText("A turma já somou", 400, 250);
+    cx.font = "700 34px Poppins, Arial"; cx.fillText("A turma já somou", 400, 350);
     cx.font = "700 40px Poppins, Arial";
-    const gy = [340, 430, 520, 610];
+    const gy = [428, 502, 576, 650];
     (dados.grupo || []).forEach((g, i) => {
       cx.fillStyle = "#fff"; cx.font = "800 40px Poppins, Arial";
       cx.fillText(g[0] + "  " + g[1], 400, gy[i]);
@@ -3994,6 +4053,7 @@ async function preparaPreviaComp() {
   $("compPrevia").style.display = "block";
   $("compImg").removeAttribute("src");
   try {
+    await garanteImagensCard();
     if (!compDados) compDados = await coletaDadosComp();
     const { canvas, legenda } = desenhaCard(compDados, compTipo, $("compMostrarValor").checked);
     compLegenda = legenda;
@@ -4169,9 +4229,15 @@ function desenhaDetalheDia(iso) {
 
   let corpo = "";
   if (!feitas.length && !bonusDoDia.length) {
-    const noPrazo = (new Date(hojeISO() + "T00:00:00") - d) / 86400000 <= 1 && iso >= ed.data_inicio && ehEdicaoAtiva();
-    corpo = '<div class="nota">Nenhum registro neste dia.' +
-      (noPrazo ? ' Ainda dá tempo de lançar.' : '') + '</div>' +
+    // Diferenca em dias entre hoje e o dia tocado. Negativa = dia futuro.
+    // So cabe lancar em hoje (0) e ontem (1), dentro da edicao ativa.
+    const difDias = Math.round((new Date(hojeISO() + "T00:00:00") - d) / 86400000);
+    const futuro = difDias < 0;
+    const noPrazo = difDias >= 0 && difDias <= 1 && iso >= ed.data_inicio && ehEdicaoAtiva();
+    const texto = futuro
+      ? "Este dia ainda não chegou."
+      : "Nenhum registro neste dia." + (noPrazo ? " Ainda dá tempo de lançar." : " O prazo de 48h para lançar já passou.");
+    corpo = '<div class="nota">' + texto + '</div>' +
       (noPrazo ? '<button class="botao secundario" id="btnIrMeuDia" style="margin-top:10px">Ir para Meu Dia</button>' : '');
   } else {
     if (mult > 1) {
