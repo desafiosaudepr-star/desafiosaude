@@ -59,6 +59,9 @@
     --texto-suave: var(--texto-mutado);
     --erro: #c0453f;
     --vidro: var(--background-card);
+    /* altura real do cabecalho: 12px + 48px do icone + 12px + 1px da borda.
+       O card de pontos gruda logo abaixo dela, entao os dois usam esta medida. */
+    --altura-topo: 73px;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
@@ -385,7 +388,7 @@
   body.com-tabbar .tela { padding-bottom: 150px; }
 
   .saldo-card { position: sticky !important; left:auto; right:auto; bottom:auto; border-top:none; 
-    position: sticky; top: 62px; z-index: 20;
+    position: sticky; top: calc(var(--altura-topo) + 8px); z-index: 20;
     display: flex; align-items: center; gap: 14px;
     background: var(--vidro); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.45); border-radius: 16px;
@@ -861,6 +864,29 @@
   .det-linha .sinal { font-family: 'Poppins'; font-weight: 700; font-size: 0.82rem; min-width: 26px; }
   .det-grupo { font-size: 0.74rem; color: var(--texto-mutado); font-weight: 700;
     letter-spacing: 0.04em; margin: 12px 0 2px; }
+
+  .tarefa .txt .minha-meta { color: var(--cor-saude); font-weight: 600; }
+  body.tema-escuro .tarefa .txt .minha-meta { color: #F48FB1; }
+
+  .secao-menu { margin: 18px 0 8px; }
+  .lista-mais button .estado-item { margin-left: auto; font-size: 0.8rem; color: var(--texto-mutado);
+    font-family: 'Open Sans'; font-weight: 600; text-transform: capitalize; }
+
+  /* Tarefa Desafio: descricao recolhida, aberta pelo botao + */
+  .card-desafio .titulo-desafio { display: flex; align-items: flex-start; gap: 10px; }
+  .card-desafio .titulo-desafio h4 { flex: 1; }
+  .btn-expandir {
+    width: 30px; height: 30px; flex-shrink: 0; border-radius: 9px; cursor: pointer;
+    border: 1.5px solid var(--cor-laranja-diaria); background: transparent;
+    color: var(--cor-laranja-diaria); font-family: 'Poppins'; font-weight: 700;
+    font-size: 1.12rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+  }
+  .btn-expandir.aberto { background: var(--cor-laranja-diaria); color: #fff; }
+  .card-desafio .desc {
+    display: none; margin-top: 8px; white-space: pre-line;
+    border-top: 1px dashed var(--borda-card); padding-top: 9px;
+  }
+  .card-desafio .desc.aberta { display: block; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -874,7 +900,7 @@
     <svg id="iconeTema" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
   </button>
   <button class="btn-topo" id="btnConfig" aria-label="Configurações" title="Configurações">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8l1.2 2.7l2.9-.6l.6 2.9l2.7 1.2l-1.5 2.5l1.5 2.5l-2.7 1.2l-.6 2.9l-2.9-.6L12 21.2l-1.2-2.7l-2.9.6l-.6-2.9l-2.7-1.2l1.5-2.5l-1.5-2.5l2.7-1.2l.6-2.9l2.9.6Z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.4"/><path d="M12 1.9v2.6M12 19.5v2.6M22.1 12h-2.6M4.5 12H1.9M19.14 4.86l-1.84 1.84M6.7 17.3l-1.84 1.84M19.14 19.14l-1.84-1.84M6.7 6.7L4.86 4.86"/><circle cx="12" cy="12" r="7.2"/></svg>
   </button>
   </div>
   <button class="btn-menu" id="btnMenu" aria-label="Abrir menu"><span></span><span></span><span></span></button>
@@ -976,6 +1002,7 @@
     <div class="mini-card"><div class="valor" id="pgStreak">0</div><div class="rot">dias seguidos</div></div>
     <div class="mini-card"><div class="valor" id="pgPerfeitos">0</div><div class="rot">dias perfeitos</div></div>
   </div>
+  <button class="botao secundario" id="btnIrHistorico">Ver meu histórico dia a dia</button>
   <div class="sel-edicao" id="selEdProgresso"></div>
   <div class="faixa-info" id="pgAvisoPeriodo" style="display:none"></div>
   <div class="secao-titulo">De onde vêm meus pontos</div>
@@ -1018,7 +1045,7 @@
   </div>
 
   <div class="aba-painel ativo" id="painelRanking">
-    <div class="secao-titulo" style="display:flex;align-items:center;margin-top:6px">Classificação <button class="btn-mini" id="btnAtualizaRank" style="margin-left:auto">atualizar</button></div>
+    <div class="secao-titulo" style="margin-top:6px">Classificação</div>
     <div id="rankLista"></div>
     <button class="botao secundario" id="btnVerDesempenho">Ver desempenho geral da turma</button>
   </div>
@@ -1172,7 +1199,8 @@
         <label for="tdTitulo">Título</label>
         <input id="tdTitulo" maxlength="80" placeholder="Ex.: 10 mil passos em um único dia">
         <label for="tdDesc">Descrição (opcional)</label>
-        <input id="tdDesc" maxlength="140" placeholder="Detalhe o que precisa ser feito">
+        <textarea id="tdDesc" rows="4" maxlength="560" placeholder="Detalhe o que precisa ser feito. Este texto aparece na tela Meu Dia, recolhido, e o participante abre no botão +."></textarea>
+        <div class="nota" style="margin:-6px 0 10px"><span id="tdDescConta">0</span>/560 caracteres</div>
         <div style="display:flex;gap:10px">
           <div style="flex:1"><label for="tdIni">De</label><input id="tdIni" type="date"></div>
           <div style="flex:1"><label for="tdFim">Até</label><input id="tdFim" type="date"></div>
@@ -1552,16 +1580,16 @@
       <path d="M6.4 20c0-3.2 2.5-5 5.6-5s5.6 1.8 5.6 5" stroke="currentColor" fill="none"/>
       <path d="M1.8 18.6c0-2.2 1.4-3.5 3.4-3.7M22.2 18.6c0-2.2-1.4-3.5-3.4-3.7" stroke="currentColor" fill="none"/>
     </svg>Turma</button>
-  <button data-tab="mais" id="tabMais" aria-label="Mais">
+  <button data-tab="mais" id="tabMais" aria-label="Você">
     <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="2.6" fill="rgba(0,123,142,0.16)" stroke="currentColor"/>
-      <path d="M12 2.9l1.1 2.4l2.6-.5l.5 2.6l2.4 1.1l-1.3 2.3l1.3 2.3l-2.4 1.1l-.5 2.6l-2.6-.5L12 21.1l-1.1-2.4l-2.6.5l-.5-2.6l-2.4-1.1l1.3-2.3l-1.3-2.3l2.4-1.1l.5-2.6l2.6.5Z" fill="none" stroke="currentColor"/>
-    </svg>Mais</button>
+      <circle cx="12" cy="8.2" r="3.9" fill="rgba(0,123,142,0.16)" stroke="currentColor"/>
+      <path d="M4.8 20.4c0-3.6 3.2-5.9 7.2-5.9s7.2 2.3 7.2 5.9" fill="none" stroke="currentColor"/>
+    </svg>Você</button>
 </nav>
 
 <!-- MAIS -->
 <section class="tela" id="telaMais">
-  <div class="saudacao"><h2>Mais</h2><p id="maisNome"></p></div>
+  <div class="saudacao"><h2>Você</h2><p id="maisNome"></p></div>
   <div class="lista-mais" id="listaMais"></div>
 </section>
 
@@ -1824,8 +1852,11 @@ function desenhaBonus() {
     const feita = bonusMarcados.has(t.id);
     return `<div class="card-desafio ${feita ? "cumprida" : ""}">
       <span class="selo">${feita ? "DESAFIO CUMPRIDO" : "TAREFA DESAFIO"}</span>
-      <h4>${escapaHtml(t.titulo)}</h4>
-      ${t.descricao ? `<div class="desc">${escapaHtml(t.descricao)}</div>` : ""}
+      <div class="titulo-desafio">
+        <h4>${escapaHtml(t.titulo)}</h4>
+        ${t.descricao ? `<button type="button" class="btn-expandir" data-expandir="${t.id}" aria-expanded="false" aria-label="Ver detalhes">+</button>` : ""}
+      </div>
+      ${t.descricao ? `<div class="desc" id="descDesafio-${t.id}">${escapaHtml(t.descricao)}</div>` : ""}
       <div class="rodape">
         <span class="prazo">Vale +${t.valor_ponto} ponto${t.valor_ponto === 1 ? "" : "s"} · até ${fmtDataCompleta(t.data_fim)}</span>
         <button type="button" class="btn-cumprir" data-bonus="${t.id}">${feita ? "✓ Cumprida" : "Marcar como feita"}</button>
@@ -1835,6 +1866,18 @@ function desenhaBonus() {
 }
 
 $("blocoDesafio").addEventListener("click", async ev => {
+  // acordeao da descricao: abre e fecha sem tocar na marcacao
+  const idExp = ev.target && ev.target.dataset && ev.target.dataset.expandir;
+  if (idExp) {
+    const alvoDesc = $("descDesafio-" + idExp);
+    if (!alvoDesc) return;
+    const abrindo = !alvoDesc.classList.contains("aberta");
+    alvoDesc.classList.toggle("aberta", abrindo);
+    ev.target.classList.toggle("aberto", abrindo);
+    ev.target.textContent = abrindo ? "−" : "+";
+    ev.target.setAttribute("aria-expanded", abrindo ? "true" : "false");
+    return;
+  }
   const id = ev.target && ev.target.dataset && ev.target.dataset.bonus;
   if (!id) return;
   const btn = ev.target;
@@ -1927,6 +1970,9 @@ async function abrirMeuDia() {
     edicaoVista = desafio.id;
     tarefas = await carregaTarefasDaEdicao(desafio.id);
     tarefasVista = tarefas;
+    // As metas so podem ser buscadas depois que a edicao e conhecida, porque
+    // dependem dela. Buscadas antes, voltavam vazias e o subtitulo sumia.
+    await carregaMinhasMetas();
     const hoje = hojeISO();
     if (hoje < desafio.data_inicio) {
       const fx = $("faixaPeriodo");
@@ -1958,6 +2004,47 @@ async function carregaLancamentos() {
   });
 }
 
+
+/* ---------- metas pessoais, usadas no subtitulo da tarefa ---------- */
+// { tarefa_id: { "-1": valor, "0": valor, ... } }, com a unidade junto
+let minhasMetas = {};
+let metasCarregadasDe = null;
+
+async function carregaMinhasMetas() {
+  const alvo = desafio ? desafio.id : null;
+  if (!alvo || !sessao) { minhasMetas = {}; return; }
+  if (metasCarregadasDe === alvo) return;
+  try {
+    const r = await api("/rest/v1/metas_personalizadas?user_id=eq." + sessao.user.id +
+                        "&select=tarefa_id,valor_meta,unidade,dia_semana");
+    minhasMetas = {};
+    (r || []).forEach(m => {
+      const d = (m.dia_semana === null || m.dia_semana === undefined) ? -1 : m.dia_semana;
+      (minhasMetas[m.tarefa_id] = minhasMetas[m.tarefa_id] || {})[d] = m;
+    });
+    metasCarregadasDe = alvo;
+  } catch { minhasMetas = {}; }
+}
+
+// Meta que vale para a tarefa no dia escolhido: primeiro a do dia da semana,
+// depois a padrao. Devolve null quando nao ha personalizacao.
+function metaDoDia(tarefaId, dataISO) {
+  const porTarefa = minhasMetas[tarefaId];
+  if (!porTarefa) return null;
+  const diaSemana = new Date(dataISO + "T00:00:00").getDay();
+  return porTarefa[diaSemana] || porTarefa[-1] || null;
+}
+
+// Subtitulo da tarefa: so aparece quando a meta pessoal supera o minimo
+// oficial. Sem personalizacao, o minimo ja esta escrito na propria descricao.
+function subtituloTarefa(t, dataISO) {
+  const m = metaDoDia(t.id, dataISO);
+  if (!m || m.valor_meta == null) return "";
+  if (t.minimo_valor != null && Number(m.valor_meta) <= Number(t.minimo_valor)) return "";
+  const un = m.unidade || t.unidade || "";
+  return `<div class="min minha-meta">minha meta: ${fmtNum(Number(m.valor_meta))}${un ? " " + un : ""}</div>`;
+}
+
 function setMarcados(dia) {
   if (!marcadosPorDia[dia]) marcadosPorDia[dia] = new Set();
   return marcadosPorDia[dia];
@@ -1971,7 +2058,7 @@ function desenhaTarefas() {
       const marcada = marc.has(t.id);
       return `<div class="tarefa ${marcada ? "marcada" : ""} g${grupo}" data-id="${t.id}" role="button" tabindex="0" aria-pressed="${marcada}">
         <div class="icone" style="background:${CORES_TEMA[tema] || "rgba(0,123,142,0.12)"};color:${CORES_TRACO[tema] || "#007B8E"}">${ICONES_TEMA[tema] || ""}</div>
-        <div class="txt">${t.descricao}${t.minimo_padrao ? `<div class="min">mínimo: ${t.minimo_padrao}</div>` : ""}</div>
+        <div class="txt">${t.descricao}${subtituloTarefa(t, diaSelecionado)}</div>
         <div class="check">✓</div>
       </div>`;
     }).join("");
@@ -2718,16 +2805,37 @@ async function abrirTurma() {
   }, 30000);
 }
 
+
+/* ---------- colocacao com empate ----------
+   Classificacao densa: quem tem a mesma pontuacao divide a mesma colocacao, e
+   a colocacao seguinte e a proxima inteira (1,1,1,2,2,3...). A lista precisa
+   chegar ordenada por pontos, do maior para o menor. */
+function colocacaoDensa(lista) {
+  let posicao = 0, anterior = null;
+  return (lista || []).map(r => {
+    if (anterior === null || Number(r.pontos_total) !== anterior) {
+      posicao += 1;
+      anterior = Number(r.pontos_total);
+    }
+    return Object.assign({}, r, { posicao });
+  });
+}
+
 async function carregaRanking() {
   if (!$("rankLista").innerHTML.trim()) $("rankLista").innerHTML = skelHtml(5, 48);
   try {
-    const linhas = await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total" + fEd());
+    // ordenacao explicita: pontos desc e, no empate, nome em ordem alfabetica
+    const linhas = await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total" +
+                             fEd() + "&order=pontos_total.desc,nome.asc");
     cacheRanking = linhas || [];
     const uid = sessao.user.id;
-    $("rankLista").innerHTML = cacheRanking.length ? cacheRanking.map((r, i) => {
-      const lider = i === 0 && r.pontos_total > 0;
+    const colocados = colocacaoDensa(cacheRanking);
+    $("rankLista").innerHTML = colocados.length ? colocados.map(r => {
+      // Coroa para TODOS os empatados na primeira colocacao. Com a turma toda
+      // zerada no inicio, ninguem recebe coroa (senao seriam 15 coroas).
+      const lider = r.posicao === 1 && r.pontos_total > 0;
       return `<div class="rank-item ${lider ? "lider" : ""} ${r.user_id === uid ? "eu" : ""}">
-        <div class="pos">${lider ? "👑" : (i + 1) + "º"}</div>
+        <div class="pos">${lider ? "👑" : r.posicao + "º"}</div>
         <div class="nome">${r.apelido || r.nome}${r.user_id === uid ? " (você)" : ""}</div>
         <div class="pts">${r.pontos_total}</div>
       </div>`;
@@ -2736,7 +2844,6 @@ async function carregaRanking() {
     $("rankLista").innerHTML = '<div class="nota">Erro ao carregar o ranking: ' + e.message + '</div>';
   }
 }
-$("btnAtualizaRank").addEventListener("click", () => { carregaRanking(); carregaMural(); });
 
 let emojiCatAtiva = 0;
 function montaEmojis() {
@@ -2887,6 +2994,7 @@ async function abrirDesempenho() {
   }
 }
 $("btnVerDesempenho").addEventListener("click", abrirDesempenho);
+$("btnIrHistorico").addEventListener("click", abrirHistorico);
 $("btnDgVoltar").addEventListener("click", () => abrirTurma());
 
 /* ---------------- abas da tela Turma ---------------- */
@@ -2897,6 +3005,7 @@ function trocaAbaTurma(qual) {
   $("painelRanking").classList.toggle("ativo", rank);
   $("painelMural").classList.toggle("ativo", !rank);
 }
+// sem botao de atualizar: abrir a aba ja recarrega a classificacao
 $("abaRanking").addEventListener("click", () => { trocaAbaTurma("ranking"); carregaRanking(); });
 $("abaMural").addEventListener("click", () => { trocaAbaTurma("mural"); carregaMural(); ajustaMuralPorEdicao(); });
 
@@ -3271,6 +3380,9 @@ $("btnSalvarMetas").addEventListener("click", async () => {
       });
     }
     aviso("avisoMetas", "ok", "Metas salvas.");
+    // descarta o cache para o subtitulo do Meu Dia refletir a mudanca
+    metasCarregadasDe = null;
+    await carregaMinhasMetas();
     await abrirMetas();
   } catch (e) {
     const m = /janela|5 dias/i.test(e.message) ? "A janela de 5 dias para ajustes já encerrou." : e.message;
@@ -4742,6 +4854,11 @@ async function adCarregaDesafios() {
   }
 }
 
+
+$("tdDesc").addEventListener("input", () => {
+  $("tdDescConta").textContent = $("tdDesc").value.length;
+});
+
 $("btnTdCriar").addEventListener("click", async () => {
   limpaAviso("avisoTd");
   const titulo = $("tdTitulo").value.trim();
@@ -4761,7 +4878,7 @@ $("btnTdCriar").addEventListener("click", async () => {
       })
     });
     aviso("avisoTd", "ok", "Tarefa Desafio publicada. Ela aparece no Meu Dia dos participantes.");
-    $("tdTitulo").value = ""; $("tdDesc").value = "";
+    $("tdTitulo").value = ""; $("tdDesc").value = ""; $("tdDescConta").textContent = "0";
     await adCarregaDesafios();
   } catch (e) {
     aviso("avisoTd", "erro", "Não foi possível publicar: " + e.message);
@@ -5297,22 +5414,43 @@ window.addEventListener("popstate", () => {
 
 /* ================= NAVEGACAO INFERIOR (rodada 2) ================= */
 const SVGM = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
-const ITENS_MAIS = [
-  ["medidas", "Minhas Medidas", '<path d="M3 12h3l2-6l4 12l2-6h7"/>'],
-  ["metas", "Minhas Metas", '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.8"/>'],
+// Menu da aba Voce, em duas secoes.
+// Formato: [acao, rotulo, icone]
+const ITENS_VOCE = [
+  ["medidas", "Minhas medidas", '<path d="M3 12h3l2-6l4 12l2-6h7"/>'],
+  ["metas", "Minhas metas", '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.8"/>'],
   ["historico", "Histórico", '<rect x="3.5" y="4.5" width="17" height="16" rx="2.6"/><path d="M8 3v3M16 3v3M3.5 9.5h17"/><path d="M8 13.5h2M14 13.5h2M8 17h2M14 17h2"/>'],
+  ["senha", "Trocar senha", '<rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/>'],
+  ["lembretes", "Lembretes", '<path d="M18 9a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/>'],
+  ["compartilhar", "Compartilhar no WhatsApp", '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>']
+];
+
+const ITENS_MAIS = [
+  ["admin", "Área da Administração", '<circle cx="12" cy="12" r="3.4"/><circle cx="12" cy="12" r="7.2"/><path d="M12 1.9v2.6M12 19.5v2.6M22.1 12h-2.6M4.5 12H1.9"/>'],
   ["regulamento", "Regulamento", '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h6"/>'],
+  ["instalar", "Instalar o app", '<rect x="5" y="2.5" width="14" height="19" rx="2.6"/><path d="M12 7.5v7M9 11.5l3 3l3-3"/>'],
+  ["tema", "Tema", '<path d="M20 13.5A8 8 0 0 1 10.5 4a8 8 0 1 0 9.5 9.5Z"/>'],
   ["sobre", "Sobre o app", '<circle cx="12" cy="12" r="9"/><path d="M12 8.2v0.2M12 11v5"/>'],
-  ["compartilhar", "Compartilhar no WhatsApp", '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>'],
-  ["admin", "Admin", '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8l1.2 2.7l2.9-.6l.6 2.9l2.7 1.2l-1.5 2.5l1.5 2.5l-2.7 1.2l-.6 2.9l-2.9-.6L12 21.2l-1.2-2.7l-2.9.6l-.6-2.9l-2.7-1.2l1.5-2.5l-1.5-2.5l2.7-1.2l.6-2.9l2.9.6Z"/>'],
   ["sair", "Sair", '<path d="M14 4h5v16h-5"/><path d="M10 8l-4 4l4 4"/><path d="M6 12h10"/>']
 ];
+
+function itemMaisHtml([acao, rotulo, ic]) {
+  // Tema nao abre tela: e um interruptor, entao mostra o estado atual.
+  const extra = acao === "tema"
+    ? `<span class="estado-item">${document.body.classList.contains("tema-escuro") ? "escuro" : "claro"}</span>`
+    : "";
+  return `<button data-acao="${acao}">${SVGM(ic)}${rotulo}${extra}</button>`;
+}
+
 function montaTelaMais() {
   $("maisNome").textContent = perfil ? (perfil.apelido || perfil.nome) : "";
-  $("listaMais").innerHTML = ITENS_MAIS
-    .filter(([acao]) => acao !== "admin" || (perfil && perfil.papel === "admin"))
-    .map(([acao, rotulo, ic]) => `<button data-acao="${acao}">${SVGM(ic)}${rotulo}</button>`).join("");
+  const ehAdmin = perfil && perfil.papel === "admin";
+  $("listaMais").innerHTML =
+    ITENS_VOCE.map(itemMaisHtml).join("") +
+    '<div class="secao-titulo secao-menu">Mais</div>' +
+    ITENS_MAIS.filter(([acao]) => acao !== "admin" || ehAdmin).map(itemMaisHtml).join("");
 }
+
 function executaAcao(acao) {
   if (acao === "meudia") mostraTela("telaMeuDia");
   if (acao === "progresso") abrirProgresso();
@@ -5321,10 +5459,11 @@ function executaAcao(acao) {
   if (acao === "metas") abrirMetas();
   if (acao === "lembretes") abrirConfig("lembretes");
   if (acao === "historico") abrirHistorico();
+  if (acao === "instalar") abrirConfig("instalar");
   if (acao === "regulamento") abrirRegulamento();
   if (acao === "sobre") abrirSobre();
   if (acao === "compartilhar") compartilharCard();
-  if (acao === "tema") alternaTema();
+  if (acao === "tema") { alternaTema(); atualizaIconeTema(); montaTelaMais(); }
   if (acao === "admin") abrirAdmin();
   if (acao === "senha") { limpaAviso("avisoSenha"); abrirConfig("senha"); }
   if (acao === "sair") { apagaSessao(); mostraTela("telaLogin"); }
@@ -5360,10 +5499,11 @@ $("drawer").addEventListener("click", ev => {
   if (acao === "metas") abrirMetas();
   if (acao === "lembretes") abrirConfig("lembretes");
   if (acao === "historico") abrirHistorico();
+  if (acao === "instalar") abrirConfig("instalar");
   if (acao === "regulamento") abrirRegulamento();
   if (acao === "sobre") abrirSobre();
   if (acao === "compartilhar") compartilharCard();
-  if (acao === "tema") alternaTema();
+  if (acao === "tema") { alternaTema(); atualizaIconeTema(); montaTelaMais(); }
   if (acao === "admin") abrirAdmin();
   if (acao === "senha") { limpaAviso("avisoSenha"); abrirConfig("senha"); }
   if (acao === "sair") { apagaSessao(); mostraTela("telaLogin"); }
