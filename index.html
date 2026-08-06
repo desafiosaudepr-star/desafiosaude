@@ -889,6 +889,26 @@
   .card-desafio .desc.aberta { display: block; }
 
   .td-acoes { display: flex; gap: 16px; margin: -4px 0 12px 2px; }
+
+  /* edicao avancada */
+  #telaAvancada .cal-dia.temreg { background: rgba(0,123,142,0.16); }
+  #telaAvancada .cal-dia.ajustado { outline: 2px solid var(--cor-saude); outline-offset: 1px; }
+  .av-tarefa { display: flex; align-items: center; gap: 11px; padding: 10px 12px;
+    border: 1px solid var(--borda-card); border-radius: 13px; margin-bottom: 7px;
+    background: var(--background-card); cursor: pointer; }
+  .av-tarefa.marcada { border-color: var(--cor-principal); background: rgba(0,123,142,0.08); }
+  .av-tarefa .sinal { font-family: 'Poppins'; font-weight: 700; min-width: 26px; }
+  .av-tarefa .txt { flex: 1; font-size: 0.87rem; color: var(--texto-escuro); }
+  .av-tarefa .caixa { width: 24px; height: 24px; border-radius: 7px;
+    border: 2px solid var(--texto-mutado); flex-shrink: 0; display: flex;
+    align-items: center; justify-content: center; color: #fff; font-size: 0.8rem; }
+  .av-tarefa.marcada .caixa { background: var(--cor-principal); border-color: var(--cor-principal); }
+  .marca-ajuste { font-size: 0.74rem; color: var(--cor-saude); font-weight: 600; display: block; margin-top: 2px; }
+
+  .faixa-ajuste { display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(215,44,124,0.09); border: 1px solid var(--cor-saude);
+    border-radius: 13px; padding: 10px 12px; margin-bottom: 12px;
+    font-size: 0.84rem; color: var(--texto-escuro); line-height: 1.4; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -1379,6 +1399,53 @@
 
 
 
+
+<!-- EDICAO AVANCADA (acesso oculto pelo titulo da area da administracao) -->
+<section class="tela" id="telaAvancada">
+  <div class="saudacao">
+    <h2>Edição avançada</h2>
+    <p>Uso excepcional. Todo ajuste fica registrado e é avisado no mural.</p>
+  </div>
+
+  <div class="caixa-perigo">
+    <b>Atenção</b>
+    <p style="margin:6px 0 0">Aqui você registra em nome de outra pessoa, sem as travas de prazo. Cada dia ajustado gera um aviso no mural e uma marca no histórico do participante. Use apenas quando houver motivo de força maior.</p>
+  </div>
+
+  <label for="avParticipante">Participante</label>
+  <select id="avParticipante"></select>
+
+  <label for="avMotivo">Motivo do ajuste (obrigatório)</label>
+  <input id="avMotivo" maxlength="120" placeholder="Ex.: internação hospitalar de 10 a 12/08">
+
+  <div class="abas" style="margin-top:14px">
+    <button id="avAbaDias" class="ativo">Registros por dia</button>
+    <button id="avAbaMetas">Metas pessoais</button>
+  </div>
+
+  <div class="aba-painel ativo" id="avPainelDias">
+    <div class="cartao" style="padding:14px 12px">
+      <div class="cal-topo">
+        <button type="button" id="avCalAnterior" aria-label="Mês anterior">‹</button>
+        <span id="avCalMes"></span>
+        <button type="button" id="avCalProximo" aria-label="Mês seguinte">›</button>
+      </div>
+      <div class="cal-semana"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
+      <div class="cal-grade" id="avCalGrade"></div>
+    </div>
+    <div id="avDiaDetalhe"></div>
+  </div>
+
+  <div class="aba-painel" id="avPainelMetas">
+    <p class="nota" style="margin-top:0">As metas abaixo ignoram a janela de 5 dias. O valor nunca pode ficar abaixo do mínimo oficial.</p>
+    <div id="avMetasCampos"></div>
+    <button class="botao" id="btnAvSalvarMetas">Salvar metas do participante</button>
+  </div>
+
+  <div class="aviso" id="avisoAvancada"></div>
+  <button class="botao secundario" id="btnAvVoltar">Voltar para a administração</button>
+</section>
+
 <!-- HISTORICO -->
 <section class="tela" id="telaHistorico">
   <div class="saudacao"><h2>Histórico</h2><p>Toque em um dia para ver o que você registrou.</p></div>
@@ -1664,7 +1731,7 @@ let diaSelecionado = null;
 /* ---------------- utilidades ---------------- */
 function $(id) { return document.getElementById(id); }
 const TAB_POR_TELA = { telaMeuDia: "tabMeudia", telaProgresso: "tabProgresso", telaTurma: "tabTurma", telaMais: "tabMais", telaCompartilhar: "tabMais",
-  telaMedidas: "tabMais", telaMetas: "tabMais", telaLembretes: "tabMais", telaRegulamento: "tabMais", telaSobre: "tabMais", telaConfig: "tabMais", telaHistorico: "tabMais", telaDesempenho: "tabTurma", telaAdmin: "tabMais", telaSenha: "tabMais" };
+  telaMedidas: "tabMais", telaMetas: "tabMais", telaLembretes: "tabMais", telaRegulamento: "tabMais", telaSobre: "tabMais", telaConfig: "tabMais", telaHistorico: "tabMais", telaAvancada: "tabMais", telaDesempenho: "tabTurma", telaAdmin: "tabMais", telaSenha: "tabMais" };
 // declarada aqui, antes de mostraTela, que a preenche a cada troca de tela
 var telaAtual = "";
 
@@ -1704,22 +1771,132 @@ function dataLocalISO(d) {
 function hojeISO() { return dataLocalISO(new Date()); }
 function ontemISO() { const d = new Date(); d.setDate(d.getDate()-1); return dataLocalISO(d); }
 
+/* ============================================================
+   CAMADA DE REDE
+   Tres protecoes que faltavam e causavam o erro "Failed to fetch":
+     1. tempo limite, para a chamada nao ficar pendurada;
+     2. novas tentativas quando a rede falha (tipico ao voltar de tela
+        inativa, quando o sistema derruba a conexao para poupar bateria);
+     3. renovacao do token expirado, refazendo a chamada em seguida.
+   ============================================================ */
+const REDE = { tempoLimite: 15000, tentativas: 3, esperaBase: 700 };
+
+function ehFalhaDeRede(e) {
+  const m = String((e && e.message) || e || "");
+  return /failed to fetch|networkerror|load failed|network request failed|tempo limite/i.test(m);
+}
+const espera = (ms) => new Promise(r => setTimeout(r, ms));
+
+// Evita varias renovacoes simultaneas quando muitas chamadas expiram juntas
+let renovandoToken = null;
+async function renovaToken() {
+  if (renovandoToken) return renovandoToken;
+  renovandoToken = (async () => {
+    let salvo = null;
+    try { salvo = JSON.parse(localStorage.getItem("ms_sessao") || "null"); } catch {}
+    const refresh = (sessao && sessao.refresh_token) || (salvo && salvo.refresh_token);
+    if (!refresh) return false;
+    try {
+      const r = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=refresh_token", {
+        method: "POST",
+        headers: { "apikey": SUPABASE_ANON, "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refresh })
+      });
+      if (!r.ok) return false;
+      guardaSessao(await r.json());
+      return true;
+    } catch { return false; }
+    finally { setTimeout(() => { renovandoToken = null; }, 0); }
+  })();
+  return renovandoToken;
+}
+
+async function chamadaCrua(caminho, opcoes, cab) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), REDE.tempoLimite);
+  try {
+    return await fetch(SUPABASE_URL + caminho, { ...opcoes, headers: cab, signal: ctrl.signal });
+  } catch (e) {
+    if (e && e.name === "AbortError") throw new Error("Tempo limite da conexão");
+    throw e;
+  } finally { clearTimeout(t); }
+}
+
 async function api(caminho, opcoes = {}) {
-  const cab = {
+  const montaCabecalho = () => ({
     "apikey": SUPABASE_ANON,
     "Content-Type": "application/json",
     ...(sessao ? { "Authorization": "Bearer " + sessao.access_token } : {}),
     ...(opcoes.headers || {})
-  };
-  const r = await fetch(SUPABASE_URL + caminho, { ...opcoes, headers: cab });
-  const texto = await r.text();
-  let corpo = null;
-  try { corpo = texto ? JSON.parse(texto) : null; } catch { corpo = texto; }
-  if (!r.ok) {
-    const msg = (corpo && (corpo.message || corpo.msg || corpo.error_description || corpo.erro)) || ("HTTP " + r.status);
-    throw new Error(msg);
+  });
+
+  let ultimoErro = null;
+  let jaRenovou = false;
+
+  for (let tentativa = 1; tentativa <= REDE.tentativas; tentativa++) {
+    try {
+      const r = await chamadaCrua(caminho, opcoes, montaCabecalho());
+      const texto = await r.text();
+      let corpo = null;
+      try { corpo = texto ? JSON.parse(texto) : null; } catch { corpo = texto; }
+
+      if (r.ok) return corpo;
+
+      const msg = (corpo && (corpo.message || corpo.msg || corpo.error_description || corpo.erro)) || ("HTTP " + r.status);
+
+      // token expirado: renova uma vez e refaz a chamada
+      const expirou = (r.status === 401 && !/auth\/v1\/token/.test(caminho)) || /jwt expired|invalid token/i.test(msg);
+      if (expirou && !jaRenovou) {
+        jaRenovou = true;
+        if (await renovaToken()) continue;
+        apagaSessao();
+        throw new Error("Sua sessão expirou. Entre novamente.");
+      }
+
+      // erro do servidor (5xx) merece nova tentativa; os demais, nao
+      if (r.status >= 500 && tentativa < REDE.tentativas) {
+        await espera(REDE.esperaBase * tentativa);
+        continue;
+      }
+      throw new Error(msg);
+
+    } catch (e) {
+      ultimoErro = e;
+      if (ehFalhaDeRede(e) && tentativa < REDE.tentativas) {
+        await espera(REDE.esperaBase * tentativa);
+        continue;
+      }
+      if (ehFalhaDeRede(e)) {
+        throw new Error(navigator.onLine
+          ? "Não foi possível falar com o servidor. Verifique a conexão e tente de novo."
+          : "Você está sem conexão. Assim que a internet voltar, tente de novo.");
+      }
+      throw e;
+    }
   }
-  return corpo;
+  throw ultimoErro || new Error("Falha na conexão");
+}
+
+/* ---------- cache curto, para nao refazer a mesma consulta ---------- */
+const CACHE_MS = 60000;
+const cacheApi = new Map();
+
+// Consulta com cache. Use apenas em leituras (GET).
+async function apiCache(caminho, opcoes = {}) {
+  const agora = Date.now();
+  const guardado = cacheApi.get(caminho);
+  if (guardado && (agora - guardado.quando) < CACHE_MS) return guardado.dados;
+  const dados = await api(caminho, opcoes);
+  cacheApi.set(caminho, { dados, quando: agora });
+  return dados;
+}
+
+// Descarta o cache. Sem argumento, limpa tudo; com texto, limpa o que casar.
+function limpaCache(parte) {
+  if (!parte) { cacheApi.clear(); return; }
+  for (const k of Array.from(cacheApi.keys())) {
+    if (k.includes(parte)) cacheApi.delete(k);
+  }
 }
 
 /* ---------------- sessao ---------------- */
@@ -1811,9 +1988,9 @@ async function carregaBonusERepescagem() {
   const hoje = hojeISO();
   try {
     const [tds, meus, pers] = await Promise.all([
-      api("/rest/v1/tarefas_desafio?ativa=eq.true&select=id,titulo,descricao,data_inicio,data_fim,valor_ponto&order=data_fim.asc"),
+      apiCache("/rest/v1/tarefas_desafio?ativa=eq.true&select=id,titulo,descricao,data_inicio,data_fim,valor_ponto&order=data_fim.asc"),
       api("/rest/v1/lancamentos_desafio?user_id=eq." + sessao.user.id + "&marcado=eq.true&select=tarefa_desafio_id,data"),
-      api("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,nome,data_inicio,data_fim,multiplicador&order=data_inicio.asc")
+      apiCache("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,nome,data_inicio,data_fim,multiplicador&order=data_inicio.asc")
     ]);
     // guarda TODAS as tarefas do periodo; a filtragem por dia acontece no desenho
     desafiosBonus = tds || [];
@@ -1925,6 +2102,7 @@ $("blocoDesafio").addEventListener("click", async ev => {
       bonusMarcados[id] = diaSelecionado;
       soltaConfete();
     }
+    limpaCache("vw_"); limpaCache("lancamentos_desafio");
     desenhaBonus();
     atualizaSaldo();
   } catch (e) {
@@ -2043,7 +2221,7 @@ async function carregaMinhasMetas() {
   if (!alvo || !sessao) { minhasMetas = {}; return; }
   if (metasCarregadasDe === alvo) return;
   try {
-    const r = await api("/rest/v1/metas_personalizadas?user_id=eq." + sessao.user.id +
+    const r = await apiCache("/rest/v1/metas_personalizadas?user_id=eq." + sessao.user.id +
                         "&select=tarefa_id,valor_meta,unidade,dia_semana");
     minhasMetas = {};
     (r || []).forEach(m => {
@@ -2123,6 +2301,7 @@ async function alternaTarefa(el) {
         marcado: novo
       })
     });
+    limpaCache("vw_");   // ranking, saldos e indicadores mudaram
     if (novo) marc.add(id); else marc.delete(id);
     el.classList.toggle("marcada", novo);
     el.setAttribute("aria-pressed", String(novo));
@@ -2369,13 +2548,22 @@ const CAMPOS_TAREFA = "id,codigo,grupo,descricao,detalhe,valor_ponto,minimo_padr
 
 async function carregaTarefasDaEdicao(id) {
   if (!id) return [];
-  return (await api("/rest/v1/tarefas?ativo=eq.true&desafio_id=eq." + id +
+  return (await apiCache("/rest/v1/tarefas?ativo=eq.true&desafio_id=eq." + id +
                     "&select=" + CAMPOS_TAREFA + "&order=grupo.asc,ordem.asc")) || [];
 }
 
+// Varias telas chamam garanteBase ao mesmo tempo. Sem esta trava, cada uma
+// dispararia as mesmas consultas em paralelo.
+let basePendente = null;
 async function garanteBase() {
+  if (basePendente) return basePendente;
+  basePendente = (async () => { await garanteBaseInterno(); })();
+  try { await basePendente; } finally { basePendente = null; }
+}
+
+async function garanteBaseInterno() {
   if (!edicoes.length) {
-    edicoes = (await api("/rest/v1/desafios?select=id,nome,data_inicio,data_fim,status&order=data_inicio.desc")) || [];
+    edicoes = (await apiCache("/rest/v1/desafios?select=id,nome,data_inicio,data_fim,status&order=data_inicio.desc")) || [];
   }
   if (!desafio) desafio = edicoes.find(e => e.status === "ativo") || null;
   if (!edicaoVista) edicaoVista = desafio ? desafio.id : (edicoes[0] ? edicoes[0].id : null);
@@ -2405,7 +2593,7 @@ async function garanteInscricao() {
   if (!alvo || !sessao) return null;
   if (minhaInscricao && minhaInscricao.desafio_id === alvo) return minhaInscricao;
   try {
-    const r = await api("/rest/v1/inscricoes?user_id=eq." + sessao.user.id +
+    const r = await apiCache("/rest/v1/inscricoes?user_id=eq." + sessao.user.id +
                         "&desafio_id=eq." + alvo + "&select=desafio_id,data_entrada,ativo");
     minhaInscricao = (r && r[0]) || null;
   } catch { minhaInscricao = null; }
@@ -2471,7 +2659,7 @@ async function abrirProgresso() {
   const uid = sessao.user.id;
   try {
     const [ranking, saldos, meus, indInd, indCol, tarGrupo] = await Promise.all([
-      api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total" + fEd()),
+      api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total" + fEd() + "&order=pontos_total.desc,nome.asc"),
       api("/rest/v1/vw_saldo_diario?select=user_id,data,saldo_dia&order=data.asc" + fEd()),
       api("/rest/v1/lancamentos?user_id=eq." + uid + "&select=data,marcado,tarefa_id"),
       api("/rest/v1/vw_indicadores_quantidade_individual?select=codigo,descricao,unidade,total" + fEd()),
@@ -2480,10 +2668,17 @@ async function abrirProgresso() {
     ]);
     cacheRanking = ranking || []; cacheSaldos = saldos || [];
 
-    const posicao = cacheRanking.findIndex(r => r.user_id === uid) + 1;
+    // a posicao respeita empates, igual ao ranking da Turma
+    const col = minhaColocacao(cacheRanking, uid);
     const meu = cacheRanking.find(r => r.user_id === uid);
     $("pgPontos").textContent = meu ? meu.pontos_total : 0;
-    $("pgPosicao").textContent = posicao > 0 ? posicao + "º" : "-";
+    $("pgPosicao").textContent = col ? col.posicao + "º" : "-";
+    const rotPos = $("pgPosicao").parentElement.querySelector(".rot");
+    if (rotPos) {
+      rotPos.textContent = (col && col.empatados > 1)
+        ? "posição (empatado com " + (col.empatados - 1) + ")"
+        : "posição no ranking";
+    }
 
     const positivas = tarefas.filter(t => t.grupo === 1 && t.valor_ponto === 1).length;
     const meusPorDia = {};
@@ -2684,9 +2879,15 @@ function desenhaPosicaoDia(uid) {
   const total = participantes.length;
   const posicoes = dias.map((_, i) => {
     if (!series[uid]) return null;
-    const ordem = participantes.slice().sort((a, b) => series[b][i] - series[a][i]);
-    const p = ordem.indexOf(uid);
-    return p >= 0 ? p + 1 : null;
+    // colocacao densa: quem empata divide a mesma posicao
+    const pontosDoDia = participantes.map(u => ({ u, p: series[u][i] }))
+      .sort((x, y) => y.p - x.p);
+    let posicao = 0, anterior = null, minha = null;
+    for (const item of pontosDoDia) {
+      if (anterior === null || item.p !== anterior) { posicao += 1; anterior = item.p; }
+      if (item.u === uid) { minha = posicao; break; }
+    }
+    return minha;
   });
   if (graficoPosDia) graficoPosDia.destroy();
   graficoPosDia = new Chart($("graficoPosicaoDia"), {
@@ -2841,6 +3042,19 @@ async function abrirTurma() {
    Classificacao densa: quem tem a mesma pontuacao divide a mesma colocacao, e
    a colocacao seguinte e a proxima inteira (1,1,1,2,2,3...). A lista precisa
    chegar ordenada por pontos, do maior para o menor. */
+// Posicao do participante na lista ja ordenada, considerando empates.
+// Devolve { posicao, empatados } para o app poder escrever "(empatado)".
+function minhaColocacao(lista, uid) {
+  const c = colocacaoDensa(lista);
+  const eu = c.find(r => r.user_id === uid);
+  if (!eu) return null;
+  return {
+    posicao: eu.posicao,
+    empatados: c.filter(r => r.posicao === eu.posicao).length,
+    total: c.length
+  };
+}
+
 function colocacaoDensa(lista) {
   let posicao = 0, anterior = null;
   return (lista || []).map(r => {
@@ -3199,6 +3413,7 @@ async function enviaGif(url) {
     await api("/rest/v1/mural", { method: "POST", headers: { "Prefer": "return=minimal" },
       body: JSON.stringify({ autor_id: sessao.user.id, mensagem: "[GIF]", gif_url: url }) });
     ultimaMsgMural = agora;
+    limpaCache("mural");
     await carregaMural();
   } catch (e) {
     aviso("avisoMural", "erro", "Não foi possível enviar o GIF: " + e.message);
@@ -3413,6 +3628,7 @@ $("btnSalvarMetas").addEventListener("click", async () => {
     aviso("avisoMetas", "ok", "Metas salvas.");
     // descarta o cache para o subtitulo do Meu Dia refletir a mudanca
     metasCarregadasDe = null;
+    limpaCache("metas_personalizadas"); limpaCache("vw_");
     await carregaMinhasMetas();
     await abrirMetas();
   } catch (e) {
@@ -3691,7 +3907,9 @@ async function abrirAdmin() {
   const hoje = hojeISO();
   if (!$("tdIni").value) $("tdIni").value = hoje;
   if (!$("tdFim").value) $("tdFim").value = hoje;
+  ligaAcessoAvancado();
   adPintaPeriodo();
+  limpaCache();
   await adCarregaEdicoes();
   await adCarregaLimpeza();
   await Promise.all([
@@ -4034,7 +4252,9 @@ async function coletaDadosComp() {
   const idComp = desafio ? desafio.id : edicaoVista;
   const rank = (cacheRanking && cacheRanking.length) ? cacheRanking : (await api("/rest/v1/vw_ranking?select=user_id,nome,apelido,pontos_total&order=pontos_total.desc" + fEd(idComp)));
   cacheRanking = rank || [];
-  const pos = cacheRanking.findIndex(r => r.user_id === uid) + 1;
+  const col = minhaColocacao(cacheRanking, uid);
+  const pos = col ? col.posicao : 0;
+  const empatados = col ? col.empatados : 1;
   const meu = cacheRanking.find(r => r.user_id === uid);
   const nome = meu ? (meu.apelido || meu.nome) : "";
   const pontos = meu ? meu.pontos_total : 0;
@@ -4076,7 +4296,7 @@ async function coletaDadosComp() {
     ];
   } catch {}
 
-  return { nome, pontos, pos, total, cumpriu, saldoHoje, grupo };
+  return { nome, pontos, pos, total, empatados, cumpriu, saldoHoje, grupo };
 }
 
 
@@ -4161,10 +4381,18 @@ function desenhaCard(dados, tipo, mostrarValor) {
     cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 646);
     legenda = "Estou no Desafio Mais Saúde e já fiz " + dados.pontos + " pontos! 🌱💪";
   } else if (tipo === "posicao") {
-    cx.font = "800 150px Poppins, Arial"; cx.fillText(dados.pos + "º", 400, 476);
-    cx.font = "600 34px Open Sans, Arial"; cx.fillText("lugar entre " + dados.total + " participantes", 400, 536);
-    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 646);
-    legenda = "Estou em " + dados.pos + "º lugar no Desafio Mais Saúde! 🏆";
+    const emp = (dados.empatados || 1) > 1;
+    cx.font = "800 150px Poppins, Arial"; cx.fillText(dados.pos + "º", 400, 466);
+    cx.font = "600 34px Open Sans, Arial";
+    cx.fillText("lugar entre " + dados.total + " participantes", 400, 526);
+    if (emp) {
+      cx.font = "600 30px Open Sans, Arial";
+      cx.fillText("(empatado com mais " + (dados.empatados - 1) +
+                  (dados.empatados - 1 === 1 ? " pessoa)" : " pessoas)"), 400, 570);
+    }
+    cx.font = "700 34px Poppins, Arial"; cx.fillText(dados.nome, 400, 650);
+    legenda = "Estou em " + dados.pos + "º lugar" + (emp ? " (empatado)" : "") +
+              " no Desafio Mais Saúde! 🏆";
   } else if (tipo === "meta") {
     cx.font = "90px Arial"; cx.fillText(dados.cumpriu ? "✅" : "💪", 400, 420);
     cx.font = "700 44px Poppins, Arial";
@@ -4281,7 +4509,8 @@ async function carregaMesHistorico() {
       api("/rest/v1/vw_saldo_diario?user_id=eq." + sessao.user.id +
           "&data=gte." + ini + "&data=lte." + fim + "&select=data,saldo_dia" + fEd(ed.id)),
       api("/rest/v1/lancamentos?user_id=eq." + sessao.user.id + "&marcado=eq.true" +
-          "&data=gte." + ini + "&data=lte." + fim + "&select=data,tarefa_id" + fEd(ed.id)),
+          "&data=gte." + ini + "&data=lte." + fim +
+          "&select=data,tarefa_id,ajustado_por,ajustado_em,motivo_ajuste" + fEd(ed.id)),
       api("/rest/v1/lancamentos_desafio?user_id=eq." + sessao.user.id + "&marcado=eq.true" +
           "&select=data,criado_em,tarefa_desafio_id,tarefas_desafio(titulo,valor_ponto,data_inicio,data_fim,desafio_id)"),
       api("/rest/v1/repescagem_elegiveis?user_id=eq." + sessao.user.id +
@@ -4290,11 +4519,18 @@ async function carregaMesHistorico() {
     const porData = {};
     (saldos || []).forEach(x => porData[x.data] = Number(x.saldo_dia || 0));
     const marc = {};
-    (lancs || []).forEach(l => { (marc[l.data] = marc[l.data] || new Set()).add(l.tarefa_id); });
+    const ajustes = {};   // { data: { motivo, quando } }
+    (lancs || []).forEach(l => {
+      (marc[l.data] = marc[l.data] || new Set()).add(l.tarefa_id);
+      if (l.ajustado_por) {
+        ajustes[l.data] = { motivo: l.motivo_ajuste || "", quando: l.ajustado_em };
+      }
+    });
     calDados = {
       mes: calMesAtual,
       saldos: porData,
       marcados: marc,
+      ajustes: ajustes,
       bonus: (bonus || []).filter(b => b.tarefas_desafio && b.tarefas_desafio.desafio_id === ed.id),
       eleg: (eleg || []).filter(e => e.repescagem_periodos && e.repescagem_periodos.desafio_id === ed.id)
                         .map(e => e.repescagem_periodos)
@@ -4375,7 +4611,16 @@ function desenhaDetalheDia(iso) {
   const total = (saldo !== undefined ? Number(saldo) : 0) + totalBonus;
   const corTotal = total > 0 ? "var(--cor-principal)" : (total < 0 ? "var(--cor-laranja-diaria)" : "var(--texto-mutado)");
 
+  const ajuste = (calDados.ajustes || {})[iso];
+
   let corpo = "";
+  if (ajuste) {
+    corpo += `<div class="faixa-ajuste">
+      <span style="font-size:1.2rem">📝</span>
+      <span>Registros deste dia <b>ajustados pelo organizador</b>${ajuste.quando ? " em " + fmtDataCompleta(String(ajuste.quando).slice(0, 10)) : ""}.
+      ${ajuste.motivo ? "<br>Motivo: " + escapaHtml(ajuste.motivo) : ""}</span>
+    </div>`;
+  }
   if (!feitas.length && !bonusDoDia.length) {
     // Diferenca em dias entre hoje e o dia tocado. Negativa = dia futuro.
     // So cabe lancar em hoje (0) e ontem (1), dentro da edicao ativa.
@@ -4451,6 +4696,282 @@ $("calProximo").addEventListener("click", async () => {
   calDiaSel = null;
   await carregaMesHistorico();
 });
+
+
+/* ================= EDICAO AVANCADA (administrador) =================
+   Acesso oculto: cinco toques no titulo da Area da Administracao, seguidos
+   da senha do administrador. Tudo que e feito aqui grava o rastro no banco
+   (quem ajustou, quando e por que) e gera aviso no mural. */
+let avParticipanteId = null;
+let avMes = null;
+let avDiaSel = null;
+let avDados = { marcados: {}, ajustados: {} };
+let avMetasAtuais = {};
+
+function abrirAvancada() {
+  mostraTela("telaAvancada");
+  limpaAviso("avisoAvancada");
+  avDiaSel = null;
+  const ed = desafio || edicaoVistaObj();
+  avMes = ed
+    ? mesDe(hojeISO() >= ed.data_inicio && hojeISO() <= ed.data_fim ? hojeISO() : ed.data_inicio)
+    : mesDe(hojeISO());
+  avCarregaParticipantes();
+}
+
+async function avCarregaParticipantes() {
+  try {
+    const lista = await api("/rest/v1/perfis?papel=eq.participante&select=id,nome,username&order=nome.asc");
+    $("avParticipante").innerHTML = '<option value="">Escolha o participante</option>' +
+      (lista || []).map(p => `<option value="${p.id}">${escapaHtml(p.nome)}</option>`).join("");
+    $("avCalGrade").innerHTML = "";
+    $("avDiaDetalhe").innerHTML = '<div class="nota" style="text-align:center;padding:14px">Escolha um participante para começar.</div>';
+  } catch (e) {
+    aviso("avisoAvancada", "erro", "Não foi possível carregar os participantes: " + e.message);
+  }
+}
+
+$("avParticipante").addEventListener("change", async () => {
+  avParticipanteId = $("avParticipante").value || null;
+  avDiaSel = null;
+  if (!avParticipanteId) { $("avCalGrade").innerHTML = ""; return; }
+  await avCarregaMes();
+  await avCarregaMetas();
+});
+
+async function avCarregaMes() {
+  if (!avParticipanteId) return;
+  const ed = desafio || edicaoVistaObj();
+  if (!ed) return;
+  $("avCalGrade").innerHTML = '<div class="nota" style="grid-column:1/-1">Carregando...</div>';
+  const ini = primeiroDiaMes(avMes), fim = ultimoDiaMes(avMes);
+  try {
+    const lancs = await api("/rest/v1/lancamentos?user_id=eq." + avParticipanteId +
+      "&data=gte." + ini + "&data=lte." + fim +
+      "&select=data,tarefa_id,marcado,ajustado_por,motivo_ajuste" + fEd(ed.id));
+    avDados = { marcados: {}, ajustados: {} };
+    (lancs || []).forEach(l => {
+      if (l.marcado) (avDados.marcados[l.data] = avDados.marcados[l.data] || new Set()).add(l.tarefa_id);
+      if (l.ajustado_por) avDados.ajustados[l.data] = true;
+    });
+    avDesenhaCalendario();
+  } catch (e) {
+    $("avCalGrade").innerHTML = '<div class="nota" style="grid-column:1/-1">Erro: ' + e.message + '</div>';
+  }
+}
+
+function avDesenhaCalendario() {
+  const ed = desafio || edicaoVistaObj();
+  const [ano, mes] = avMes.split("-").map(Number);
+  $("avCalMes").textContent = MESES_NOME[mes - 1] + " de " + ano;
+  $("avCalAnterior").disabled = mesVizinho(avMes, -1) < mesDe(ed.data_inicio);
+  $("avCalProximo").disabled = mesVizinho(avMes, 1) > mesDe(ed.data_fim);
+
+  const diasNoMes = new Date(ano, mes, 0).getDate();
+  const primeiro = new Date(ano, mes - 1, 1).getDay();
+  let html = "";
+  for (let i = 0; i < primeiro; i++) html += '<div class="cal-dia vazio"></div>';
+  for (let d = 1; d <= diasNoMes; d++) {
+    const iso = avMes + "-" + String(d).padStart(2, "0");
+    // fora do periodo da edicao, ou no futuro, nao ha o que ajustar
+    const dentro = iso >= ed.data_inicio && iso <= ed.data_fim && iso <= hojeISO();
+    const qtd = (avDados.marcados[iso] || new Set()).size;
+    const cls = ["cal-dia"];
+    if (!dentro) cls.push("forapp");
+    if (qtd) cls.push("temreg");
+    if (avDados.ajustados[iso]) cls.push("ajustado");
+    if (iso === avDiaSel) cls.push("sel");
+    html += `<div class="${cls.join(" ")}" ${dentro ? `data-avdia="${iso}"` : ""}>
+      <span class="n">${d}</span>${qtd ? `<span class="p">${qtd}</span>` : ""}</div>`;
+  }
+  $("avCalGrade").innerHTML = html;
+  if (avDiaSel) avDesenhaDia(avDiaSel);
+}
+
+$("avCalGrade").addEventListener("click", ev => {
+  const cel = ev.target && ev.target.closest ? ev.target.closest(".cal-dia") : null;
+  if (!cel || !cel.dataset.avdia) return;
+  avDiaSel = cel.dataset.avdia;
+  avDesenhaCalendario();
+  $("avDiaDetalhe").scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+
+$("avCalAnterior").addEventListener("click", async () => { avMes = mesVizinho(avMes, -1); avDiaSel = null; await avCarregaMes(); });
+$("avCalProximo").addEventListener("click", async () => { avMes = mesVizinho(avMes, 1); avDiaSel = null; await avCarregaMes(); });
+
+function avDesenhaDia(iso) {
+  const marc = avDados.marcados[iso] || new Set();
+  const nome = $("avParticipante").selectedOptions[0] ? $("avParticipante").selectedOptions[0].textContent : "";
+  const linhas = (tarefas || []).map(t => {
+    const m = marc.has(t.id);
+    return `<div class="av-tarefa ${m ? "marcada" : ""}" data-avtarefa="${t.id}">
+      <span class="sinal" style="color:${t.valor_ponto > 0 ? "var(--cor-principal)" : "var(--cor-laranja-diaria)"}">${t.valor_ponto > 0 ? "+1" : "-1"}</span>
+      <span class="txt">${escapaHtml(t.descricao)}</span>
+      <span class="caixa">${m ? "✓" : ""}</span>
+    </div>`;
+  }).join("");
+  $("avDiaDetalhe").innerHTML = `<div class="cartao" style="margin-top:14px">
+    <div class="det-cab"><h4>${fmtDataCompleta(iso)}</h4></div>
+    <p class="nota" style="margin-top:0">Marcando em nome de <b>${escapaHtml(nome)}</b>. Toque nas tarefas cumpridas.</p>
+    ${linhas}
+    <button class="botao" id="btnAvSalvarDia" style="margin-top:12px">Salvar e avisar no mural</button>
+  </div>`;
+  $("btnAvSalvarDia").addEventListener("click", () => avSalvaDia(iso));
+}
+
+// alterna a marcacao na tela; a gravacao acontece no botao Salvar
+$("avDiaDetalhe").addEventListener("click", ev => {
+  const el = ev.target && ev.target.closest ? ev.target.closest(".av-tarefa") : null;
+  if (!el || !avDiaSel) return;
+  const id = el.dataset.avtarefa;
+  const marc = (avDados.marcados[avDiaSel] = avDados.marcados[avDiaSel] || new Set());
+  if (marc.has(id)) { marc.delete(id); el.classList.remove("marcada"); el.querySelector(".caixa").textContent = ""; }
+  else { marc.add(id); el.classList.add("marcada"); el.querySelector(".caixa").textContent = "✓"; }
+});
+
+async function avSalvaDia(iso) {
+  limpaAviso("avisoAvancada");
+  const motivo = $("avMotivo").value.trim();
+  if (!avParticipanteId) { aviso("avisoAvancada", "erro", "Escolha o participante."); return; }
+  if (motivo.length < 5) {
+    aviso("avisoAvancada", "erro", "Descreva o motivo do ajuste (mínimo 5 caracteres). Ele fica registrado no histórico do participante.");
+    return;
+  }
+  const nome = $("avParticipante").selectedOptions[0].textContent;
+  if (!confirm("Salvar os registros de " + nome + " em " + fmtDataCompleta(iso) +
+               "?\n\nIsto altera a pontuação e publica um aviso no mural.")) return;
+
+  const btn = $("btnAvSalvarDia");
+  btn.disabled = true; btn.textContent = "Salvando...";
+  const marc = avDados.marcados[iso] || new Set();
+  const ed = desafio || edicaoVistaObj();
+  try {
+    for (const t of (tarefas || [])) {
+      await api("/rest/v1/lancamentos?on_conflict=user_id,data,tarefa_id", {
+        method: "POST",
+        headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify({
+          desafio_id: ed.id, user_id: avParticipanteId, data: iso,
+          tarefa_id: t.id, marcado: marc.has(t.id), motivo_ajuste: motivo
+        })
+      });
+    }
+    await api("/rest/v1/rpc/fn_avisar_ajuste", {
+      method: "POST",
+      body: JSON.stringify({ p_user: avParticipanteId, p_data: iso })
+    });
+    limpaCache();
+    aviso("avisoAvancada", "ok", "Registros de " + nome + " salvos para " + fmtDataCompleta(iso) + ". O mural foi avisado.");
+    await avCarregaMes();
+  } catch (e) {
+    aviso("avisoAvancada", "erro", "Não foi possível salvar: " + e.message);
+  } finally {
+    if ($("btnAvSalvarDia")) {
+      $("btnAvSalvarDia").disabled = false;
+      $("btnAvSalvarDia").textContent = "Salvar e avisar no mural";
+    }
+  }
+}
+
+/* ---------- metas do participante, sem a janela de 5 dias ---------- */
+async function avCarregaMetas() {
+  if (!avParticipanteId) return;
+  $("avMetasCampos").innerHTML = skelHtml(3, 44);
+  try {
+    const minhas = await api("/rest/v1/metas_personalizadas?user_id=eq." + avParticipanteId +
+                             "&select=tarefa_id,valor_meta,unidade,dia_semana");
+    avMetasAtuais = {};
+    (minhas || []).forEach(m => {
+      const d = (m.dia_semana === null || m.dia_semana === undefined) ? -1 : m.dia_semana;
+      (avMetasAtuais[m.tarefa_id] = avMetasAtuais[m.tarefa_id] || {})[d] = m.valor_meta;
+    });
+    const quant = (tarefas || []).filter(t => t.quantificavel);
+    $("avMetasCampos").innerHTML = quant.length ? quant.map(t => {
+      const min = t.minimo_valor != null ? Number(t.minimo_valor) : null;
+      const val = (avMetasAtuais[t.id] && avMetasAtuais[t.id][-1] != null) ? avMetasAtuais[t.id][-1] : "";
+      return `<div class="meta-bloco">
+        <h4>${escapaHtml(t.descricao)}</h4>
+        <div class="meta-min">${min != null ? "mínimo oficial: " + fmtNum(min) + " " + (t.unidade || "") : "sem mínimo"}</div>
+        <input type="number" step="0.5" inputmode="decimal" data-avmeta="${t.id}"
+               data-uni="${t.unidade || ""}" ${min != null ? 'min="' + min + '"' : ""}
+               value="${val}" placeholder="meta padrão">
+      </div>`;
+    }).join("") : '<div class="nota">Esta edição não tem tarefas com quantidade mínima.</div>';
+  } catch (e) {
+    $("avMetasCampos").innerHTML = '<div class="nota">Erro: ' + e.message + '</div>';
+  }
+}
+
+$("btnAvSalvarMetas").addEventListener("click", async () => {
+  limpaAviso("avisoAvancada");
+  const motivo = $("avMotivo").value.trim();
+  if (!avParticipanteId) { aviso("avisoAvancada", "erro", "Escolha o participante."); return; }
+  if (motivo.length < 5) { aviso("avisoAvancada", "erro", "Descreva o motivo do ajuste."); return; }
+  const campos = Array.from(document.querySelectorAll("[data-avmeta]"));
+  const invalidos = [];
+  campos.forEach(inp => {
+    if (inp.value === "") return;
+    const min = inp.getAttribute("min");
+    if (min !== null && Number(inp.value) < Number(min)) {
+      const t = (tarefas || []).find(x => x.id === inp.dataset.avmeta);
+      invalidos.push(t ? t.descricao : "Tarefa");
+    }
+  });
+  if (invalidos.length) {
+    aviso("avisoAvancada", "erro", "Abaixo do mínimo oficial: " + invalidos.join(", "));
+    return;
+  }
+  const btn = $("btnAvSalvarMetas"); btn.disabled = true;
+  try {
+    for (const inp of campos) {
+      if (inp.value === "") continue;
+      await api("/rest/v1/metas_personalizadas?on_conflict=user_id,tarefa_id,dia_semana", {
+        method: "POST",
+        headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify({
+          user_id: avParticipanteId, tarefa_id: inp.dataset.avmeta,
+          valor_meta: Number(inp.value), unidade: inp.dataset.uni,
+          dia_semana: -1, motivo_ajuste: motivo
+        })
+      });
+    }
+    limpaCache();
+    aviso("avisoAvancada", "ok", "Metas do participante salvas.");
+  } catch (e) {
+    aviso("avisoAvancada", "erro", "Não foi possível salvar: " + e.message);
+  } finally { btn.disabled = false; }
+});
+
+$("avAbaDias").addEventListener("click", () => {
+  $("avAbaDias").classList.add("ativo"); $("avAbaMetas").classList.remove("ativo");
+  $("avPainelDias").classList.add("ativo"); $("avPainelMetas").classList.remove("ativo");
+});
+$("avAbaMetas").addEventListener("click", () => {
+  $("avAbaMetas").classList.add("ativo"); $("avAbaDias").classList.remove("ativo");
+  $("avPainelMetas").classList.add("ativo"); $("avPainelDias").classList.remove("ativo");
+});
+$("btnAvVoltar").addEventListener("click", abrirAdmin);
+
+/* ---------- acesso oculto: cinco toques no titulo ---------- */
+let toquesTitulo = [];
+function ligaAcessoAvancado() {
+  const tit = document.querySelector("#telaAdmin .saudacao h2");
+  if (!tit || tit.dataset.ligado) return;
+  tit.dataset.ligado = "1";
+  tit.addEventListener("click", async () => {
+    const agora = Date.now();
+    // so contam toques dentro de uma janela de 3 segundos
+    toquesTitulo = toquesTitulo.filter(t => agora - t < 3000);
+    toquesTitulo.push(agora);
+    if (toquesTitulo.length < 5) return;
+    toquesTitulo = [];
+    const senha = prompt("Edição avançada.\n\nDigite sua senha de administrador para continuar:");
+    if (!senha) return;
+    if (!(await confirmaSenhaAdmin(senha))) { alert("Senha incorreta."); return; }
+    await garanteBase();
+    abrirAvancada();
+  });
+}
 
 /* ================= ADMIN: ZERAR DADOS DA FASE DE TESTES ================= */
 async function adCarregaLimpeza() {
@@ -4575,6 +5096,7 @@ async function adCarregaEdicoes() {
     $("tfEdicao").innerHTML = opts;
     if (anterior && edicoes.some(e => e.id === anterior)) $("tfEdicao").value = anterior;
     else if (desafio) $("tfEdicao").value = desafio.id;
+    limpaCache();
     await adCarregaTarefas();
   } catch (e) {
     $("edLista").innerHTML = '<div class="nota">Erro ao carregar: ' + e.message + '</div>';
@@ -4948,6 +5470,7 @@ $("btnTdCriar").addEventListener("click", async () => {
       aviso("avisoTd", "ok", "Tarefa Desafio publicada. Ela aparece no Meu Dia dos participantes dentro do prazo definido.");
       $("tdTitulo").value = ""; $("tdDesc").value = ""; $("tdDescConta").textContent = "0";
     }
+    limpaCache();
     await adCarregaDesafios();
   } catch (e) {
     aviso("avisoTd", "erro", "Não foi possível publicar: " + e.message);
@@ -5638,6 +6161,13 @@ if ("serviceWorker" in navigator) {
       // confere se ha versao nova ao voltar para o app
       document.addEventListener("visibilitychange", () => {
         if (!document.hidden) reg.update().catch(() => {});
+      });
+      // Ao voltar de tela inativa, a conexao costuma ter sido derrubada e o
+      // token pode ter expirado. Renovar aqui evita o erro na primeira acao.
+      document.addEventListener("visibilitychange", async () => {
+        if (document.hidden || !sessao) return;
+        limpaCache();
+        try { await renovaToken(); } catch {}
       });
       setInterval(() => reg.update().catch(() => {}), 30 * 60 * 1000);
       reg.addEventListener("updatefound", () => {

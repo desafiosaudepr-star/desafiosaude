@@ -6,7 +6,7 @@
 //     em segundo plano.
 //   - API do Supabase (outro dominio): nunca passa por aqui.
 
-const CACHE = "mais-saude-2_6";
+const CACHE = "mais-saude-2_8";
 
 // Essencial: sem estes o app nao abre offline.
 const ESSENCIAIS = [
