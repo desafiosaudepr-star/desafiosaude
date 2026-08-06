@@ -2131,7 +2131,7 @@ async function alternaTarefa(el) {
     await atualizaStreak();
   } catch (e) {
     $("estadoSalvar").textContent = "erro ao salvar";
-    const m = /48h|prazo/i.test(e.message) ? "O prazo de 48h para este dia expirou." : e.message;
+    const m = /48h|prazo/i.test(e.message) ? "O prazo deste dia já encerrou. Só é possível lançar hoje e ontem." : e.message;
     alert("Não foi possível salvar: " + m);
   } finally {
     el.classList.remove("salvando");
@@ -3834,7 +3834,7 @@ function regulamentoHtml() {
   ${listaTarefas}
 
   <h4>Prazo de lançamento dos pontos</h4>
-  <p>Os pontos de cada dia podem ser lançados no aplicativo em até 48h. Depois disso, o dia fica bloqueado e não pontua.</p>
+  <p>O lançamento dos pontos (marcação ou desmarcação) pode ser feito até o dia seguinte àquele em que a tarefa foi cumprida. Ou seja, o participante somente pode lançar ou editar seus pontos relativos ao dia atual (hoje) ou ao dia anterior (ontem). Passado esse prazo, o dia fica bloqueado e não pontua.</p>
 
   <h4>Metas pessoais</h4>
   <p>Nos 5 primeiros dias após a sua entrada, você pode personalizar as metas das tarefas que têm quantidade mínima (água, sono, atividade física, lazer sem tela, frutas e legumes). A meta pessoal nunca pode ser menor que o mínimo oficial, e é possível definir metas diferentes para cada dia da semana. A pontuação considera sempre o mínimo oficial; sua meta pessoal alimenta os indicadores individuais e do grupo.</p>
@@ -4384,7 +4384,7 @@ function desenhaDetalheDia(iso) {
     const noPrazo = difDias >= 0 && difDias <= 1 && iso >= ed.data_inicio && ehEdicaoAtiva();
     const texto = futuro
       ? "Este dia ainda não chegou."
-      : "Nenhum registro neste dia." + (noPrazo ? " Ainda dá tempo de lançar." : " O prazo de 48h para lançar já passou.");
+      : "Nenhum registro neste dia." + (noPrazo ? " Ainda dá tempo de lançar." : " O prazo para lançar já passou.");
     corpo = '<div class="nota">' + texto + '</div>' +
       (noPrazo ? '<button class="botao secundario" id="btnIrMeuDia" style="margin-top:10px">Ir para Meu Dia</button>' : '');
   } else {
