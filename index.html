@@ -909,6 +909,51 @@
     background: rgba(215,44,124,0.09); border: 1px solid var(--cor-saude);
     border-radius: 13px; padding: 10px 12px; margin-bottom: 12px;
     font-size: 0.84rem; color: var(--texto-escuro); line-height: 1.4; }
+
+  /* bonus de consistencia */
+  .bc-bloco { border: 1px solid var(--borda-card); border-radius: 16px; padding: 13px;
+    margin-bottom: 12px; background: var(--background-card); }
+  .bc-bloco h4 { margin: 0 0 3px; font-size: 0.98rem; color: var(--cor-principal); }
+  body.tema-escuro .bc-bloco h4 { color: #7FD6E2; }
+  .bc-secao { font-size: 0.74rem; font-weight: 700; color: var(--texto-mutado);
+    letter-spacing: 0.04em; margin: 12px 0 6px; }
+  .bc-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+    border: 1px solid var(--borda-card); border-radius: 11px; margin-bottom: 6px;
+    font-size: 0.84rem; }
+  .bc-item .cresce { flex: 1; }
+  .bc-mini { border: none; background: transparent; color: var(--cor-saude);
+    font-family: 'Poppins'; font-weight: 700; font-size: 0.78rem; cursor: pointer; }
+  .bc-linha { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
+  .bc-linha input, .bc-linha select { margin: 0; }
+  .bc-linha .rot { font-size: 0.72rem; color: var(--texto-mutado); display: block; margin-bottom: 3px; }
+
+  /* quadro do bonus no mural */
+  .bc-mural { background: rgba(139,195,74,0.10); border: 1px solid var(--cor-verde-rotina);
+    border-radius: 16px; padding: 13px 14px; margin-bottom: 14px; }
+  .bc-mural-cab { font-family: 'Poppins'; font-weight: 700; font-size: 0.95rem;
+    color: #4b6b21; margin-bottom: 6px; }
+  body.tema-escuro .bc-mural-cab { color: #cfeaa8; }
+  .bc-mural-txt { font-size: 0.84rem; color: var(--texto-escuro); margin: 0 0 10px; line-height: 1.45; }
+  .bc-ciclos { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .bc-ciclo { font-size: 0.74rem; padding: 3px 9px; border-radius: 20px;
+    background: rgba(255,255,255,0.7); border: 1px solid var(--borda-card); color: var(--texto-mutado); }
+  .bc-ciclo.agora { background: var(--cor-verde-rotina); color: #fff; border-color: var(--cor-verde-rotina); font-weight: 700; }
+  body.tema-escuro .bc-ciclo { background: rgba(255,255,255,0.08); }
+  .bc-grupo-mural { border-top: 1px dashed var(--borda-card); padding-top: 8px; margin-top: 8px;
+    font-size: 0.84rem; color: var(--texto-escuro); }
+  .bc-regras { margin: 4px 0 6px; padding-left: 18px; }
+  .bc-regras li { margin: 2px 0; font-size: 0.82rem; }
+  .bc-nomes { font-size: 0.8rem; color: var(--texto-mutado); font-style: italic; }
+
+  .faixa-bonus-cons { display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(139,195,74,0.13); border: 1px solid var(--cor-verde-rotina);
+    border-radius: 13px; padding: 10px 12px; margin-bottom: 12px;
+    font-size: 0.84rem; color: var(--texto-escuro); line-height: 1.45; }
+  .faixa-bonus-cons small { color: var(--texto-mutado); }
+
+  .cal-dia.cicloBonus { box-shadow: inset 0 -3px 0 var(--cor-verde-rotina); }
+
+  .av-tarefa.bloqueada { opacity: 0.55; cursor: default; border-style: dashed; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -1073,6 +1118,7 @@
   </div>
 
   <div class="aba-painel" id="painelMural">
+    <div id="bcPainelMural"></div>
     <div id="muralBloco" class="mural-aberto">
       <div class="mural-corpo">
       <div id="muralLista"></div>
@@ -1214,7 +1260,7 @@
     </div>
     <div class="ac-item">
       <button class="ac-cab" type="button" data-ac="acDesafio">
-        <span class="ac-ic">🏅</span><span class="ac-tit">Tarefa Desafio (pontos bônus)</span><span class="ac-seta">▾</span>
+        <span class="ac-ic">🏅</span><span class="ac-tit">Tarefa Desafio</span><span class="ac-seta">▾</span>
       </button>
       <div class="ac-corpo" id="acDesafio">
 
@@ -1242,6 +1288,34 @@
       
       </div>
     </div>
+    <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acBonusCons">
+        <span class="ac-ic">📈</span><span class="ac-tit">Bônus de Consistência</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acBonusCons">
+        <p class="nota" style="margin-top:0">Premia quem mantiver constância: a quantidade exigida precisa ser cumprida em <b>cada um</b> dos dias do ciclo. Um único dia abaixo elimina o bônus daquele ciclo. A apuração dos pontos acontece sozinha, dois dias após o fim de cada ciclo, para não prejudicar quem lança o último dia no dia seguinte.</p>
+        <div id="bcLista"></div>
+
+        <div class="secao-titulo" style="margin-top:16px">Nova campanha</div>
+        <label for="bcNome">Nome</label>
+        <input id="bcNome" maxlength="60" placeholder="Ex.: Bônus de Consistência dos 24 dias finais">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="bcIni">Início</label><input id="bcIni" type="date"></div>
+          <div style="flex:1"><label for="bcFim">Fim</label><input id="bcFim" type="date"></div>
+        </div>
+        <label for="bcCorte">Pontuação de corte para entrar</label>
+        <input id="bcCorte" type="number" step="1" placeholder="Ex.: 200 (participa quem tiver menos que isso)">
+        <label for="bcTipo">Tarefas consideradas na contagem</label>
+        <select id="bcTipo">
+          <option value="positivas">Apenas as que ganham ponto</option>
+          <option value="negativas">Apenas as que perdem ponto</option>
+          <option value="ambas">Todas as tarefas</option>
+        </select>
+        <button class="botao" id="btnBcCriar">Criar campanha</button>
+        <div class="aviso" id="avisoBc"></div>
+      </div>
+    </div>
+
     <div class="ac-item">
       <button class="ac-cab" type="button" data-ac="acRepescagem">
         <span class="ac-ic">🔥</span><span class="ac-tit">Repescagem</span><span class="ac-seta">▾</span>
@@ -1363,6 +1437,16 @@
       </div>
     </div>
     <div class="ac-item">
+      <button class="ac-cab" type="button" data-ac="acAvancada">
+        <span class="ac-ic">🛠</span><span class="ac-tit">Edição avançada</span><span class="ac-seta">▾</span>
+      </button>
+      <div class="ac-corpo" id="acAvancada">
+        <p class="nota" style="margin-top:0">Registrar tarefas e metas em nome de um participante que esteve impossibilitado de lançar. Todo ajuste fica registrado no histórico dele e é avisado no mural.</p>
+        <button class="botao secundario" id="btnAbrirAvancada">Abrir edição avançada</button>
+      </div>
+    </div>
+
+    <div class="ac-item">
       <button class="ac-cab" type="button" data-ac="acDados">
         <span class="ac-ic">📊</span><span class="ac-tit">Dados e Backup</span><span class="ac-seta">▾</span>
       </button>
@@ -1432,6 +1516,13 @@
       </div>
       <div class="cal-semana"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
       <div class="cal-grade" id="avCalGrade"></div>
+      <div class="cal-legenda">
+        <span><i style="background:var(--cor-principal)"></i> saldo positivo</span>
+        <span><i style="background:var(--cor-laranja-diaria)"></i> saldo negativo</span>
+        <span><i style="background:rgba(96,125,139,0.30)"></i> sem registro</span>
+        <span><i style="background:transparent;border:2px solid var(--cor-saude)"></i> dia ajustado</span>
+        <span><i style="background:transparent;border:2px solid var(--cor-verde-rotina)"></i> ciclo com bônus</span>
+      </div>
     </div>
     <div id="avDiaDetalhe"></div>
   </div>
@@ -1464,6 +1555,7 @@
       <span><i style="background:var(--cor-principal)"></i> saldo positivo</span>
       <span><i style="background:var(--cor-laranja-diaria)"></i> saldo negativo</span>
       <span><i style="background:rgba(96,125,139,0.30)"></i> sem registro</span>
+      <span><i style="background:transparent;border:2px solid var(--cor-verde-rotina)"></i> ciclo com bônus</span>
     </div>
   </div>
   <div id="calDetalhe"></div>
@@ -1981,51 +2073,87 @@ $("btnAceitar").addEventListener("click", async () => {
 /* ================= TAREFA DESAFIO E REPESCAGEM ================= */
 let desafiosBonus = [];        // tarefas desafio validas hoje
 let bonusMarcados = {};        // { tarefa_desafio_id: dia em que foi cumprida }
-let repescagemAtiva = null;    // periodo em andamento
-let souElegivel = false;
+let repescagemAtiva = null;    // periodo que contem HOJE (usado na faixa de aviso)
+let souElegivel = false;       // sou elegivel no periodo de hoje
+let meusPeriodosRep = [];      // TODOS os periodos em que sou elegivel, com as datas
+let meusCiclosBonus = [];      // ciclos de Bonus de Consistencia ja conquistados
 
 async function carregaBonusERepescagem() {
   const hoje = hojeISO();
   try {
-    const [tds, meus, pers] = await Promise.all([
+    const [tds, meus, pers, bcons] = await Promise.all([
       apiCache("/rest/v1/tarefas_desafio?ativa=eq.true&select=id,titulo,descricao,data_inicio,data_fim,valor_ponto&order=data_fim.asc"),
       api("/rest/v1/lancamentos_desafio?user_id=eq." + sessao.user.id + "&marcado=eq.true&select=tarefa_desafio_id,data"),
-      apiCache("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,nome,data_inicio,data_fim,multiplicador&order=data_inicio.asc")
+      apiCache("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,nome,data_inicio,data_fim,multiplicador&order=data_inicio.asc"),
+      api("/rest/v1/bonus_concedidos?user_id=eq." + sessao.user.id +
+          "&select=pontos,bonus_ciclos(data_inicio,data_fim,bonus_consistencia(nome,desafio_id))")
     ]);
     // guarda TODAS as tarefas do periodo; a filtragem por dia acontece no desenho
     desafiosBonus = tds || [];
     // { tarefa_desafio_id: "AAAA-MM-DD" } com o dia em que foi cumprida
     bonusMarcados = {};
     (meus || []).forEach(m => { bonusMarcados[m.tarefa_desafio_id] = m.data; });
+    // Busca TODAS as elegibilidades do participante, e nao apenas a do periodo
+    // corrente. Sem isso, ao lancar na aba Ontem um dia de um periodo que ja
+    // encerrou, o app deixava de aplicar o dobro na exibicao.
+    const elegPeriodos = await api("/rest/v1/repescagem_elegiveis?user_id=eq." + sessao.user.id +
+                           "&select=periodo_id");
+    const idsEleg = new Set((elegPeriodos || []).map(x => x.periodo_id));
+    meusPeriodosRep = (pers || []).filter(p => idsEleg.has(p.id));
     repescagemAtiva = (pers || []).find(p => hoje >= p.data_inicio && hoje <= p.data_fim) || null;
-    souElegivel = false;
-    if (repescagemAtiva) {
-      const el = await api("/rest/v1/repescagem_elegiveis?periodo_id=eq." + repescagemAtiva.id +
-                           "&user_id=eq." + sessao.user.id + "&select=user_id");
-      souElegivel = !!(el && el.length);
-    }
+    souElegivel = !!(repescagemAtiva && idsEleg.has(repescagemAtiva.id));
+    const edAtual = desafio ? desafio.id : null;
+    meusCiclosBonus = (bcons || [])
+      .filter(b => b.bonus_ciclos && b.bonus_ciclos.bonus_consistencia
+                   && b.bonus_ciclos.bonus_consistencia.desafio_id === edAtual)
+      .map(b => ({ ini: b.bonus_ciclos.data_inicio, fim: b.bonus_ciclos.data_fim,
+                   pontos: b.pontos, nome: b.bonus_ciclos.bonus_consistencia.nome }));
   } catch {
-    desafiosBonus = []; repescagemAtiva = null; souElegivel = false;
+    desafiosBonus = []; repescagemAtiva = null; souElegivel = false; meusPeriodosRep = []; meusCiclosBonus = [];
   }
 }
 
 // multiplicador que vale para um dia, para o app calcular igual ao banco
+// Multiplicador valido para a DATA consultada, e nao para o dia de hoje.
+// E assim que o banco calcula, entao a tela passa a mostrar o mesmo numero.
 function multiplicadorDoDia(dataISO) {
-  if (!repescagemAtiva || !souElegivel) return 1;
-  if (dataISO < repescagemAtiva.data_inicio || dataISO > repescagemAtiva.data_fim) return 1;
-  return repescagemAtiva.multiplicador || 2;
+  const p = (meusPeriodosRep || []).find(x =>
+    dataISO >= x.data_inicio && dataISO <= x.data_fim);
+  return p ? (p.multiplicador || 2) : 1;
 }
 
 function desenhaFaixaRepescagem() {
   const f = $("faixaRepescagem");
-  if (repescagemAtiva && souElegivel) {
-    f.style.display = "flex";
-    f.innerHTML = '<span style="font-size:1.5rem">🔥</span><span>Você está na <b>repescagem</b>! Até ' +
-      fmtDataCompleta(repescagemAtiva.data_fim) + ', cada tarefa saudável vale <b>2 pontos</b>. Os hábitos a evitar seguem em -1.</span>';
-  } else {
-    f.style.display = "none";
-    f.innerHTML = "";
+  const dia = diaSelecionado || hojeISO();
+  const p = (meusPeriodosRep || []).find(x => dia >= x.data_inicio && dia <= x.data_fim);
+  const cb = (meusCiclosBonus || []).find(c => dia >= c.ini && dia <= c.fim);
+
+  // O Bonus de Consistencia premia o ciclo inteiro, entao aparece como aviso,
+  // sem entrar na soma do dia (ele ja esta no total do ranking).
+  const htmlBonus = cb
+    ? `<div class="faixa-bonus-cons" style="margin-bottom:${p ? "10px" : "14px"}">
+         <span style="font-size:1.2rem">📈</span>
+         <span>Este dia fez parte do ciclo de <b>${escapaHtml(cb.nome)}</b>
+         (${fmtDia(cb.ini)} a ${fmtDia(cb.fim)}), que rendeu <b>+${fmtNum(cb.pontos)} pontos</b> pela constância.</span>
+       </div>` : "";
+
+  if (!p) {
+    f.style.display = htmlBonus ? "block" : "none";
+    f.innerHTML = htmlBonus;
+    return;
   }
+  const mult = p.multiplicador || 2;
+  const encerrado = hojeISO() > p.data_fim;
+  f.style.display = "block";
+  f.innerHTML = htmlBonus +
+    '<div style="display:flex;align-items:flex-start;gap:10px">' +
+    '<span style="font-size:1.5rem">🔥</span><span>' +
+    (encerrado
+      ? 'Este dia pertence à <b>repescagem</b> encerrada em ' + fmtDataCompleta(p.data_fim) +
+        '. Cada tarefa saudável marcada aqui vale <b>' + mult + ' pontos</b>.'
+      : 'Você está na <b>repescagem</b>! Até ' + fmtDataCompleta(p.data_fim) +
+        ', cada tarefa saudável vale <b>' + mult + ' pontos</b>. Os hábitos a evitar seguem em -1.') +
+    '</span></div>';
 }
 
 // Tarefas Desafio que devem aparecer na aba do dia escolhido.
@@ -2380,14 +2508,14 @@ function atualizaSeletorDia() {
   $("diaOntem").title = ontemValido ? "" : "O desafio começa hoje, não há dia anterior para registrar.";
   $("diaOntem").style.opacity = ontemValido ? "" : "0.45";
 }
-$("diaHoje").addEventListener("click", () => { diaSelecionado = hojeISO(); confeteFeito = true; atualizaSeletorDia(); desenhaTarefas(); desenhaBonus(); });
+$("diaHoje").addEventListener("click", () => { diaSelecionado = hojeISO(); confeteFeito = true; atualizaSeletorDia(); desenhaTarefas(); desenhaBonus(); desenhaFaixaRepescagem(); });
 $("diaOntem").addEventListener("click", () => {
   limpaAviso("avisoMeuDia");
   if (desafioComecou() && ontemISO() < desafio.data_inicio) {
     aviso("avisoMeuDia", "erro", "O desafio começa hoje. Não é possível registrar o dia anterior ao início.");
     return;
   }
-  diaSelecionado = ontemISO(); confeteFeito = true; atualizaSeletorDia(); desenhaTarefas(); desenhaBonus();
+  diaSelecionado = ontemISO(); confeteFeito = true; atualizaSeletorDia(); desenhaTarefas(); desenhaBonus(); desenhaFaixaRepescagem();
 });
 
 /* ---------------- trocar senha ---------------- */
@@ -2798,12 +2926,13 @@ async function desenhaQuebraPontos() {
   alvo.innerHTML = skelHtml(3, 56);
   try {
     const r = await api("/rest/v1/vw_pontos_detalhe?user_id=eq." + sessao.user.id + fEd() +
-                        "&select=pontos_consistencia,pontos_bonus,pontos_repescagem,pontos_total");
-    const d = (r && r[0]) || { pontos_consistencia: 0, pontos_bonus: 0, pontos_repescagem: 0, pontos_total: 0 };
+                        "&select=pontos_consistencia,pontos_bonus,pontos_repescagem,pontos_bonus_consistencia,pontos_total");
+    const d = (r && r[0]) || { pontos_consistencia: 0, pontos_bonus: 0, pontos_repescagem: 0, pontos_bonus_consistencia: 0, pontos_total: 0 };
     const linhas = [
-      [PAL.principal, "Consistência", "tarefas do dia a dia", d.pontos_consistencia],
-      [PAL.laranja, "Bônus", "Tarefas Desafio cumpridas", d.pontos_bonus],
-      [PAL.saude, "Repescagem", "pontos extras dos períodos", d.pontos_repescagem]
+      [PAL.principal, "Tarefas Diárias", "tarefas do dia a dia", d.pontos_consistencia],
+      [PAL.laranja, "Tarefas Desafio", "missões extras cumpridas", d.pontos_bonus],
+      [PAL.saude, "Repescagem", "pontos extras dos períodos", d.pontos_repescagem],
+      [PAL.verde, "Bônus de Consistência", "prêmio por constância", d.pontos_bonus_consistencia]
     ].filter(l => Number(l[3]) !== 0);   // so aparece o que realmente pontuou
     if (!linhas.length) {
       alvo.innerHTML = '<div class="nota">Você ainda não somou pontos nesta temporada.</div>';
@@ -3112,6 +3241,68 @@ $("muralEmojis").addEventListener("click", ev => {
 });
 $("muralTexto").addEventListener("input", () => $("muralChars").textContent = $("muralTexto").value.length);
 
+
+/* ---------- quadro do Bonus de Consistencia no mural ---------- */
+async function desenhaPainelBonusMural() {
+  const alvo = $("bcPainelMural");
+  if (!alvo) return;
+  const ed = edicaoVistaObj();
+  if (!ed) { alvo.innerHTML = ""; return; }
+  const hoje = hojeISO();
+  try {
+    const campanhas = await apiCache("/rest/v1/bonus_consistencia?desafio_id=eq." + ed.id +
+      "&ativo=eq.true&select=id,nome,descricao,data_inicio,data_fim,pontos_corte,tipo_tarefas" +
+      "&order=data_inicio.asc");
+    const ativas = (campanhas || []).filter(c => hoje >= c.data_inicio && hoje <= c.data_fim);
+    if (!ativas.length) { alvo.innerHTML = ""; return; }
+
+    const blocos = [];
+    for (const c of ativas) {
+      const [grupos, ciclos, eleg] = await Promise.all([
+        apiCache("/rest/v1/bonus_grupos?bonus_id=eq." + c.id +
+          "&select=id,nome,bonus_faixas(tarefas_por_dia,pontos)&order=ordem.asc"),
+        apiCache("/rest/v1/bonus_ciclos?bonus_id=eq." + c.id +
+          "&select=data_inicio,data_fim&order=data_inicio.asc"),
+        apiCache("/rest/v1/bonus_elegiveis?bonus_id=eq." + c.id +
+          "&select=user_id,grupo_id,perfis(nome,apelido)")
+      ]);
+
+      const porGrupo = {};
+      (eleg || []).forEach(e => { (porGrupo[e.grupo_id] = porGrupo[e.grupo_id] || []).push(e); });
+
+      const htmlGrupos = (grupos || []).map(g => {
+        const faixas = (g.bonus_faixas || []).sort((a, b) => a.tarefas_por_dia - b.tarefas_por_dia);
+        const regras = faixas.map(f =>
+          `<li>${f.tarefas_por_dia} tarefas por dia, todos os dias: <b>+${fmtNum(f.pontos)} pontos</b></li>`).join("");
+        const nomes = (porGrupo[g.id] || [])
+          .map(e => escapaHtml((e.perfis && (e.perfis.apelido || e.perfis.nome)) || "participante"))
+          .sort((a, b) => a.localeCompare(b, "pt"));
+        return `<div class="bc-grupo-mural">
+          <b>${escapaHtml(g.nome)}</b>
+          <ul class="bc-regras">${regras || "<li>sem faixas definidas</li>"}</ul>
+          <div class="bc-nomes">${nomes.length ? nomes.join(", ") : "ninguém elegível"}</div>
+        </div>`;
+      }).join("");
+
+      const htmlCiclos = (ciclos || []).map(ci => {
+        const emCurso = hoje >= ci.data_inicio && hoje <= ci.data_fim;
+        return `<span class="bc-ciclo ${emCurso ? "agora" : ""}">${fmtDia(ci.data_inicio)} a ${fmtDia(ci.data_fim)}</span>`;
+      }).join("");
+
+      blocos.push(`<div class="bc-mural">
+        <div class="bc-mural-cab">📈 ${escapaHtml(c.nome)}</div>
+        <p class="bc-mural-txt">Vale para quem começou com menos de <b>${fmtNum(c.pontos_corte)} pontos</b>.
+          A quantidade exigida precisa ser cumprida em <b>todos os dias</b> do ciclo.
+          ${c.tipo_tarefas === "positivas" ? "Contam as tarefas que ganham ponto."
+            : c.tipo_tarefas === "negativas" ? "Contam as tarefas que perdem ponto." : "Contam todas as tarefas."}</p>
+        ${htmlCiclos ? `<div class="bc-ciclos">${htmlCiclos}</div>` : ""}
+        ${htmlGrupos}
+      </div>`);
+    }
+    alvo.innerHTML = blocos.join("");
+  } catch { alvo.innerHTML = ""; }
+}
+
 async function carregaMural() {
   if (!$("muralLista").innerHTML.trim()) $("muralLista").innerHTML = skelHtml(3, 64);
   try {
@@ -3252,7 +3443,7 @@ function trocaAbaTurma(qual) {
 }
 // sem botao de atualizar: abrir a aba ja recarrega a classificacao
 $("abaRanking").addEventListener("click", () => { trocaAbaTurma("ranking"); carregaRanking(); });
-$("abaMural").addEventListener("click", () => { trocaAbaTurma("mural"); carregaMural(); ajustaMuralPorEdicao(); });
+$("abaMural").addEventListener("click", () => { trocaAbaTurma("mural"); carregaMural(); ajustaMuralPorEdicao(); desenhaPainelBonusMural(); });
 
 /* ---------------- foto no mural ---------------- */
 $("btnFoto").addEventListener("click", () => $("arqFoto").click());
@@ -3912,6 +4103,7 @@ async function abrirAdmin() {
   limpaCache();
   await adCarregaEdicoes();
   await adCarregaLimpeza();
+  await adCarregaBonusCons();
   await Promise.all([
     adCarregaMural(), adCarregaParticipantes(),
     adCarregaDesafios(), adCarregaRepescagem()
@@ -4003,6 +4195,65 @@ async function carregaContextoPeriodos() {
   } catch { /* sem acesso, os textos caem no aviso generico */ }
 }
 
+
+// Texto do Bonus de Consistencia no regulamento, montado a partir do que o
+// administrador cadastrou. Sem campanha ativa, a secao se explica sozinha.
+let bonusRegulamento = [];
+function textoBonusConsistencia() {
+  if (!bonusRegulamento.length) {
+    return "<ul><li>Premia quem mantiver constância na execução das tarefas diárias durante um período definido pelo organizador.</li>" +
+           "<li>As campanhas em vigor, com os critérios e valores, aparecem no Mural e aqui, quando houver alguma ativa.</li></ul>";
+  }
+  return bonusRegulamento.map(c => {
+    const ciclos = (c._ciclos || []).map(ci =>
+      fmtDataCompleta(ci.data_inicio) + " a " + fmtDataCompleta(ci.data_fim)).join("; ");
+    const grupos = (c._grupos || []).map(g => {
+      const faixas = (g.bonus_faixas || []).sort((a, b) => a.tarefas_por_dia - b.tarefas_por_dia)
+        .map(f => f.tarefas_por_dia + " tarefas por dia valem <b>+" + fmtNum(f.pontos) + " pontos</b>")
+        .join("; ");
+      return "<li><b>" + escapaHtml(g.nome) + "</b>: " + (faixas || "sem faixas definidas") + ".</li>";
+    }).join("");
+    return "<ul>" +
+      "<li><b>" + escapaHtml(c.nome) + "</b>, de " + fmtDataCompleta(c.data_inicio) +
+        " a " + fmtDataCompleta(c.data_fim) + ".</li>" +
+      (c.pontos_corte != null
+        ? "<li>Participa quem iniciar o período com <b>menos de " + fmtNum(c.pontos_corte) +
+          " pontos</b>. A verificação é feita uma única vez, no início, e vale até o fim.</li>" : "") +
+      "<li>A quantidade exigida precisa ser cumprida em <b>cada um dos dias</b> do ciclo. Um único dia abaixo do mínimo elimina o bônus daquele ciclo, porque o prêmio é por constância e não por volume total.</li>" +
+      (c.tipo_tarefas === "positivas"
+        ? "<li>A contagem considera apenas as tarefas que ganham ponto. Marcar um hábito a evitar desconta o ponto normalmente, mas não elimina o direito ao bônus.</li>"
+        : c.tipo_tarefas === "negativas"
+        ? "<li>A contagem considera apenas as tarefas que perdem ponto.</li>"
+        : "<li>A contagem considera todas as tarefas do dia.</li>") +
+      (ciclos ? "<li>Ciclos de apuração: " + ciclos + ". Cada ciclo é apurado dois dias após o seu encerramento, para não prejudicar quem lança o último dia no dia seguinte.</li>" : "") +
+      (grupos ? "<li>Grupos e valores:<ul>" + grupos + "</ul></li>" : "") +
+      "<li>O bônus soma com a repescagem: quem estiver nas duas dinâmicas recebe os dois.</li>" +
+      "</ul>";
+  }).join("");
+}
+
+// carrega a configuracao vigente para o regulamento e para o mural
+async function carregaBonusRegulamento() {
+  const ed = edicaoVistaObj();
+  if (!ed) { bonusRegulamento = []; return; }
+  try {
+    const cs = await apiCache("/rest/v1/bonus_consistencia?desafio_id=eq." + ed.id +
+      "&ativo=eq.true&select=id,nome,data_inicio,data_fim,pontos_corte,tipo_tarefas&order=data_inicio.asc");
+    const saida = [];
+    for (const c of (cs || [])) {
+      const [g, ci] = await Promise.all([
+        apiCache("/rest/v1/bonus_grupos?bonus_id=eq." + c.id +
+          "&select=nome,bonus_faixas(tarefas_por_dia,pontos)&order=ordem.asc"),
+        apiCache("/rest/v1/bonus_ciclos?bonus_id=eq." + c.id +
+          "&select=data_inicio,data_fim&order=data_inicio.asc")
+      ]);
+      c._grupos = g || []; c._ciclos = ci || [];
+      saida.push(c);
+    }
+    bonusRegulamento = saida;
+  } catch { bonusRegulamento = []; }
+}
+
 function regulamentoHtml() {
   const pos = (tarefasVista || []).filter(t => t.valor_ponto > 0);
   const neg = (tarefasVista || []).filter(t => t.valor_ponto < 0);
@@ -4038,7 +4289,10 @@ function regulamentoHtml() {
     <li>São opcionais: quem não cumprir não perde ponto, apenas deixa de ganhar o bônus.</li>
   </ul>
 
-  <p><b>3. Pontos de Repescagem</b></p>
+  <p><b>3. Bônus de Consistência</b></p>
+  ${textoBonusConsistencia()}
+
+  <p><b>4. Pontos de Repescagem</b></p>
   <ul>
     <li>A repescagem existe para quem ficou para trás ter chance real de voltar à disputa.</li>
     <li>Entra na repescagem quem estiver com pontuação acumulada <b>inferior a 70% da pontuação do líder</b>.</li>
@@ -4104,6 +4358,7 @@ async function abrirRegulamento() {
   mostraTela("telaRegulamento");
   await carregaContextoPeriodos();
   await garanteTarefasVista();
+  await carregaBonusRegulamento();
   pintaRegulamento();
 }
 
@@ -4505,7 +4760,7 @@ async function carregaMesHistorico() {
   $("calGrade").innerHTML = '<div class="nota" style="grid-column:1/-1">Carregando...</div>';
   const ini = primeiroDiaMes(calMesAtual), fim = ultimoDiaMes(calMesAtual);
   try {
-    const [saldos, lancs, bonus, eleg] = await Promise.all([
+    const [saldos, lancs, bonus, eleg, bonusCons] = await Promise.all([
       api("/rest/v1/vw_saldo_diario?user_id=eq." + sessao.user.id +
           "&data=gte." + ini + "&data=lte." + fim + "&select=data,saldo_dia" + fEd(ed.id)),
       api("/rest/v1/lancamentos?user_id=eq." + sessao.user.id + "&marcado=eq.true" +
@@ -4514,7 +4769,10 @@ async function carregaMesHistorico() {
       api("/rest/v1/lancamentos_desafio?user_id=eq." + sessao.user.id + "&marcado=eq.true" +
           "&select=data,criado_em,tarefa_desafio_id,tarefas_desafio(titulo,valor_ponto,data_inicio,data_fim,desafio_id)"),
       api("/rest/v1/repescagem_elegiveis?user_id=eq." + sessao.user.id +
-          "&select=periodo_id,repescagem_periodos(data_inicio,data_fim,multiplicador,desafio_id)")
+          "&select=periodo_id,repescagem_periodos(data_inicio,data_fim,multiplicador,desafio_id)"),
+      // ciclos de Bonus de Consistencia que este participante conquistou
+      api("/rest/v1/bonus_concedidos?user_id=eq." + sessao.user.id +
+          "&select=pontos,minimo_no_ciclo,bonus_ciclos(data_inicio,data_fim,bonus_consistencia(nome,desafio_id))")
     ]);
     const porData = {};
     (saldos || []).forEach(x => porData[x.data] = Number(x.saldo_dia || 0));
@@ -4533,7 +4791,19 @@ async function carregaMesHistorico() {
       ajustes: ajustes,
       bonus: (bonus || []).filter(b => b.tarefas_desafio && b.tarefas_desafio.desafio_id === ed.id),
       eleg: (eleg || []).filter(e => e.repescagem_periodos && e.repescagem_periodos.desafio_id === ed.id)
-                        .map(e => e.repescagem_periodos)
+                        .map(e => e.repescagem_periodos),
+      // O Bonus de Consistencia premia um CICLO inteiro, nao um dia. Por isso
+      // ele nao e somado a nenhuma data: aparece como faixa informativa nos
+      // dias que fizeram parte do ciclo premiado.
+      ciclosBonus: (bonusCons || [])
+        .filter(b => b.bonus_ciclos && b.bonus_ciclos.bonus_consistencia
+                     && b.bonus_ciclos.bonus_consistencia.desafio_id === ed.id)
+        .map(b => ({
+          ini: b.bonus_ciclos.data_inicio,
+          fim: b.bonus_ciclos.data_fim,
+          pontos: b.pontos,
+          nome: b.bonus_ciclos.bonus_consistencia.nome
+        }))
     };
     // as tarefas do historico incluem as desativadas, senao o dia antigo fica incompleto
     if (!calDados.tarefas) {
@@ -4579,6 +4849,7 @@ function desenhaCalendario() {
     const cls = ["cal-dia"];
     if (!dentro) cls.push("forapp");
     if (temReg) cls.push(total < 0 ? "neg" : "pos");
+    if ((calDados.ciclosBonus || []).some(c => iso >= c.ini && iso <= c.fim)) cls.push("cicloBonus");
     if (iso === hoje) cls.push("hoje");
     if (iso === calDiaSel) cls.push("sel");
     html += `<div class="${cls.join(" ")}" data-dia="${iso}">
@@ -4612,8 +4883,18 @@ function desenhaDetalheDia(iso) {
   const corTotal = total > 0 ? "var(--cor-principal)" : (total < 0 ? "var(--cor-laranja-diaria)" : "var(--texto-mutado)");
 
   const ajuste = (calDados.ajustes || {})[iso];
+  const cicloBonus = (calDados.ciclosBonus || []).find(c => iso >= c.ini && iso <= c.fim);
 
   let corpo = "";
+  if (cicloBonus) {
+    corpo += `<div class="faixa-bonus-cons">
+      <span style="font-size:1.2rem">📈</span>
+      <span>Este dia fez parte do ciclo de <b>${escapaHtml(cicloBonus.nome)}</b>
+      (${fmtDia(cicloBonus.ini)} a ${fmtDia(cicloBonus.fim)}), que rendeu
+      <b>+${fmtNum(cicloBonus.pontos)} pontos</b> pela constância.
+      <br><small>Este valor é do ciclo inteiro, não deste dia, e já está somado ao seu total.</small></span>
+    </div>`;
+  }
   if (ajuste) {
     corpo += `<div class="faixa-ajuste">
       <span style="font-size:1.2rem">📝</span>
@@ -4662,12 +4943,29 @@ function desenhaDetalheDia(iso) {
     }
   }
 
+  // discriminacao de onde vieram os pontos DESTE dia
+  const partes = [];
+  const ptsPositivos = pos.reduce((a2, t) => a2 + t.valor_ponto, 0);
+  const ptsNegativos = neg.reduce((a2, t) => a2 + t.valor_ponto, 0);
+  if (ptsPositivos) partes.push(["Tarefas diárias", ptsPositivos, PAL.principal]);
+  if (mult > 1 && ptsPositivos) partes.push(["Repescagem (dobro)", ptsPositivos * (mult - 1), PAL.saude]);
+  if (ptsNegativos) partes.push(["Hábitos a evitar", ptsNegativos, PAL.laranja]);
+  if (totalBonus) partes.push(["Tarefas Desafio", totalBonus, PAL.verde]);
+
+  const htmlPartes = partes.length > 1
+    ? '<div class="det-grupo">DE ONDE VIERAM OS PONTOS DESTE DIA</div>' +
+      partes.map(([rot, val, cor]) => `<div class="det-linha">
+        <span class="sinal" style="color:${cor}">${val > 0 ? "+" : ""}${val}</span>
+        <span>${rot}</span></div>`).join("")
+    : "";
+
   $("calDetalhe").innerHTML = `<div class="cartao" style="margin-top:14px">
     <div class="det-cab">
       <h4>${titulo}</h4>
       <span class="det-saldo" style="color:${corTotal}">${total > 0 ? "+" : ""}${total}</span>
     </div>
     ${corpo}
+    ${htmlPartes}
   </div>`;
 
   if ($("btnIrMeuDia")) {
@@ -4746,18 +5044,69 @@ async function avCarregaMes() {
   $("avCalGrade").innerHTML = '<div class="nota" style="grid-column:1/-1">Carregando...</div>';
   const ini = primeiroDiaMes(avMes), fim = ultimoDiaMes(avMes);
   try {
-    const lancs = await api("/rest/v1/lancamentos?user_id=eq." + avParticipanteId +
-      "&data=gte." + ini + "&data=lte." + fim +
-      "&select=data,tarefa_id,marcado,ajustado_por,motivo_ajuste" + fEd(ed.id));
-    avDados = { marcados: {}, ajustados: {} };
+    const [lancs, bonus, elegRep, persRep, tdsPeriodo, bconsPart] = await Promise.all([
+      api("/rest/v1/lancamentos?user_id=eq." + avParticipanteId +
+        "&data=gte." + ini + "&data=lte." + fim +
+        "&select=data,tarefa_id,marcado,ajustado_por,motivo_ajuste" + fEd(ed.id)),
+      api("/rest/v1/lancamentos_desafio?user_id=eq." + avParticipanteId + "&marcado=eq.true" +
+        "&select=data,tarefa_desafio_id,tarefas_desafio(titulo,valor_ponto,data_inicio,data_fim,desafio_id)"),
+      api("/rest/v1/repescagem_elegiveis?user_id=eq." + avParticipanteId + "&select=periodo_id"),
+      apiCache("/rest/v1/repescagem_periodos?ativo=eq.true&select=id,data_inicio,data_fim,multiplicador" + fEd(ed.id)),
+      apiCache("/rest/v1/tarefas_desafio?ativa=eq.true&select=id,titulo,valor_ponto,data_inicio,data_fim" + fEd(ed.id) + "&order=data_inicio.asc"),
+      api("/rest/v1/bonus_concedidos?user_id=eq." + avParticipanteId +
+          "&select=pontos,bonus_ciclos(data_inicio,data_fim,bonus_consistencia(nome,desafio_id))")
+    ]);
+    avDados = { marcados: {}, ajustados: {}, bonus: [], rep: [] };
     (lancs || []).forEach(l => {
       if (l.marcado) (avDados.marcados[l.data] = avDados.marcados[l.data] || new Set()).add(l.tarefa_id);
-      if (l.ajustado_por) avDados.ajustados[l.data] = true;
+      if (l.ajustado_por) avDados.ajustados[l.data] = { motivo: l.motivo_ajuste || "" };
     });
+    avDados.bonus = (bonus || []).filter(b => b.tarefas_desafio && b.tarefas_desafio.desafio_id === ed.id);
+    const ids = new Set((elegRep || []).map(x => x.periodo_id));
+    avDados.rep = (persRep || []).filter(p => ids.has(p.id));
+    // todas as Tarefas Desafio da edicao, para listar em cada data do periodo
+    avDados.tds = tdsPeriodo || [];
+    // onde cada uma esta marcada hoje: { tarefa_desafio_id: dia }
+    avDados.tdMarcadas = {};
+    (avDados.bonus || []).forEach(b => { avDados.tdMarcadas[b.tarefa_desafio_id] = String(b.data || "").slice(0, 10); });
+    avDados.ciclosBonus = (bconsPart || [])
+      .filter(b => b.bonus_ciclos && b.bonus_ciclos.bonus_consistencia
+                   && b.bonus_ciclos.bonus_consistencia.desafio_id === ed.id)
+      .map(b => ({ ini: b.bonus_ciclos.data_inicio, fim: b.bonus_ciclos.data_fim,
+                   pontos: b.pontos, nome: b.bonus_ciclos.bonus_consistencia.nome }));
     avDesenhaCalendario();
   } catch (e) {
     $("avCalGrade").innerHTML = '<div class="nota" style="grid-column:1/-1">Erro: ' + e.message + '</div>';
   }
+}
+
+
+// Multiplicador da repescagem para o participante que esta sendo consultado
+// na edicao avancada, pela data (mesma regra do banco).
+function avMultiplicador(dia) {
+  const p = (avDados.rep || []).find(x => dia >= x.data_inicio && dia <= x.data_fim);
+  return p ? (p.multiplicador || 2) : 1;
+}
+function avBonusDoDia(dia) {
+  return (avDados.bonus || []).filter(b => String(b.data || "").slice(0, 10) === dia);
+}
+
+
+// Total de pontos do participante num dia: tarefas diarias (com o dobro da
+// repescagem quando for o caso) mais a Tarefa Desafio marcada naquele dia.
+// O Bonus de Consistencia nao entra aqui: ele premia o ciclo inteiro.
+function avTotalDoDia(iso) {
+  const marc = avDados.marcados[iso] || new Set();
+  const mult = avMultiplicador(iso);
+  let total = 0;
+  (tarefas || []).forEach(t => {
+    if (!marc.has(t.id)) return;
+    total += t.valor_ponto > 0 ? t.valor_ponto * mult : t.valor_ponto;
+  });
+  (avDados.tds || []).forEach(t => {
+    if ((avDados.tdMarcadas || {})[t.id] === iso) total += Number(t.valor_ponto || 1);
+  });
+  return total;
 }
 
 function avDesenhaCalendario() {
@@ -4776,13 +5125,17 @@ function avDesenhaCalendario() {
     // fora do periodo da edicao, ou no futuro, nao ha o que ajustar
     const dentro = iso >= ed.data_inicio && iso <= ed.data_fim && iso <= hojeISO();
     const qtd = (avDados.marcados[iso] || new Set()).size;
+    const temTd = (avDados.tds || []).some(t => (avDados.tdMarcadas || {})[t.id] === iso);
+    const temReg = qtd > 0 || temTd;
+    const total = temReg ? avTotalDoDia(iso) : 0;
     const cls = ["cal-dia"];
     if (!dentro) cls.push("forapp");
-    if (qtd) cls.push("temreg");
+    if (temReg) cls.push(total < 0 ? "neg" : "pos");
+    if ((avDados.ciclosBonus || []).some(c => iso >= c.ini && iso <= c.fim)) cls.push("cicloBonus");
     if (avDados.ajustados[iso]) cls.push("ajustado");
     if (iso === avDiaSel) cls.push("sel");
     html += `<div class="${cls.join(" ")}" ${dentro ? `data-avdia="${iso}"` : ""}>
-      <span class="n">${d}</span>${qtd ? `<span class="p">${qtd}</span>` : ""}</div>`;
+      <span class="n">${d}</span>${temReg ? `<span class="p">${total > 0 ? "+" : ""}${total}</span>` : ""}</div>`;
   }
   $("avCalGrade").innerHTML = html;
   if (avDiaSel) avDesenhaDia(avDiaSel);
@@ -4802,31 +5155,127 @@ $("avCalProximo").addEventListener("click", async () => { avMes = mesVizinho(avM
 function avDesenhaDia(iso) {
   const marc = avDados.marcados[iso] || new Set();
   const nome = $("avParticipante").selectedOptions[0] ? $("avParticipante").selectedOptions[0].textContent : "";
+  const mult = avMultiplicador(iso);
+  const bonusDia = avBonusDoDia(iso);
+  const ajuste = avDados.ajustados[iso];
+  const cicloBonusAv = (avDados.ciclosBonus || []).find(c => iso >= c.ini && iso <= c.fim);
+
+  // saldo do dia, com a mesma conta do participante
+  let saldo = 0;
+  (tarefas || []).forEach(t => {
+    if (!marc.has(t.id)) return;
+    saldo += t.valor_ponto > 0 ? t.valor_ponto * mult : t.valor_ponto;
+  });
+  const totalBonus = (avDados.tds || [])
+    .filter(t => (avDados.tdMarcadas || {})[t.id] === iso)
+    .reduce((a2, t) => a2 + Number(t.valor_ponto || 1), 0);
+  const total = saldo + totalBonus;
+  const corTotal = total > 0 ? "var(--cor-principal)" : (total < 0 ? "var(--cor-laranja-diaria)" : "var(--texto-mutado)");
+
   const linhas = (tarefas || []).map(t => {
     const m = marc.has(t.id);
+    const valor = t.valor_ponto > 0 ? "+" + (t.valor_ponto * mult) : String(t.valor_ponto);
     return `<div class="av-tarefa ${m ? "marcada" : ""}" data-avtarefa="${t.id}">
-      <span class="sinal" style="color:${t.valor_ponto > 0 ? "var(--cor-principal)" : "var(--cor-laranja-diaria)"}">${t.valor_ponto > 0 ? "+1" : "-1"}</span>
+      <span class="sinal" style="color:${t.valor_ponto > 0 ? "var(--cor-principal)" : "var(--cor-laranja-diaria)"}">${valor}</span>
       <span class="txt">${escapaHtml(t.descricao)}</span>
       <span class="caixa">${m ? "✓" : ""}</span>
     </div>`;
   }).join("");
+
+  // Tarefas Desafio validas para esta data. Cada uma e cumprida uma unica vez
+  // no periodo, entao so pode ser marcada aqui se ainda nao estiver marcada
+  // em outro dia. Se estiver, mostramos onde e oferecemos desmarcar.
+  const tdsDoDia = (avDados.tds || []).filter(t => iso >= t.data_inicio && iso <= t.data_fim);
+  const htmlBonus = tdsDoDia.length
+    ? '<div class="det-grupo">TAREFAS DESAFIO DESTE PERÍODO</div>' +
+      tdsDoDia.map(t => {
+        const em = (avDados.tdMarcadas || {})[t.id];
+        const aqui = em === iso;
+        const noutro = em && em !== iso;
+        return `<div class="av-tarefa ${aqui ? "marcada" : ""} ${noutro ? "bloqueada" : ""}"
+             ${noutro ? "" : `data-avtd="${t.id}"`}>
+          <span class="sinal" style="color:var(--cor-saude)">+${t.valor_ponto || 1}</span>
+          <span class="txt">${escapaHtml(t.titulo)}
+            ${noutro ? `<br><small style="color:var(--cor-laranja-diaria)">já marcada em ${fmtDataCompleta(em)}. Desmarque lá para poder marcar aqui.</small>` : ""}
+          </span>
+          <span class="caixa">${aqui ? "✓" : ""}</span>
+        </div>`;
+      }).join("")
+    : "";
+
   $("avDiaDetalhe").innerHTML = `<div class="cartao" style="margin-top:14px">
-    <div class="det-cab"><h4>${fmtDataCompleta(iso)}</h4></div>
+    <div class="det-cab">
+      <h4>${fmtDataCompleta(iso)}</h4>
+      <span class="det-saldo" style="color:${corTotal}">${total > 0 ? "+" : ""}${total}</span>
+    </div>
+    ${ajuste ? `<div class="faixa-ajuste"><span style="font-size:1.2rem">📝</span>
+        <span>Dia já ajustado pelo organizador.${ajuste.motivo ? "<br>Motivo: " + escapaHtml(ajuste.motivo) : ""}</span></div>` : ""}
+    ${cicloBonusAv ? `<div class="faixa-bonus-cons">
+        <span style="font-size:1.2rem">📈</span>
+        <span>Este dia fez parte do ciclo de <b>${escapaHtml(cicloBonusAv.nome)}</b>
+        (${fmtDia(cicloBonusAv.ini)} a ${fmtDia(cicloBonusAv.fim)}), que rendeu
+        <b>+${fmtNum(cicloBonusAv.pontos)} pontos</b> para este participante.</span></div>` : ""}
+    ${mult > 1 ? `<div class="faixa-repescagem" style="margin:0 0 12px">
+        <span style="font-size:1.3rem">🔥</span>
+        <span>Dia de <b>repescagem</b> para este participante: cada tarefa saudável vale <b>${mult} pontos</b>.</span></div>` : ""}
     <p class="nota" style="margin-top:0">Marcando em nome de <b>${escapaHtml(nome)}</b>. Toque nas tarefas cumpridas.</p>
     ${linhas}
+    ${htmlBonus}
     <button class="botao" id="btnAvSalvarDia" style="margin-top:12px">Salvar e avisar no mural</button>
   </div>`;
   $("btnAvSalvarDia").addEventListener("click", () => avSalvaDia(iso));
 }
 
 // alterna a marcacao na tela; a gravacao acontece no botao Salvar
-$("avDiaDetalhe").addEventListener("click", ev => {
+$("avDiaDetalhe").addEventListener("click", async ev => {
   const el = ev.target && ev.target.closest ? ev.target.closest(".av-tarefa") : null;
   if (!el || !avDiaSel) return;
+
+  // Tarefa Desafio: grava na hora, porque a marcacao e unica no periodo e
+  // precisa liberar ou travar os outros dias imediatamente.
+  if (el.dataset.avtd) {
+    const idTd = el.dataset.avtd;
+    const motivo = $("avMotivo").value.trim();
+    if (motivo.length < 5) {
+      aviso("avisoAvancada", "erro", "Descreva o motivo do ajuste antes de alterar a Tarefa Desafio.");
+      return;
+    }
+    const marcadaAqui = (avDados.tdMarcadas || {})[idTd] === avDiaSel;
+    try {
+      if (marcadaAqui) {
+        await api("/rest/v1/lancamentos_desafio?user_id=eq." + avParticipanteId +
+                  "&tarefa_desafio_id=eq." + idTd, { method: "DELETE" });
+        delete avDados.tdMarcadas[idTd];
+        aviso("avisoAvancada", "ok", "Tarefa Desafio desmarcada. Agora ela pode ser marcada em outro dia do período.");
+      } else {
+        await api("/rest/v1/lancamentos_desafio?on_conflict=user_id,tarefa_desafio_id", {
+          method: "POST",
+          headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+          body: JSON.stringify({
+            user_id: avParticipanteId, tarefa_desafio_id: idTd,
+            marcado: true, data: avDiaSel
+          })
+        });
+        avDados.tdMarcadas[idTd] = avDiaSel;
+        aviso("avisoAvancada", "ok", "Tarefa Desafio marcada em " + fmtDataCompleta(avDiaSel) + ".");
+      }
+      limpaCache();
+      avDesenhaDia(avDiaSel);
+      avDesenhaCalendario();
+    } catch (e) {
+      aviso("avisoAvancada", "erro", "Não foi possível alterar: " + e.message);
+    }
+    return;
+  }
+
   const id = el.dataset.avtarefa;
+  if (!id) return;
   const marc = (avDados.marcados[avDiaSel] = avDados.marcados[avDiaSel] || new Set());
-  if (marc.has(id)) { marc.delete(id); el.classList.remove("marcada"); el.querySelector(".caixa").textContent = ""; }
-  else { marc.add(id); el.classList.add("marcada"); el.querySelector(".caixa").textContent = "✓"; }
+  if (marc.has(id)) { marc.delete(id); }
+  else { marc.add(id); }
+  // redesenha o dia e o calendario, para o total acompanhar na hora
+  avDesenhaDia(avDiaSel);
+  avDesenhaCalendario();
 });
 
 async function avSalvaDia(iso) {
@@ -4952,22 +5401,13 @@ $("avAbaMetas").addEventListener("click", () => {
 });
 $("btnAvVoltar").addEventListener("click", abrirAdmin);
 
-/* ---------- acesso oculto: cinco toques no titulo ---------- */
-let toquesTitulo = [];
+/* ---------- acesso pelo menu da administracao ----------
+   A confirmacao dupla no momento de salvar continua sendo a protecao. */
 function ligaAcessoAvancado() {
-  const tit = document.querySelector("#telaAdmin .saudacao h2");
-  if (!tit || tit.dataset.ligado) return;
-  tit.dataset.ligado = "1";
-  tit.addEventListener("click", async () => {
-    const agora = Date.now();
-    // so contam toques dentro de uma janela de 3 segundos
-    toquesTitulo = toquesTitulo.filter(t => agora - t < 3000);
-    toquesTitulo.push(agora);
-    if (toquesTitulo.length < 5) return;
-    toquesTitulo = [];
-    const senha = prompt("Edição avançada.\n\nDigite sua senha de administrador para continuar:");
-    if (!senha) return;
-    if (!(await confirmaSenhaAdmin(senha))) { alert("Senha incorreta."); return; }
+  const b = $("btnAbrirAvancada");
+  if (!b || b.dataset.ligado) return;
+  b.dataset.ligado = "1";
+  b.addEventListener("click", async () => {
     await garanteBase();
     abrirAvancada();
   });
@@ -5545,6 +5985,251 @@ $("tdLista").addEventListener("click", async ev => {
       await api("/rest/v1/tarefas_desafio?id=eq." + t.dataset.tddel, { method: "DELETE" });
       await adCarregaDesafios();
     } catch (e) { aviso("avisoTd", "erro", e.message); }
+  }
+});
+
+
+/* ================= ADMIN: BONUS DE CONSISTENCIA =================
+   Motor configuravel. O administrador define os grupos (por pontuacao), as
+   faixas de exigencia de cada grupo e os ciclos de apuracao. Nenhuma regra
+   fica fixa no codigo. */
+let bcCache = {};
+
+async function adCarregaBonusCons() {
+  $("bcLista").innerHTML = skelHtml(2, 60);
+  const ed = desafio || edicaoVistaObj();
+  if (!ed) { $("bcLista").innerHTML = '<div class="nota">Nenhuma edição ativa.</div>'; return; }
+  try {
+    const campanhas = await api("/rest/v1/bonus_consistencia?desafio_id=eq." + ed.id +
+      "&select=id,nome,data_inicio,data_fim,pontos_corte,tipo_tarefas,ativo,apurado_em" +
+      "&order=data_inicio.desc");
+    bcCache = {};
+    if (!campanhas || !campanhas.length) {
+      $("bcLista").innerHTML = '<div class="nota">Nenhuma campanha criada ainda.</div>';
+      return;
+    }
+    const blocos = [];
+    for (const c of campanhas) {
+      bcCache[c.id] = c;
+      const [grupos, ciclos, eleg] = await Promise.all([
+        api("/rest/v1/bonus_grupos?bonus_id=eq." + c.id +
+            "&select=id,nome,pontos_min,pontos_max,ordem,bonus_faixas(id,tarefas_por_dia,pontos)&order=ordem.asc"),
+        api("/rest/v1/bonus_ciclos?bonus_id=eq." + c.id +
+            "&select=id,nome,data_inicio,data_fim,apurado_em&order=data_inicio.asc"),
+        api("/rest/v1/bonus_elegiveis?bonus_id=eq." + c.id + "&select=user_id")
+      ]);
+      c._grupos = grupos || [];
+      c._ciclos = ciclos || [];
+
+      const htmlGrupos = (grupos || []).length ? grupos.map(g => {
+        const faixas = (g.bonus_faixas || []).sort((a, b) => a.tarefas_por_dia - b.tarefas_por_dia);
+        const lim = (g.pontos_min == null && g.pontos_max == null) ? "qualquer pontuação"
+          : (g.pontos_min == null ? "até " + fmtNum(g.pontos_max)
+          : (g.pontos_max == null ? "a partir de " + fmtNum(g.pontos_min)
+          : "de " + fmtNum(g.pontos_min) + " a " + fmtNum(g.pontos_max))) + " pontos";
+        const htmlFaixas = faixas.length ? faixas.map(f =>
+          `<div class="bc-item" style="margin-left:12px">
+             <span class="cresce">${f.tarefas_por_dia} tarefa(s) por dia, todos os dias</span>
+             <b style="color:var(--cor-verde-rotina)">+${fmtNum(f.pontos)}</b>
+             <button type="button" class="bc-mini" data-bcdelfaixa="${f.id}">remover</button>
+           </div>`).join("")
+          : '<div class="nota" style="margin-left:12px">Sem faixas. Adicione ao menos uma.</div>';
+        return `<div class="bc-item" style="background:rgba(0,123,142,0.06)">
+            <span class="cresce"><b>${escapaHtml(g.nome)}</b><br>
+              <small style="color:var(--texto-mutado)">${lim}</small></span>
+            <button type="button" class="bc-mini" data-bcdelgrupo="${g.id}">remover</button>
+          </div>
+          ${htmlFaixas}
+          <div class="bc-linha" style="margin-left:12px">
+            <div style="flex:1"><span class="rot">tarefas por dia</span>
+              <input type="number" min="1" id="fx_t_${g.id}" placeholder="6"></div>
+            <div style="flex:1"><span class="rot">pontos</span>
+              <input type="number" step="1" id="fx_p_${g.id}" placeholder="10"></div>
+            <button type="button" class="btn-mini" data-bcaddfaixa="${g.id}"
+              style="border:1px solid rgba(0,123,142,0.35);border-radius:10px;min-height:40px">+ faixa</button>
+          </div>`;
+      }).join("") : '<div class="nota">Nenhum grupo. Crie ao menos um.</div>';
+
+      const htmlCiclos = (ciclos || []).length ? ciclos.map(ci =>
+        `<div class="bc-item">
+           <span class="cresce">${fmtDataCompleta(ci.data_inicio)} a ${fmtDataCompleta(ci.data_fim)}
+             <br><small style="color:var(--texto-mutado)">apuração automática em ${fmtDataCompleta(somaDias(ci.data_fim, 2))}
+             ${ci.apurado_em ? " · já apurado" : " · aguardando"}</small></span>
+           <button type="button" class="bc-mini" data-bcdelciclo="${ci.id}">remover</button>
+         </div>`).join("") : '<div class="nota">Nenhum ciclo. Crie ao menos um.</div>';
+
+      blocos.push(`<div class="bc-bloco">
+        <h4>${escapaHtml(c.nome)}</h4>
+        <div class="nota" style="margin-bottom:8px">
+          ${fmtDataCompleta(c.data_inicio)} a ${fmtDataCompleta(c.data_fim)} ·
+          corte: ${c.pontos_corte == null ? "todos participam" : "menos de " + fmtNum(c.pontos_corte) + " pontos"} ·
+          ${c.tipo_tarefas === "positivas" ? "tarefas que ganham ponto"
+            : c.tipo_tarefas === "negativas" ? "tarefas que perdem ponto" : "todas as tarefas"} ·
+          ${(eleg || []).length} elegívei(s)
+        </div>
+
+        <div class="bc-secao">GRUPOS E FAIXAS</div>
+        ${htmlGrupos}
+        <div class="bc-linha">
+          <div style="flex:1.4"><span class="rot">nome do grupo</span>
+            <input id="gr_n_${c.id}" maxlength="30" placeholder="Grupo A"></div>
+          <div style="flex:1"><span class="rot">de (pontos)</span>
+            <input type="number" id="gr_min_${c.id}" placeholder="vazio"></div>
+          <div style="flex:1"><span class="rot">até</span>
+            <input type="number" id="gr_max_${c.id}" placeholder="vazio"></div>
+          <button type="button" class="btn-mini" data-bcaddgrupo="${c.id}"
+            style="border:1px solid rgba(0,123,142,0.35);border-radius:10px;min-height:40px">+ grupo</button>
+        </div>
+
+        <div class="bc-secao">CICLOS DE APURAÇÃO</div>
+        ${htmlCiclos}
+        <div class="bc-linha">
+          <div style="flex:1"><span class="rot">início</span>
+            <input type="date" id="ci_i_${c.id}"></div>
+          <div style="flex:1"><span class="rot">fim</span>
+            <input type="date" id="ci_f_${c.id}"></div>
+          <button type="button" class="btn-mini" data-bcaddciclo="${c.id}"
+            style="border:1px solid rgba(0,123,142,0.35);border-radius:10px;min-height:40px">+ ciclo</button>
+        </div>
+
+        <div class="rep-acoes" style="margin-top:10px">
+          <button type="button" class="btn-salvar-regras" data-bcentrada="${c.id}">Apurar entrada</button>
+          <button type="button" class="btn-apurar" data-bcdel="${c.id}"
+            style="color:var(--texto-mutado);border-color:var(--borda-card)">Excluir campanha</button>
+        </div>
+      </div>`);
+    }
+    $("bcLista").innerHTML = blocos.join("");
+  } catch (e) {
+    $("bcLista").innerHTML = '<div class="nota">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+
+function somaDias(iso, n) {
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return dataLocalISO(d);
+}
+
+$("btnBcCriar").addEventListener("click", async () => {
+  limpaAviso("avisoBc");
+  const ed = desafio || edicaoVistaObj();
+  if (!ed) { aviso("avisoBc", "erro", "Não há edição ativa."); return; }
+  const nome = $("bcNome").value.trim();
+  const ini = $("bcIni").value, fim = $("bcFim").value;
+  if (!nome) { aviso("avisoBc", "erro", "Dê um nome à campanha."); return; }
+  if (!ini || !fim) { aviso("avisoBc", "erro", "Informe as duas datas."); return; }
+  if (fim < ini) { aviso("avisoBc", "erro", "A data final não pode ser anterior à inicial."); return; }
+  const btn = $("btnBcCriar"); btn.disabled = true;
+  try {
+    await api("/rest/v1/bonus_consistencia", {
+      method: "POST", headers: { "Prefer": "return=minimal" },
+      body: JSON.stringify({
+        desafio_id: ed.id, nome: nome, data_inicio: ini, data_fim: fim,
+        pontos_corte: $("bcCorte").value === "" ? null : Number($("bcCorte").value),
+        tipo_tarefas: $("bcTipo").value
+      })
+    });
+    aviso("avisoBc", "ok", "Campanha criada. Agora cadastre os grupos, as faixas e os ciclos.");
+    $("bcNome").value = ""; $("bcCorte").value = "";
+    limpaCache();
+    await adCarregaBonusCons();
+  } catch (e) {
+    aviso("avisoBc", "erro", "Não foi possível criar: " + e.message);
+  } finally { btn.disabled = false; }
+});
+
+$("bcLista").addEventListener("click", async ev => {
+  const t = ev.target;
+  if (!t || !t.dataset) return;
+  limpaAviso("avisoBc");
+  const d = t.dataset;
+
+  try {
+    if (d.bcaddgrupo) {
+      const id = d.bcaddgrupo;
+      const nome = $("gr_n_" + id).value.trim();
+      if (!nome) { aviso("avisoBc", "erro", "Dê um nome ao grupo."); return; }
+      const mn = $("gr_min_" + id).value, mx = $("gr_max_" + id).value;
+      if (mn !== "" && mx !== "" && Number(mx) < Number(mn)) {
+        aviso("avisoBc", "erro", "O valor final não pode ser menor que o inicial."); return;
+      }
+      const qtd = (bcCache[id] && bcCache[id]._grupos ? bcCache[id]._grupos.length : 0) + 1;
+      await api("/rest/v1/bonus_grupos", {
+        method: "POST", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({
+          bonus_id: id, nome: nome, ordem: qtd,
+          pontos_min: mn === "" ? null : Number(mn),
+          pontos_max: mx === "" ? null : Number(mx)
+        })
+      });
+      aviso("avisoBc", "ok", "Grupo criado. Agora adicione as faixas de exigência dele.");
+    }
+
+    else if (d.bcaddfaixa) {
+      const g = d.bcaddfaixa;
+      const tar = $("fx_t_" + g).value, pts = $("fx_p_" + g).value;
+      if (tar === "" || pts === "") { aviso("avisoBc", "erro", "Informe as tarefas por dia e os pontos."); return; }
+      if (Number(tar) < 1) { aviso("avisoBc", "erro", "A exigência precisa ser de ao menos 1 tarefa."); return; }
+      await api("/rest/v1/bonus_faixas", {
+        method: "POST", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({ grupo_id: g, tarefas_por_dia: Number(tar), pontos: Number(pts) })
+      });
+      aviso("avisoBc", "ok", "Faixa adicionada.");
+    }
+
+    else if (d.bcaddciclo) {
+      const id = d.bcaddciclo;
+      const ini = $("ci_i_" + id).value, fim = $("ci_f_" + id).value;
+      if (!ini || !fim) { aviso("avisoBc", "erro", "Informe as duas datas do ciclo."); return; }
+      if (fim < ini) { aviso("avisoBc", "erro", "A data final não pode ser anterior à inicial."); return; }
+      const c = bcCache[id];
+      if (c && (ini < c.data_inicio || fim > c.data_fim)) {
+        aviso("avisoBc", "erro", "O ciclo precisa estar dentro do período da campanha (" +
+          fmtDataCompleta(c.data_inicio) + " a " + fmtDataCompleta(c.data_fim) + ").");
+        return;
+      }
+      await api("/rest/v1/bonus_ciclos", {
+        method: "POST", headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({ bonus_id: id, data_inicio: ini, data_fim: fim })
+      });
+      aviso("avisoBc", "ok", "Ciclo criado. A apuração acontece dois dias após o fim dele.");
+    }
+
+    else if (d.bcdelgrupo) {
+      if (!confirm("Remover este grupo e as faixas dele?")) return;
+      await api("/rest/v1/bonus_grupos?id=eq." + d.bcdelgrupo, { method: "DELETE" });
+    }
+    else if (d.bcdelfaixa) {
+      await api("/rest/v1/bonus_faixas?id=eq." + d.bcdelfaixa, { method: "DELETE" });
+    }
+    else if (d.bcdelciclo) {
+      if (!confirm("Remover este ciclo? Os bônus já concedidos nele serão apagados.")) return;
+      await api("/rest/v1/bonus_ciclos?id=eq." + d.bcdelciclo, { method: "DELETE" });
+    }
+    else if (d.bcdel) {
+      if (!confirm("Excluir a campanha inteira? Grupos, faixas, ciclos e bônus concedidos serão apagados.")) return;
+      await api("/rest/v1/bonus_consistencia?id=eq." + d.bcdel, { method: "DELETE" });
+    }
+
+    else if (d.bcentrada) {
+      const c = bcCache[d.bcentrada];
+      if (c && (!c._grupos || !c._grupos.length)) {
+        aviso("avisoBc", "erro", "Crie ao menos um grupo antes de apurar a entrada."); return;
+      }
+      if (!confirm("Apurar quem tem direito ao bônus?\n\nA lista é congelada a partir da pontuação de agora e vale até o fim da campanha.")) return;
+      const r = await api("/rest/v1/rpc/fn_apurar_entrada_bonus", {
+        method: "POST", body: JSON.stringify({ p_bonus: d.bcentrada })
+      });
+      aviso("avisoBc", "ok", (typeof r === "number" ? r : 0) + " participante(s) com direito ao bônus.");
+    }
+
+    else return;
+
+    limpaCache();
+    await adCarregaBonusCons();
+  } catch (e) {
+    aviso("avisoBc", "erro", "Não foi possível concluir: " + e.message);
   }
 });
 
