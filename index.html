@@ -954,6 +954,27 @@
   .cal-dia.cicloBonus { box-shadow: inset 0 -3px 0 var(--cor-verde-rotina); }
 
   .av-tarefa.bloqueada { opacity: 0.55; cursor: default; border-style: dashed; }
+
+  /* acompanhamento do bonus */
+  .bc-grupo-sit { margin-bottom: 14px; }
+  .bc-grupo-tit { font-family: 'Poppins'; font-weight: 700; font-size: 0.86rem;
+    color: var(--cor-principal); margin-bottom: 2px; }
+  body.tema-escuro .bc-grupo-tit { color: #7FD6E2; }
+  .bc-grupo-faixas { font-size: 0.74rem; color: var(--texto-mutado); margin-bottom: 7px; }
+  .bc-tabela-rolagem { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bc-tabela { border-collapse: collapse; width: 100%; font-size: 0.78rem; }
+  .bc-tabela th { text-align: center; font-weight: 600; color: var(--texto-mutado);
+    font-size: 0.72rem; padding: 4px 6px; white-space: nowrap; }
+  .bc-tabela th small { font-weight: 400; }
+  .bc-nome { padding: 6px 8px 6px 0; white-space: nowrap; font-weight: 600;
+    color: var(--texto-escuro); border-top: 1px solid var(--borda-card); }
+  .bc-nome small { display: block; font-weight: 400; font-size: 0.7rem; color: var(--texto-mutado); }
+  .bc-cel { text-align: center; padding: 6px 4px; border-top: 1px solid var(--borda-card); }
+  .bc-tag { display: inline-block; padding: 3px 8px; border-radius: 20px;
+    font-weight: 700; font-size: 0.7rem; white-space: nowrap; }
+  .bc-dica { display: block; font-size: 0.65rem; color: var(--texto-mutado); margin-top: 2px; }
+  .bc-legenda { font-size: 0.72rem; color: var(--texto-mutado); line-height: 1.6;
+    border-top: 1px dashed var(--borda-card); padding-top: 8px; margin-top: 4px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -5995,6 +6016,110 @@ $("tdLista").addEventListener("click", async ev => {
    fica fixa no codigo. */
 let bcCache = {};
 
+
+/* ---------- painel de acompanhamento do Bonus de Consistencia ----------
+   Mostra, por participante e por ciclo, como esta a consistencia. A conta vem
+   do banco (fn_situacao_bonus), a mesma usada na apuracao oficial, para o
+   painel nunca divergir do resultado real. */
+const BC_SIT = {
+  "conquistado": { rot: "conquistado", cor: "var(--cor-verde-rotina)", fundo: "rgba(139,195,74,0.18)" },
+  "a caminho":   { rot: "a caminho",   cor: "var(--cor-principal)",    fundo: "rgba(0,123,142,0.12)" },
+  "em risco":    { rot: "em risco",    cor: "#b06a00",                 fundo: "rgba(255,152,0,0.20)" },
+  "a apurar":    { rot: "a apurar",    cor: "var(--cor-azul-acao)",    fundo: "rgba(0,188,212,0.14)" },
+  "perdido":     { rot: "perdido",     cor: "var(--texto-mutado)",     fundo: "rgba(96,125,139,0.14)" },
+  "aguardando":  { rot: "aguardando",  cor: "var(--texto-mutado)",     fundo: "rgba(96,125,139,0.08)" }
+};
+
+async function bcCarregaSituacao(bonusId) {
+  const alvo = $("bcSit_" + bonusId);
+  if (!alvo) return;
+  try {
+    const linhas = await api("/rest/v1/rpc/fn_situacao_bonus", {
+      method: "POST", body: JSON.stringify({ p_bonus: bonusId })
+    });
+    if (!linhas || !linhas.length) {
+      alvo.innerHTML = '<div class="nota">Nenhum participante elegível nesta campanha.</div>';
+      return;
+    }
+
+    // ciclos na ordem, para virar as colunas
+    const ciclos = [];
+    linhas.forEach(l => {
+      if (!ciclos.some(c => c.id === l.ciclo_id)) {
+        ciclos.push({ id: l.ciclo_id, ini: l.ciclo_inicio, fim: l.ciclo_fim });
+      }
+    });
+    ciclos.sort((a, b) => a.ini.localeCompare(b.ini));
+
+    // agrupa por participante, preservando o grupo
+    const porPessoa = {};
+    linhas.forEach(l => {
+      const p = (porPessoa[l.user_id] = porPessoa[l.user_id] ||
+        { nome: l.nome, grupo: l.grupo_nome, base: l.pontos_base, ciclos: {} });
+      p.ciclos[l.ciclo_id] = l;
+    });
+
+    // as faixas possiveis de cada grupo, para mostrar o que esta ao alcance
+    const faixasPorGrupo = {};
+    (bcCache[bonusId] && bcCache[bonusId]._grupos || []).forEach(g => {
+      faixasPorGrupo[g.nome] = (g.bonus_faixas || [])
+        .sort((a, b) => a.tarefas_por_dia - b.tarefas_por_dia)
+        .map(f => f.tarefas_por_dia + " tarefas = +" + fmtNum(f.pontos))
+        .join(" · ");
+    });
+
+    // monta por grupo
+    const gruposOrdem = [];
+    Object.values(porPessoa).forEach(p => {
+      if (!gruposOrdem.includes(p.grupo)) gruposOrdem.push(p.grupo);
+    });
+
+    const html = gruposOrdem.map(gn => {
+      const pessoas = Object.values(porPessoa)
+        .filter(p => p.grupo === gn)
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt"));
+      const linhasP = pessoas.map(p => {
+        const cels = ciclos.map(ci => {
+          const l = p.ciclos[ci.id];
+          if (!l) return '<td class="bc-cel"></td>';
+          const e = BC_SIT[l.situacao] || BC_SIT["aguardando"];
+          const detalhe = (l.situacao === "conquistado" || l.situacao === "a apurar" || l.situacao === "a caminho")
+            ? (Number(l.pontos_previstos) ? "+" + fmtNum(l.pontos_previstos) : "")
+            : "";
+          const dica = "pior dia até agora: " + l.minimo_ate_agora + " tarefa(s)" +
+            " · " + l.dias_avaliados + " de " + l.dias_do_ciclo + " dias";
+          return `<td class="bc-cel"><span class="bc-tag" style="background:${e.fundo};color:${e.cor}"
+              title="${dica}">${e.rot}${detalhe ? " " + detalhe : ""}</span>
+              <small class="bc-dica">${l.minimo_ate_agora}/dia</small></td>`;
+        }).join("");
+        return `<tr><td class="bc-nome">${escapaHtml(p.nome)}
+            <small>${fmtNum(p.base)} pts na entrada</small></td>${cels}</tr>`;
+      }).join("");
+
+      return `<div class="bc-grupo-sit">
+        <div class="bc-grupo-tit">${escapaHtml(gn || "sem grupo")}</div>
+        ${faixasPorGrupo[gn] ? `<div class="bc-grupo-faixas">${escapaHtml(faixasPorGrupo[gn])}</div>` : ""}
+        <div class="bc-tabela-rolagem">
+          <table class="bc-tabela">
+            <tr><th></th>${ciclos.map(c =>
+              `<th>${fmtDia(c.ini)}<br><small>a ${fmtDia(c.fim)}</small></th>`).join("")}</tr>
+            ${linhasP}
+          </table>
+        </div>
+      </div>`;
+    }).join("");
+
+    alvo.innerHTML = html + `<div class="bc-legenda">
+      <span style="color:var(--cor-principal)">a caminho</span>: dentro da exigência ·
+      <span style="color:#b06a00">em risco</span>: falta lançar hoje ou ontem ·
+      <span style="color:var(--texto-mutado)">perdido</span>: já ficou abaixo em dia fechado ·
+      <span style="color:var(--cor-verde-rotina)">conquistado</span>: bônus creditado
+    </div>`;
+  } catch (e) {
+    alvo.innerHTML = '<div class="nota">Não foi possível carregar o acompanhamento: ' + e.message + '</div>';
+  }
+}
+
 async function adCarregaBonusCons() {
   $("bcLista").innerHTML = skelHtml(2, 60);
   const ed = desafio || edicaoVistaObj();
@@ -6092,6 +6217,11 @@ async function adCarregaBonusCons() {
             style="border:1px solid rgba(0,123,142,0.35);border-radius:10px;min-height:40px">+ ciclo</button>
         </div>
 
+        <div class="bc-secao">ACOMPANHAMENTO DOS PARTICIPANTES</div>
+        <div id="bcSit_${c.id}">${c.apurado_em
+          ? '<div class="nota">Carregando...</div>'
+          : '<div class="nota">Apure a entrada para ver quem participa e como cada um está indo.</div>'}</div>
+
         <div class="rep-acoes" style="margin-top:10px">
           <button type="button" class="btn-salvar-regras" data-bcentrada="${c.id}">Apurar entrada</button>
           <button type="button" class="btn-apurar" data-bcdel="${c.id}"
@@ -6100,6 +6230,10 @@ async function adCarregaBonusCons() {
       </div>`);
     }
     $("bcLista").innerHTML = blocos.join("");
+    // o acompanhamento so faz sentido depois da apuracao de entrada
+    for (const c of campanhas) {
+      if (c.apurado_em) bcCarregaSituacao(c.id);
+    }
   } catch (e) {
     $("bcLista").innerHTML = '<div class="nota">Erro ao carregar: ' + e.message + '</div>';
   }
@@ -6221,7 +6355,8 @@ $("bcLista").addEventListener("click", async ev => {
       const r = await api("/rest/v1/rpc/fn_apurar_entrada_bonus", {
         method: "POST", body: JSON.stringify({ p_bonus: d.bcentrada })
       });
-      aviso("avisoBc", "ok", (typeof r === "number" ? r : 0) + " participante(s) com direito ao bônus.");
+      aviso("avisoBc", "ok", (typeof r === "number" ? r : 0) +
+        " participante(s) com direito ao bônus. O acompanhamento de cada um aparece abaixo.");
     }
 
     else return;
